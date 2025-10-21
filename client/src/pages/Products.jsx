@@ -145,7 +145,7 @@ export default function Products() {
                   <div className="card overflow-hidden h-full flex flex-col">
                     <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
                       <img
-                        src={product.images[0]?.url || 'https://via.placeholder.com/400x500'}
+                        src={product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%23f0f0f0" width="400" height="500"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
                         alt={product.name}
                         className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500"
                       />
