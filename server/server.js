@@ -21,7 +21,8 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://vybe-sigma.vercel.app'
+  'https://vybe-sigma.vercel.app',
+  process.env.CLIENT_URL
 ];
 
 app.use(cors({
@@ -29,8 +30,11 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
     
-    // Check if origin is in allowed list or is a vercel deployment
-    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    // Check if origin is in allowed list or is any vercel deployment
+    const isVercel = origin && (origin.includes('.vercel.app') || origin.includes('vercel.app'));
+    const isAllowed = allowedOrigins.includes(origin);
+    
+    if (isAllowed || isVercel) {
       callback(null, true);
     } else {
       callback(null, true); // Allow all for now during debugging
