@@ -19,18 +19,18 @@ const createAdmin = async () => {
     }));
 
     // Check if admin already exists
-    const existingAdmin = await User.findOne({ email: 'admin@vybe.com' });
+    const existingAdmin = await User.findOne({ email: 'rayhan@vybe.com' });
     if (existingAdmin) {
       console.log('⚠️  Admin user already exists!');
       process.exit(0);
     }
 
     // Create admin with hashed password
-    const hashedPassword = await bcrypt.hash('admin123', 12);
+    const hashedPassword = await bcrypt.hash('ray163', 12);
     
     const admin = await User.create({
-      name: 'Admin',
-      email: 'admin@vybe.com',
+      name: 'Rayhan',
+      email: 'rayhan@vybe.com',
       password: hashedPassword,
       role: 'admin',
       createdAt: new Date(),
@@ -38,8 +38,8 @@ const createAdmin = async () => {
     });
 
     console.log('✅ Admin user created successfully!');
-    console.log('📧 Email: admin@vybe.com');
-    console.log('🔑 Password: admin123');
+    console.log('📧 Email: rayhan@vybe.com');
+    console.log('🔑 Password: ray163');
     console.log('🎯 Login at: http://localhost:3000/login');
     
     process.exit(0);
