@@ -73,21 +73,21 @@ export default function Home() {
             >
               <div className="absolute top-0 right-0 w-64 h-80 rounded-2xl overflow-hidden shadow-2xl transform rotate-6 hover:rotate-0 transition-transform duration-500 animate-float">
                 <img 
-                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761062355/vybe-products/vt2iqtsyylgwyfslyktf.jpg" 
-                  alt="Cristiano Ronaldo CR7"
+                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761064327/vybe-products/av6wq6o2rhvok6wy8qh1.jpg" 
+                  alt="Neymar Jr"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute top-20 left-0 w-56 h-72 rounded-2xl overflow-hidden shadow-2xl transform -rotate-6 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '2s' }}>
                 <img 
-                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761062285/vybe-products/q4tatclc8xeuqlxunxav.jpg" 
-                  alt="Cristiano Ronaldo Madrid"
+                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761064277/vybe-products/iibukgqyaytxm9ftdho4.jpg" 
+                  alt="Messi LM-10"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute bottom-10 right-20 w-48 h-64 rounded-2xl overflow-hidden shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '4s' }}>
                 <img 
-                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761035347/vybe-products/jfnu9vrkmxl6p4kcsusa.jpg" 
+                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761064162/vybe-products/xio9aqatcknmkis2burp.jpg" 
                   alt="Cristiano Ronaldo"
                   className="w-full h-full object-cover"
                 />
