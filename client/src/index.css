@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  body {
+    @apply font-sans antialiased text-gray-900 bg-gray-50;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-vybe-purple to-vybe-pink text-white font-semibold rounded-full 
+           hover:shadow-lg hover:scale-105 transform transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-vybe-purple focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-white text-vybe-purple font-semibold rounded-full border-2 border-vybe-purple
+           hover:bg-vybe-purple hover:text-white transform hover:scale-105 transition-all duration-300
+           focus:outline-none focus:ring-2 focus:ring-vybe-purple focus:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply px-6 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-full
+           hover:border-vybe-purple hover:text-vybe-purple transition-all duration-300
+           focus:outline-none focus:ring-2 focus:ring-vybe-purple focus:ring-offset-2;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none 
+           focus:ring-2 focus:ring-vybe-purple focus:border-transparent transition-all;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-vybe-purple to-vybe-pink bg-clip-text text-transparent;
+  }
+
+  .section-title {
+    @apply text-4xl md:text-5xl font-bold text-gray-900 mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl text-gray-600 mb-8;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white bg-opacity-80 backdrop-blur-lg;
+  }
+
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-8 transition-all duration-700;
+  }
+
+  .animate-on-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #5568d3 0%, #63408b 100%);
+}
