@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onren
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     'Content-Type': 'application/json',
   },
