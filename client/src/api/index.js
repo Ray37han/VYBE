@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://your-backend.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -18,18 +18,6 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
-// Add response interceptor for error handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear token on unauthorized
-      localStorage.removeItem('token');
-    }
-    return Promise.reject(error);
-  }
-);
 
 // Auth API
 export const authAPI = {
