@@ -73,22 +73,22 @@ export default function Home() {
             >
               <div className="absolute top-0 right-0 w-64 h-80 rounded-2xl overflow-hidden shadow-2xl transform rotate-6 hover:rotate-0 transition-transform duration-500 animate-float">
                 <img 
-                  src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=500&fit=crop" 
-                  alt="Modern Wall Art"
+                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761062355/vybe-products/vt2iqtsyylgwyfslyktf.jpg" 
+                  alt="Cristiano Ronaldo CR7"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute top-20 left-0 w-56 h-72 rounded-2xl overflow-hidden shadow-2xl transform -rotate-6 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '2s' }}>
                 <img 
-                  src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=350&h=450&fit=crop" 
-                  alt="Abstract Art"
+                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761062285/vybe-products/q4tatclc8xeuqlxunxav.jpg" 
+                  alt="Cristiano Ronaldo Madrid"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute bottom-10 right-20 w-48 h-64 rounded-2xl overflow-hidden shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-500 animate-float" style={{ animationDelay: '4s' }}>
                 <img 
-                  src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=400&fit=crop" 
-                  alt="Minimalist Design"
+                  src="https://res.cloudinary.com/dyonj35w3/image/upload/v1761035347/vybe-products/jfnu9vrkmxl6p4kcsusa.jpg" 
+                  alt="Cristiano Ronaldo"
                   className="w-full h-full object-cover"
                 />
               </div>
