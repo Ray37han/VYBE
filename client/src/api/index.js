@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onren
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: false,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,6 +18,18 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear token on unauthorized
+      localStorage.removeItem('token');
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth API
 export const authAPI = {
