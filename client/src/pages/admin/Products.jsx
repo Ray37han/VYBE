@@ -7,6 +7,7 @@ export default function AdminProducts() {
   const [showModal, setShowModal] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -35,6 +36,24 @@ export default function AdminProducts() {
     { name: 'A3', dimensions: '11.7 x 16.5 inches' },
     { name: 'A2', dimensions: '16.5 x 23.4 inches' }
   ];
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    setDarkMode(savedTheme ? savedTheme === 'dark' : true);
+
+    const handleThemeChange = () => {
+      const currentTheme = localStorage.getItem('theme');
+      setDarkMode(currentTheme === 'dark');
+    };
+
+    window.addEventListener('storage', handleThemeChange);
+    window.addEventListener('themeChange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('storage', handleThemeChange);
+      window.removeEventListener('themeChange', handleThemeChange);
+    };
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -219,30 +238,68 @@ export default function AdminProducts() {
   };
 
   return (
-    <div className="pt-24 pb-12 min-h-screen bg-gray-50">
+    <div className={`pt-24 pb-12 min-h-screen transition-colors duration-500 ${
+      darkMode
+        ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
+        : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="section-title">Product Management</h1>
-          <button 
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={`text-4xl font-bold ${
+              darkMode
+                ? 'moon-gradient-text animate-glow'
+                : 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
+            }`}
+          >
+            Product Management
+          </motion.h1>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               resetForm();
               setShowModal(true);
             }} 
-            className="btn-primary"
+            className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl ${
+              darkMode
+                ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-moon-gold/50'
+                : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-purple-500/50'
+            }`}
           >
             Add New Product
-          </button>
+          </motion.button>
         </div>
 
         {/* Products List */}
         {loading && !showModal ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className={`rounded-full h-12 w-12 border-4 ${
+                darkMode
+                  ? 'border-moon-gold/20 border-t-moon-gold'
+                  : 'border-purple-200 border-t-purple-600'
+              }`}
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map(product => (
-              <div key={product._id} className="card overflow-hidden">
+            {products.map((product, index) => (
+              <motion.div 
+                key={product._id} 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={`overflow-hidden rounded-2xl shadow-lg transition-all duration-500 hover:shadow-xl hover:translate-y-[-4px] ${
+                  darkMode
+                    ? 'bg-moon-midnight/50 border border-moon-gold/20'
+                    : 'bg-white border border-purple-100'
+                }`}
+              >
                 {product.images?.[0] && (
                   <img 
                     src={product.images[0].url} 
@@ -252,36 +309,48 @@ export default function AdminProducts() {
                 )}
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
+                    <h3 className={`font-semibold text-lg ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>{product.name}</h3>
                     {product.featured && (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        darkMode
+                          ? 'bg-yellow-500/20 text-yellow-300'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
                         Featured
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  <p className={`text-sm mb-2 line-clamp-2 ${darkMode ? 'text-moon-silver/60' : 'text-gray-600'}`}>
                     {product.description}
                   </p>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-purple-600 font-bold">৳{product.basePrice}</span>
-                    <span className="text-sm text-gray-500">Stock: {product.stock}</span>
+                    <span className={`font-bold ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>৳{product.basePrice}</span>
+                    <span className={`text-sm ${darkMode ? 'text-moon-silver/50' : 'text-gray-500'}`}>Stock: {product.stock}</span>
                   </div>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => handleEdit(product)}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      className={`flex-1 px-3 py-2 rounded-lg transition-all duration-300 text-sm font-semibold ${
+                        darkMode
+                          ? 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
                     >
                       Edit
                     </button>
                     <button 
                       onClick={() => handleDelete(product._id)}
-                      className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                      className={`flex-1 px-3 py-2 rounded-lg transition-all duration-300 text-sm font-semibold ${
+                        darkMode
+                          ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30'
+                          : 'bg-red-600 text-white hover:bg-red-700'
+                      }`}
                     >
                       Delete
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -300,7 +369,7 @@ export default function AdminProducts() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
             onClick={() => {
               setShowModal(false);
               resetForm();
@@ -310,11 +379,16 @@ export default function AdminProducts() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8"
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className={`rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8 border ${
+                darkMode 
+                  ? 'bg-moon-midnight border-moon-gold/30' 
+                  : 'bg-white border-purple-100'
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">
+                <h2 className={`text-2xl font-bold ${darkMode ? 'text-moon-gold' : 'text-gray-900'}`}>
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h2>
                 <button 
@@ -322,7 +396,7 @@ export default function AdminProducts() {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className={`text-2xl ${darkMode ? 'text-moon-silver hover:text-moon-gold' : 'text-gray-500 hover:text-gray-700'}`}
                 >
                   ×
                 </button>
@@ -332,7 +406,7 @@ export default function AdminProducts() {
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                       Product Name *
                     </label>
                     <input
@@ -340,23 +414,31 @@ export default function AdminProducts() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                        darkMode 
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                      }`}
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                       Category *
                     </label>
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                        darkMode 
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:ring-moon-gold' 
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                      }`}
                     >
                       {categories.map(cat => (
-                        <option key={cat} value={cat}>
+                        <option key={cat} value={cat} className={darkMode ? 'bg-moon-midnight text-moon-silver' : ''}>
                           {cat.charAt(0).toUpperCase() + cat.slice(1)}
                         </option>
                       ))}
@@ -365,7 +447,7 @@ export default function AdminProducts() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                     Description *
                   </label>
                   <textarea
@@ -373,14 +455,18 @@ export default function AdminProducts() {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                      darkMode 
+                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                        : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                    }`}
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                       Base Price (৳) *
                     </label>
                     <input
@@ -388,13 +474,17 @@ export default function AdminProducts() {
                       name="basePrice"
                       value={formData.basePrice}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                        darkMode 
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                      }`}
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                       Stock *
                     </label>
                     <input
@@ -402,13 +492,17 @@ export default function AdminProducts() {
                       name="stock"
                       value={formData.stock}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                        darkMode 
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                      }`}
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                       Tags (comma separated)
                     </label>
                     <input
@@ -417,7 +511,11 @@ export default function AdminProducts() {
                       value={formData.tags}
                       onChange={handleInputChange}
                       placeholder="poster, art, modern"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                        darkMode 
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                      }`}
                     />
                   </div>
                 </div>
@@ -425,11 +523,11 @@ export default function AdminProducts() {
                 {/* Sizes */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium">Sizes & Pricing</label>
+                    <label className={`block text-sm font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>Sizes & Pricing</label>
                     <button
                       type="button"
                       onClick={addSize}
-                      className="text-sm text-purple-600 hover:text-purple-700"
+                      className={`text-sm ${darkMode ? 'text-moon-gold hover:text-moon-silver' : 'text-purple-600 hover:text-purple-700'}`}
                     >
                       + Add Size
                     </button>
@@ -446,11 +544,15 @@ export default function AdminProducts() {
                               handleSizeChange(index, 'dimensions', selected.dimensions);
                             }
                           }}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                          className={`flex-1 px-3 py-2 border rounded-lg ${
+                            darkMode 
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
                         >
-                          <option value="">Select Size</option>
+                          <option value="" className={darkMode ? 'bg-moon-midnight' : ''}>Select Size</option>
                           {sizeOptions.map(opt => (
-                            <option key={opt.name} value={opt.name}>{opt.name}</option>
+                            <option key={opt.name} value={opt.name} className={darkMode ? 'bg-moon-midnight text-moon-silver' : ''}>{opt.name}</option>
                           ))}
                         </select>
                         <input
@@ -458,20 +560,32 @@ export default function AdminProducts() {
                           value={size.dimensions}
                           onChange={(e) => handleSizeChange(index, 'dimensions', e.target.value)}
                           placeholder="Dimensions"
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                          className={`flex-1 px-3 py-2 border rounded-lg ${
+                            darkMode 
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
                         />
                         <input
                           type="number"
                           value={size.price}
                           onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
                           placeholder="Price"
-                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg"
+                          className={`w-24 px-3 py-2 border rounded-lg ${
+                            darkMode 
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40' 
+                              : 'bg-white border-gray-300 text-gray-900'
+                          }`}
                         />
                         {formData.sizes.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeSize(index)}
-                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            className={`px-3 py-2 rounded-lg ${
+                              darkMode 
+                                ? 'text-red-400 hover:bg-red-500/20' 
+                                : 'text-red-600 hover:bg-red-50'
+                            }`}
                           >
                             ×
                           </button>
@@ -483,7 +597,7 @@ export default function AdminProducts() {
 
                 {/* Images */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                     Product Images * (Max 5, 5MB each)
                   </label>
                   <input
@@ -491,7 +605,11 @@ export default function AdminProducts() {
                     accept="image/*"
                     multiple
                     onChange={handleImageChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    className={`w-full px-4 py-2 border rounded-lg ${
+                      darkMode 
+                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                   {imagePreviews.length > 0 && (
                     <div className="grid grid-cols-5 gap-2 mt-4">
@@ -517,38 +635,67 @@ export default function AdminProducts() {
 
                 {/* Checkboxes */}
                 <div className="flex gap-6">
-                  <label className="flex items-center gap-2">
+                  <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                     <input
                       type="checkbox"
                       name="featured"
                       checked={formData.featured}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600"
+                      className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'text-purple-600'}`}
                     />
                     <span className="text-sm">Featured Product</span>
                   </label>
 
-                  <label className="flex items-center gap-2">
+                  <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                     <input
                       type="checkbox"
                       name="customizable"
                       checked={formData.customizable}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600"
+                      className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'text-purple-600'}`}
                     />
                     <span className="text-sm">Allow Customization</span>
                   </label>
 
-                  <label className="flex items-center gap-2">
+                  <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                     <input
                       type="checkbox"
                       name="isActive"
                       checked={formData.isActive}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600"
+                      className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'text-purple-600'}`}
                     />
                     <span className="text-sm">Active</span>
                   </label>
+                </div>
+
+                {/* Submit Buttons */}
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={`flex-1 px-4 py-2 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed ${
+                      darkMode 
+                        ? 'bg-gradient-to-r from-moon-gold to-moon-mystical text-moon-night hover:shadow-lg hover:shadow-moon-gold/50' 
+                        : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
+                    }`}
+                  >
+                    {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Create Product')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowModal(false);
+                      resetForm();
+                    }}
+                    className={`flex-1 px-4 py-2 border rounded-lg ${
+                      darkMode 
+                        ? 'border-moon-gold/30 text-moon-silver hover:bg-moon-gold/20' 
+                        : 'border-gray-300 text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    Cancel
+                  </button>
                 </div>
 
                 {/* Submit Buttons */}
