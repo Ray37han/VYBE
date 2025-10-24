@@ -35,6 +35,11 @@ export const productsAPI = {
   addReview: (id, data) => api.post(`/products/${id}/review`, data).then(res => res.data),
 };
 
+// Featured Posters API (Public)
+export const featuredPostersAPI = {
+  getAll: () => api.get('/featured-posters').then(res => res.data),
+};
+
 // Cart API
 export const cartAPI = {
   get: () => api.get('/cart'),
@@ -84,6 +89,12 @@ export const adminAPI = {
   updateUser: (id, data) => api.put(`/admin/users/${id}`, data).then(res => res.data),
   updateUserRole: (id, data) => api.put(`/admin/users/${id}/role`, data).then(res => res.data),
   deleteUser: (id) => api.delete(`/admin/users/${id}`).then(res => res.data),
+
+  // Featured Posters (admin methods using /api/featured-posters route)
+  get: (endpoint) => api.get(endpoint),
+  post: (endpoint, data) => api.post(endpoint, data),
+  put: (endpoint, data) => api.put(endpoint, data),
+  delete: (endpoint) => api.delete(endpoint),
 };
 
 export default api;

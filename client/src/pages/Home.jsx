@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'fra
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, EffectCreative, EffectCoverflow, Navigation } from 'swiper/modules';
 import { FiShoppingCart, FiStar, FiTruck, FiAward, FiZap, FiMoon, FiSun } from 'react-icons/fi';
-import { productsAPI } from '../api';
+import { productsAPI, featuredPostersAPI } from '../api';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-creative';
@@ -33,68 +33,9 @@ const Snowflake = ({ delay, duration, left }) => (
   </motion.div>
 );
 
-// Poster Gallery Data - Football Players & Cars
-const POSTER_GALLERY = [
-  {
-    id: 1,
-    title: "Cristiano Ronaldo",
-    category: "Football Icon",
-    image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=800&fit=crop",
-    color: "from-red-600 to-orange-500"
-  },
-  {
-    id: 2,
-    title: "Lionel Messi",
-    category: "Football GOAT",
-    image: "https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=600&h=800&fit=crop",
-    color: "from-blue-600 to-cyan-500"
-  },
-  {
-    id: 3,
-    title: "Lamborghini Aventador",
-    category: "Supercar",
-    image: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&h=800&fit=crop",
-    color: "from-yellow-500 to-orange-600"
-  },
-  {
-    id: 4,
-    title: "Neymar Jr",
-    category: "Football Star",
-    image: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?w=600&h=800&fit=crop",
-    color: "from-green-500 to-teal-500"
-  },
-  {
-    id: 5,
-    title: "Ferrari F8 Tributo",
-    category: "Italian Masterpiece",
-    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&h=800&fit=crop",
-    color: "from-red-700 to-pink-600"
-  },
-  {
-    id: 6,
-    title: "Kylian Mbappé",
-    category: "Speed Demon",
-    image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=800&fit=crop",
-    color: "from-purple-600 to-blue-600"
-  },
-  {
-    id: 7,
-    title: "Porsche 911 GT3",
-    category: "Racing Beast",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&h=800&fit=crop",
-    color: "from-gray-700 to-gray-900"
-  },
-  {
-    id: 8,
-    title: "Mohamed Salah",
-    category: "Egyptian King",
-    image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=800&fit=crop",
-    color: "from-red-600 to-yellow-500"
-  }
-];
-
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [posterGallery, setPosterGallery] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snowEnabled, setSnowEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(() => {
@@ -133,18 +74,23 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const fetchFeatured = async () => {
+    const fetchData = async () => {
       try {
-        const response = await productsAPI.getAll({ featured: true, limit: 8 });
-        setFeaturedProducts(response.data || response || []);
+        const [productsResponse, postersResponse] = await Promise.all([
+          productsAPI.getAll({ featured: true, limit: 8 }),
+          featuredPostersAPI.getAll()
+        ]);
+        
+        setFeaturedProducts(productsResponse.data || productsResponse || []);
+        setPosterGallery(postersResponse.data || postersResponse || []);
       } catch (error) {
-        console.error('Error fetching featured products:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFeatured();
+    fetchData();
   }, []);
 
   return (
@@ -471,8 +417,8 @@ export default function Home() {
             navigation={true}
             className="poster-gallery-swiper"
           >
-            {POSTER_GALLERY.map((poster, index) => (
-              <SwiperSlide key={poster.id} style={{ width: '350px', height: '500px' }}>
+            {posterGallery.map((poster, index) => (
+              <SwiperSlide key={poster._id} style={{ width: '350px', height: '500px' }}>
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -488,7 +434,7 @@ export default function Home() {
                   />
                   
                   {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-t ${poster.color} opacity-60 group-hover:opacity-40 transition-opacity duration-500`}></div>
+                  <div className={`absolute inset-0 bg-gradient-to-t ${poster.colorGradient} opacity-60 group-hover:opacity-40 transition-opacity duration-500`}></div>
                   
                   {/* Content */}
                   {/* Image */}

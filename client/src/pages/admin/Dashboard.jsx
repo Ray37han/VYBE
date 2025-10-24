@@ -87,7 +87,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid md:grid-cols-4 gap-4 mb-8"
+          className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
         >
           <Link 
             to="/admin/products" 
@@ -118,6 +118,16 @@ export default function AdminDashboard() {
             }`}
           >
             Manage Users
+          </Link>
+          <Link 
+            to="/admin/featured-posters" 
+            className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
+              darkMode
+                ? 'bg-moon-midnight/50 border-moon-mystical/50 text-moon-silver hover:bg-moon-blue/50 hover:border-moon-mystical'
+                : 'bg-white border-pink-300 text-pink-700 hover:bg-pink-50 hover:border-pink-500'
+            }`}
+          >
+            Featured Posters
           </Link>
           <Link 
             to="/products" 

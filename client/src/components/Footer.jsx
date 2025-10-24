@@ -41,7 +41,7 @@ export default function Footer() {
               Transform your space with personalized art that reflects your unique style.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className={`transition ${
+              <a href="https://www.facebook.com/profile.php?id=61580594942475" target="_blank" rel="noopener noreferrer" className={`transition ${
                 darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
               }`}>
                 <FaFacebook className="w-6 h-6" />
