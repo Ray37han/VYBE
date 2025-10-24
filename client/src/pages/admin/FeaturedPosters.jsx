@@ -60,7 +60,7 @@ export default function FeaturedPosters() {
 
   const fetchPosters = async () => {
     try {
-      const response = await adminAPI.get('/featured-posters/all');
+      const response = await adminAPI.get('/featured-posters/admin/all');
       setPosters(response.data);
     } catch (error) {
       console.error('Error fetching posters:', error);
