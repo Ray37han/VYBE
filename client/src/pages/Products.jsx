@@ -319,6 +319,20 @@ export default function Products() {
                         alt={product.name}
                         className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-700 ease-out"
                       />
+                      
+                      {/* Discount Badge */}
+                      <motion.span
+                        initial={{ scale: 0, rotate: -45 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        className={`absolute top-4 left-4 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg ${
+                          darkMode
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                            : 'bg-gradient-to-r from-green-600 to-emerald-700'
+                        }`}
+                      >
+                        🎉 25% OFF
+                      </motion.span>
+                      
                       {product.customizable && (
                         <motion.span
                           initial={{ scale: 0 }}
@@ -365,11 +379,25 @@ export default function Products() {
                       <div className={`flex items-center justify-between pt-3 border-t ${
                         darkMode ? 'border-moon-gold/20' : 'border-purple-100'
                       }`}>
-                        <span className={`text-2xl font-bold animate-glow ${
-                          darkMode ? 'text-moon-gold' : 'text-purple-600'
-                        }`}>
-                          ৳{product.basePrice}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-2xl font-bold animate-glow ${
+                              darkMode ? 'text-moon-gold' : 'text-purple-600'
+                            }`}>
+                              ৳{product.basePrice}
+                            </span>
+                            <span className={`text-sm line-through ${
+                              darkMode ? 'text-moon-silver/40' : 'text-gray-400'
+                            }`}>
+                              ৳{Math.round(product.basePrice / 0.75)}
+                            </span>
+                          </div>
+                          <span className={`text-xs font-semibold ${
+                            darkMode ? 'text-green-400' : 'text-green-600'
+                          }`}>
+                            25% OFF
+                          </span>
+                        </div>
                         <div className={`flex items-center space-x-1 text-sm ${
                           darkMode ? 'text-moon-silver/80' : 'text-gray-600'
                         }`}>

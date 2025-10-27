@@ -610,9 +610,17 @@ export default function Home() {
                         <div className="p-4">
                           <h3 className="font-semibold text-lg mb-2 truncate text-white">{product.name}</h3>
                           <div className="flex items-center justify-between">
-                            <span className="text-2xl font-bold text-moon-gold">
-                              ৳{product.basePrice}
-                            </span>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl font-bold text-moon-gold">
+                                  ৳{product.basePrice}
+                                </span>
+                                <span className="text-sm text-moon-silver/50 line-through">
+                                  ৳{Math.round(product.basePrice / 0.75)}
+                                </span>
+                              </div>
+                              <span className="text-xs font-bold text-green-400">25% OFF</span>
+                            </div>
                             <div className="flex items-center text-sm text-moon-silver">
                               <FiStar className="w-4 h-4 fill-moon-gold text-moon-gold mr-1" />
                               <span>{product.rating.average.toFixed(1)}</span>

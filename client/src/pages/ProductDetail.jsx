@@ -138,6 +138,13 @@ export default function ProductDetail() {
 
           {/* Details */}
           <div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-full shadow-lg"
+            >
+              🎉 25% OFF - Limited Time!
+            </motion.div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
             <div className="flex items-center mb-4">
               <div className="flex items-center text-yellow-400">
@@ -155,7 +162,15 @@ export default function ProductDetail() {
               </span>
             </div>
             
-            <p className="text-3xl font-bold text-vybe-purple mb-6">৳{currentPrice}</p>
+            <div className="flex items-center gap-4 mb-6">
+              <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
+              <div className="flex flex-col">
+                <span className="text-2xl text-gray-400 line-through">৳{Math.round(currentPrice / 0.75)}</span>
+                <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                  25% OFF
+                </span>
+              </div>
+            </div>
             <p className="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
 
             {/* Size Selection */}
@@ -172,7 +187,17 @@ export default function ProductDetail() {
                         : 'border-gray-300 hover:border-vybe-purple'
                     }`}
                   >
-                    {size.name} - ৳{size.price}
+                    <div className="flex flex-col items-start">
+                      <span className="font-semibold">{size.name}</span>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className={selectedSize === size.name ? 'text-white font-bold' : 'text-vybe-purple font-bold'}>
+                          ৳{size.price}
+                        </span>
+                        <span className="text-xs line-through opacity-60">
+                          ৳{Math.round(size.price / 0.75)}
+                        </span>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>

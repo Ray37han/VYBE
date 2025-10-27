@@ -86,6 +86,8 @@ export default function Cart() {
   }
 
   const subtotal = getTotal();
+  const originalPrice = Math.round(subtotal / 0.75);
+  const savings = originalPrice - subtotal;
   const shipping = subtotal > 1000 ? 0 : 60;
   const total = subtotal + shipping;
 
@@ -128,9 +130,21 @@ export default function Cart() {
                     <p className={`text-sm mb-2 ${
                       darkMode ? 'text-moon-silver/60' : 'text-gray-600'
                     }`}>Size: {item.size}</p>
-                    <p className={`text-lg font-bold ${
-                      darkMode ? 'text-moon-gold' : 'text-purple-600'
-                    }`}>৳{sizePrice}</p>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-lg font-bold ${
+                        darkMode ? 'text-moon-gold' : 'text-purple-600'
+                      }`}>৳{sizePrice}</p>
+                      <span className={`text-xs line-through ${
+                        darkMode ? 'text-moon-silver/40' : 'text-gray-400'
+                      }`}>
+                        ৳{Math.round(sizePrice / 0.75)}
+                      </span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
+                      }`}>
+                        25% OFF
+                      </span>
+                    </div>
                   </div>
                   <div className="flex flex-col items-end justify-between">
                     <button
@@ -180,6 +194,21 @@ export default function Cart() {
               <h2 className={`text-xl font-bold mb-4 ${
                 darkMode ? 'text-moon-silver' : 'text-gray-900'
               }`}>Order Summary</h2>
+              
+              {/* Discount Banner */}
+              <div className={`mb-4 p-3 rounded-lg flex items-center justify-between ${
+                darkMode ? 'bg-green-500/20 border border-green-500/30' : 'bg-green-50 border border-green-200'
+              }`}>
+                <div>
+                  <p className={`text-sm font-bold ${darkMode ? 'text-green-400' : 'text-green-700'}`}>
+                    🎉 You're saving ৳{savings.toFixed(2)}
+                  </p>
+                  <p className={`text-xs ${darkMode ? 'text-green-300/70' : 'text-green-600'}`}>
+                    with 25% off!
+                  </p>
+                </div>
+              </div>
+              
               <div className="space-y-3 mb-4">
                 <div className={`flex justify-between ${
                   darkMode ? 'text-moon-silver/80' : 'text-gray-700'

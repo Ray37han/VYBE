@@ -3,7 +3,7 @@ import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import { protect, authorize } from '../middleware/auth.js';
-import { upload, handleMulterError } from '../middleware/upload.js';
+import { upload, handleMulterError, watermarkImages } from '../middleware/upload.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import { sendOrderStatusUpdate } from '../utils/emailService.js';
 import { sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
@@ -56,9 +56,9 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // @route   POST /api/admin/products
-// @desc    Create new product
+// @desc    Create new product (with automatic watermarking)
 // @access  Private/Admin
-router.post('/products', upload.array('images', 5), handleMulterError, async (req, res) => {
+router.post('/products', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
   try {
     console.log('📦 Product creation request received');
     console.log('Files:', req.files?.length || 0);
@@ -132,9 +132,9 @@ router.post('/products', upload.array('images', 5), handleMulterError, async (re
 });
 
 // @route   PUT /api/admin/products/:id
-// @desc    Update product
+// @desc    Update product (with automatic watermarking)
 // @access  Private/Admin
-router.put('/products/:id', upload.array('images', 5), handleMulterError, async (req, res) => {
+router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     
