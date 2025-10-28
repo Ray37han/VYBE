@@ -15,6 +15,7 @@ import AdminProducts from './pages/admin/Products'
 import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import AdminFeaturedPosters from './pages/admin/FeaturedPosters'
+import AdminHeroItems from './pages/admin/HeroItems'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -71,6 +72,11 @@ function App() {
           <Route path="/admin/featured-posters" element={
             <ProtectedRoute adminOnly>
               <AdminFeaturedPosters />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/hero-items" element={
+            <ProtectedRoute adminOnly>
+              <AdminHeroItems />
             </ProtectedRoute>
           } />
         </Routes>

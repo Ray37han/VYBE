@@ -13,6 +13,7 @@ import paymentRoutes from './routes/payment.js';
 import adminRoutes from './routes/admin.js';
 import featuredPostersRoutes from './routes/featuredPosters.js';
 import imageRoutes from './routes/images.js';
+import heroItemsRoutes from './routes/heroItems.js';
 
 dotenv.config();
 
@@ -93,6 +94,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/featured-posters', featuredPostersRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/hero-items', heroItemsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -36,8 +36,10 @@ const Snowflake = ({ delay, duration, left }) => (
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [posterGallery, setPosterGallery] = useState([]);
+  const [heroItems, setHeroItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snowEnabled, setSnowEnabled] = useState(true);
+  const [activeHeroCard, setActiveHeroCard] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
     return savedTheme ? savedTheme === 'dark' : true;
@@ -76,13 +78,16 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsResponse, postersResponse] = await Promise.all([
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+        const [productsResponse, postersResponse, heroResponse] = await Promise.all([
           productsAPI.getAll({ featured: true, limit: 8 }),
-          featuredPostersAPI.getAll()
+          featuredPostersAPI.getAll(),
+          fetch(`${API_URL}/api/hero-items`).then(res => res.json())
         ]);
         
         setFeaturedProducts(productsResponse.data || productsResponse || []);
         setPosterGallery(postersResponse.data || postersResponse || []);
+        setHeroItems(heroResponse.data || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -232,7 +237,7 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* 3D Floating Poster Cards */}
+            {/* 3D Floating Poster Cards - Dynamic from Hero Items */}
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -240,6 +245,105 @@ export default function Home() {
               className="relative h-[600px] hidden md:block perspective-1000"
               style={{ scale: scaleAnim }}
             >
+              {heroItems.length > 0 && heroItems.every(item => item.product && item.product.images && item.product.images.length > 0) ? (
+                heroItems.map((item) => {
+                  const isActive = activeHeroCard === item._id;
+                  const positionStyles = {
+                    center: {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '18rem',
+                      height: '24rem',
+                      zIndex: isActive ? 50 : 30
+                    },
+                    left: {
+                      top: '6rem',
+                      left: '0',
+                      width: '14rem',
+                      height: '20rem',
+                      zIndex: isActive ? 50 : 20
+                    },
+                    right: {
+                      top: '8rem',
+                      right: '0',
+                      width: '16rem',
+                      height: '22rem',
+                      zIndex: isActive ? 50 : 20
+                    },
+                    bottom: {
+                      bottom: '2.5rem',
+                      left: '25%',
+                      width: '13rem',
+                      height: '18rem',
+                      zIndex: isActive ? 50 : 10
+                    }
+                  };
+
+                  const animationProps = {
+                    center: { y: [0, -20, 0], rotate: [0, 0, 0] },
+                    left: { y: [0, -15, 0], rotate: [-5, -8, -5] },
+                    right: { y: [0, -18, 0], rotate: [5, 8, 5] },
+                    bottom: { y: [0, -12, 0], rotate: [3, -3, 3] }
+                  };
+
+                  return (
+                    <motion.div
+                      key={item._id}
+                      className="absolute rounded-2xl overflow-hidden shadow-2xl poster-card cursor-pointer"
+                      style={positionStyles[item.position]}
+                      animate={
+                        isActive
+                          ? { scale: 1.2, y: 0, rotate: 0 }
+                          : animationProps[item.position]
+                      }
+                      transition={
+                        isActive
+                          ? { type: 'spring', stiffness: 300, damping: 20 }
+                          : {
+                              duration: item.position === 'center' ? 4 : item.position === 'right' ? 4.5 : item.position === 'bottom' ? 6 : 5,
+                              repeat: Infinity,
+                              ease: 'easeInOut'
+                            }
+                      }
+                      onClick={() => setActiveHeroCard(isActive ? null : item._id)}
+                      whileHover={!isActive ? { scale: 1.05, rotate: 0, zIndex: 40 } : {}}
+                    >
+                      <img
+                        src={item.product.images[0].url}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-t ${item.gradient} flex items-end p-4 ${item.position === 'center' ? 'p-6' : ''}`}>
+                        <div className="text-white">
+                          <div className={`font-bold ${item.position === 'center' ? 'text-2xl mb-1' : 'text-lg'}`}>
+                            {item.title}
+                          </div>
+                          {item.position === 'center' && (
+                            <div className="text-moon-gold text-sm">৳{item.product.basePrice}</div>
+                          )}
+                        </div>
+                      </div>
+                      {isActive && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center"
+                        >
+                          <Link
+                            to={`/products/${item.product._id}`}
+                            className="px-6 py-3 bg-white text-gray-900 font-bold rounded-full hover:bg-moon-gold transition-all"
+                          >
+                            View Product
+                          </Link>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  );
+                })
+              ) : (
+                // Fallback to default cards if no hero items
+                <>
               {/* Main Poster - Center */}
               <motion.div
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-96 rounded-2xl overflow-hidden shadow-2xl z-30 poster-card glow-border"
@@ -337,6 +441,8 @@ export default function Home() {
                   <div className="text-white font-bold text-lg">Ferrari Pride</div>
                 </div>
               </motion.div>
+              </>
+              )}
             </motion.div>
           </div>
         </div>

@@ -130,6 +130,16 @@ export default function AdminDashboard() {
             Featured Posters
           </Link>
           <Link 
+            to="/admin/hero-items" 
+            className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
+              darkMode
+                ? 'bg-moon-midnight/50 border-moon-gold/50 text-moon-gold hover:bg-moon-gold/20 hover:border-moon-gold'
+                : 'bg-white border-yellow-300 text-yellow-700 hover:bg-yellow-50 hover:border-yellow-500'
+            }`}
+          >
+            Hero Items
+          </Link>
+          <Link 
             to="/products" 
             className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
               darkMode
