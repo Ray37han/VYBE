@@ -43,13 +43,18 @@ export default function Cart() {
 
   const handleQuantityChange = async (item, newQuantity) => {
     if (newQuantity < 1) return;
-    try {
-      if (isAuthenticated) {
+    
+    // Update local state immediately for better UX
+    updateQuantity(item._id, newQuantity);
+    
+    // Try to sync with backend if authenticated
+    if (isAuthenticated) {
+      try {
         await cartAPI.update(item._id, { quantity: newQuantity });
+      } catch (error) {
+        console.error('Failed to sync quantity with server:', error);
+        // Silent fail - local state is already updated
       }
-      updateQuantity(item._id, newQuantity);
-    } catch (error) {
-      toast.error('Failed to update quantity');
     }
   };
 
