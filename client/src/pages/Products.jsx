@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid } from 'react-icons/fi';
 import { productsAPI } from '../api';
+import { ProductGridSkeleton } from '../components/LoadingSkeleton';
 import toast from 'react-hot-toast';
 
 const categories = [
@@ -247,20 +248,7 @@ export default function Products() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="flex flex-col justify-center items-center h-64">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className={`w-20 h-20 border-4 rounded-full ${
-                darkMode
-                  ? 'border-moon-gold/20 border-t-moon-gold'
-                  : 'border-purple-200 border-t-purple-600'
-              }`}
-            />
-            <p className={`mt-6 text-lg animate-pulse ${
-              darkMode ? 'text-moon-silver/60' : 'text-gray-500'
-            }`}>Loading masterpieces...</p>
-          </div>
+          <ProductGridSkeleton count={8} darkMode={darkMode} />
         ) : products.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -317,6 +305,7 @@ export default function Products() {
                       <img
                         src={product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%230a0e27" width="400" height="500"/%3E%3Ctext fill="%23cbd5e1" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
                         alt={product.name}
+                        loading="lazy"
                         className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-700 ease-out"
                       />
                       

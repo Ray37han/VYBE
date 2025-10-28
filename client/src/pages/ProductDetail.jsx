@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn } from 'react-icons/fi';
 import { productsAPI, cartAPI } from '../api';
 import { useAuthStore, useCartStore } from '../store';
+import { ProductDetailSkeleton } from '../components/LoadingSkeleton';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
@@ -78,9 +79,21 @@ export default function ProductDetail() {
   };
 
   if (loading) {
+    const [darkMode, setDarkMode] = useState(true);
+    useEffect(() => {
+      const savedTheme = localStorage.getItem('theme');
+      setDarkMode(savedTheme === 'dark');
+    }, []);
+
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-vybe-purple"></div>
+      <div className={`pt-24 pb-12 min-h-screen ${
+        darkMode
+          ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
+          : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4">
+          <ProductDetailSkeleton darkMode={darkMode} />
+        </div>
       </div>
     );
   }
@@ -90,7 +103,7 @@ export default function ProductDetail() {
   const currentPrice = product.sizes.find(s => s.name === selectedSize)?.price || product.basePrice;
 
   return (
-    <div className="pt-24 pb-12 min-h-screen">
+    <div className="pt-24 pb-12 md:pb-12 pb-32 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12">
           {/* Images */}
@@ -105,6 +118,7 @@ export default function ProductDetail() {
               <img
                 src={product.images[selectedImage]?.url}
                 alt={product.name}
+                loading="lazy"
                 className="w-full h-auto object-contain max-h-[600px]"
                 style={{ 
                   aspectRatio: 'auto',
@@ -129,7 +143,7 @@ export default function ProductDetail() {
                       selectedImage === idx ? 'ring-2 ring-vybe-purple' : ''
                     }`}
                   >
-                    <img src={img.url} alt="" className="w-full h-20 object-cover" />
+                    <img src={img.url} alt="" loading="lazy" className="w-full h-20 object-cover" />
                   </button>
                 ))}
               </div>
@@ -346,6 +360,35 @@ export default function ProductDetail() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Sticky Mobile Add to Cart Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-moon-midnight border-t border-gray-200 dark:border-moon-gold/20 p-4 shadow-2xl z-50">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <p className="text-lg font-bold text-gray-900 dark:text-moon-gold">
+              ৳{currentPrice}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-moon-silver/60">
+              {selectedSize ? `Size: ${selectedSize}` : 'Select a size'}
+            </p>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleAddToCart}
+            disabled={!selectedSize}
+            className={`px-6 py-3 rounded-xl font-bold shadow-lg transition-all ${
+              !selectedSize
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-vybe-purple to-vybe-pink text-white hover:shadow-xl active:scale-95'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <FiShoppingCart className="w-5 h-5" />
+              <span>Add to Cart</span>
+            </div>
+          </motion.button>
+        </div>
+      </div>
     </div>
   );
 }
