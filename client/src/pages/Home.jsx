@@ -78,11 +78,11 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
         const [productsResponse, postersResponse, heroResponse] = await Promise.all([
           productsAPI.getAll({ featured: true, limit: 8 }),
           featuredPostersAPI.getAll(),
-          fetch(`${API_URL}/api/hero-items`).then(res => res.json())
+          fetch(`${API_URL}/hero-items`).then(res => res.json())
         ]);
         
         setFeaturedProducts(productsResponse.data || productsResponse || []);

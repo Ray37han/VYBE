@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 export default function HeroItemsManager() {
   const [heroItems, setHeroItems] = useState([]);
@@ -49,24 +49,24 @@ export default function HeroItemsManager() {
       let heroData = [];
 
       // Fetch products (public)
-      const productsResponse = await axios.get(`${API_URL}/api/products`);
+      const productsResponse = await axios.get(`${API_URL}/products`);
       setProducts(productsResponse.data.data || productsResponse.data || []);
 
       // If token exists try admin endpoint to get full data, otherwise fall back to public
       if (token) {
         try {
           const config = { headers: { Authorization: `Bearer ${token}` } };
-          const heroResponse = await axios.get(`${API_URL}/api/hero-items/admin`, config);
+          const heroResponse = await axios.get(`${API_URL}/hero-items/admin`, config);
           heroData = heroResponse.data.data || [];
         } catch (adminErr) {
           // If admin fetch fails, try public endpoint
           console.warn('Admin hero-items fetch failed, falling back to public:', adminErr?.response?.status);
-          const publicResp = await axios.get(`${API_URL}/api/hero-items`);
+          const publicResp = await axios.get(`${API_URL}/hero-items`);
           heroData = publicResp.data.data || [];
         }
       } else {
         // No token, fetch public hero items
-        const publicResp = await axios.get(`${API_URL}/api/hero-items`);
+        const publicResp = await axios.get(`${API_URL}/hero-items`);
         heroData = publicResp.data.data || [];
       }
 
@@ -88,14 +88,14 @@ export default function HeroItemsManager() {
 
       if (editingItem) {
         await axios.put(
-          `${API_URL}/api/hero-items/${editingItem._id}`,
+          `${API_URL}/hero-items/${editingItem._id}`,
           formData,
           config
         );
         toast.success('Hero item updated successfully');
       } else {
         await axios.post(
-          `${API_URL}/api/hero-items`,
+          `${API_URL}/hero-items`,
           formData,
           config
         );
@@ -129,7 +129,7 @@ export default function HeroItemsManager() {
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      await axios.delete(`${API_URL}/api/hero-items/${id}`, config);
+      await axios.delete(`${API_URL}/hero-items/${id}`, config);
       toast.success('Hero item deleted successfully');
       fetchData();
     } catch (error) {
@@ -143,7 +143,7 @@ export default function HeroItemsManager() {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       await axios.put(
-        `${API_URL}/api/hero-items/${item._id}`,
+        `${API_URL}/hero-items/${item._id}`,
         { isActive: !item.isActive },
         config
       );
