@@ -17,8 +17,27 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [darkMode, setDarkMode] = useState(true);
   const { isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    setDarkMode(savedTheme === 'dark');
+
+    const handleThemeChange = () => {
+      const currentTheme = localStorage.getItem('theme');
+      setDarkMode(currentTheme === 'dark');
+    };
+
+    window.addEventListener('storage', handleThemeChange);
+    window.addEventListener('themeChange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('storage', handleThemeChange);
+      window.removeEventListener('themeChange', handleThemeChange);
+    };
+  }, []);
 
   useEffect(() => {
     fetchProduct();
@@ -79,12 +98,6 @@ export default function ProductDetail() {
   };
 
   if (loading) {
-    const [darkMode, setDarkMode] = useState(true);
-    useEffect(() => {
-      const savedTheme = localStorage.getItem('theme');
-      setDarkMode(savedTheme === 'dark');
-    }, []);
-
     return (
       <div className={`pt-24 pb-12 min-h-screen ${
         darkMode

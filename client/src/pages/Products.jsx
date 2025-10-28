@@ -62,11 +62,15 @@ export default function Products() {
     setLoading(true);
     try {
       const params = Object.fromEntries(searchParams);
+      console.log('Fetching products with params:', params);
+      console.log('API URL:', import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api');
       const response = await productsAPI.getAll(params);
+      console.log('Products response:', response);
       setProducts(response.data || response || []);
     } catch (error) {
+      console.error('Failed to load products:', error);
+      console.error('Error details:', error.response?.data || error.message);
       toast.error('Failed to load products');
-      console.error(error);
     } finally {
       setLoading(false);
     }
