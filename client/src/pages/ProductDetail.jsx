@@ -233,17 +233,31 @@ export default function ProductDetail() {
             {/* Quantity */}
             <div className="mb-6">
               <label className="block text-sm font-semibold mb-2">Quantity:</label>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-vybe-purple"
+                  disabled={quantity <= 1}
+                  className={`w-12 h-12 rounded-lg border-2 font-bold text-xl transition-all flex items-center justify-center ${
+                    quantity <= 1
+                      ? 'border-gray-200 text-gray-300 cursor-not-allowed'
+                      : 'border-vybe-purple text-vybe-purple hover:bg-vybe-purple hover:text-white active:scale-95'
+                  }`}
                 >
-                  -
+                  −
                 </button>
-                <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 1;
+                    setQuantity(Math.max(1, val));
+                  }}
+                  className="w-20 h-12 text-center text-xl font-semibold border-2 border-gray-300 rounded-lg focus:border-vybe-purple focus:outline-none"
+                />
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-vybe-purple"
+                  className="w-12 h-12 rounded-lg border-2 border-vybe-purple text-vybe-purple hover:bg-vybe-purple hover:text-white font-bold text-xl transition-all flex items-center justify-center active:scale-95"
                 >
                   +
                 </button>

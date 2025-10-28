@@ -149,31 +149,52 @@ export default function Cart() {
                   <div className="flex flex-col items-end justify-between">
                     <button
                       onClick={() => handleRemove(item._id)}
-                      className="text-red-500 hover:text-red-700 transition-colors"
+                      className={`transition-colors p-2 rounded-lg ${
+                        darkMode
+                          ? 'text-red-400 hover:text-red-300 hover:bg-red-500/10'
+                          : 'text-red-500 hover:text-red-700 hover:bg-red-50'
+                      }`}
+                      aria-label="Remove item"
                     >
                       <FiTrash2 className="w-5 h-5" />
                     </button>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleQuantityChange(item, item.quantity - 1)}
-                        className={`w-8 h-8 rounded border transition-all ${
-                          darkMode
-                            ? 'border-moon-gold/30 hover:bg-moon-blue/50 text-moon-silver'
-                            : 'border-purple-200 hover:bg-purple-50 text-gray-900'
+                        disabled={item.quantity <= 1}
+                        className={`w-9 h-9 rounded-lg border font-bold text-lg transition-all flex items-center justify-center ${
+                          item.quantity <= 1
+                            ? darkMode
+                              ? 'border-moon-silver/20 text-moon-silver/30 cursor-not-allowed'
+                              : 'border-gray-200 text-gray-300 cursor-not-allowed'
+                            : darkMode
+                              ? 'border-moon-gold/30 hover:bg-moon-gold hover:text-moon-night text-moon-gold active:scale-95'
+                              : 'border-purple-300 hover:bg-purple-600 hover:text-white text-purple-600 active:scale-95'
                         }`}
                       >
-                        -
+                        −
                       </button>
-                      <span className={`w-8 text-center ${
-                        darkMode ? 'text-moon-silver' : 'text-gray-900'
-                      }`}>{item.quantity}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value) || 1;
+                          handleQuantityChange(item, Math.max(1, val));
+                        }}
+                        className={`w-14 h-9 text-center font-semibold border rounded-lg focus:outline-none transition-all ${
+                          darkMode
+                            ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
+                            : 'bg-white border-purple-200 text-gray-900 focus:border-purple-600'
+                        }`}
+                      />
                       <button
                         onClick={() => handleQuantityChange(item, item.quantity + 1)}
-                        className={`w-8 h-8 rounded border transition-all ${
+                        className={`w-9 h-9 rounded-lg border font-bold text-lg transition-all flex items-center justify-center ${
                           darkMode
-                            ? 'border-moon-gold/30 hover:bg-moon-blue/50 text-moon-silver'
-                            : 'border-purple-200 hover:bg-purple-50 text-gray-900'
-                        }`}
+                            ? 'border-moon-gold/30 hover:bg-moon-gold hover:text-moon-night text-moon-gold'
+                            : 'border-purple-300 hover:bg-purple-600 hover:text-white text-purple-600'
+                        } active:scale-95`}
                       >
                         +
                       </button>
