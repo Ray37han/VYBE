@@ -60,7 +60,16 @@ const userSchema = new mongoose.Schema({
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order'
-  }]
+  }],
+  // Email verification OTP fields
+  verificationCode: {
+    type: String,
+    default: null
+  },
+  codeExpires: {
+    type: Date,
+    default: null
+  }
 }, {
   timestamps: true
 });
