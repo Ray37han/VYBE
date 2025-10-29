@@ -230,25 +230,37 @@ export default function AdminProducts() {
       console.error('Error response:', error.response);
       console.error('Error details:', error.response?.data);
       console.error('Status code:', error.response?.status);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       console.error('Auth token exists:', !!localStorage.getItem('token'));
       
       // More specific error messages
       let errorMessage = 'Failed to save product';
       
-      if (error.response?.status === 401) {
+      // Use custom error message if available
+      if (error.userMessage) {
+        errorMessage = error.userMessage;
+      } else if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        errorMessage = 'Upload timeout. Your images may be too large or internet connection is slow. Try:\n• Compress images before uploading\n• Use WiFi instead of mobile data\n• Upload fewer images at once';
+      } else if (error.message === 'Network Error' || !error.response) {
+        errorMessage = 'Cannot connect to server. Please check:\n• Your internet connection\n• Backend server is running\n• You can access: https://vybe-backend-93eu.onrender.com/api/';
+      } else if (error.response?.status === 401) {
         errorMessage = 'Authentication failed. Please log in again.';
-        // Clear token and redirect
         localStorage.removeItem('token');
         setTimeout(() => window.location.href = '/login', 2000);
       } else if (error.response?.status === 403) {
         errorMessage = 'Access denied. You do not have admin privileges.';
+      } else if (error.response?.status === 413) {
+        errorMessage = 'Files too large. Please reduce image sizes (max 50MB per image).';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.message) {
         errorMessage = error.message;
       }
       
-      toast.error(errorMessage, { duration: 5000 });
+      toast.error(errorMessage, { duration: 7000 });
     } finally {
       setLoading(false);
     }

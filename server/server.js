@@ -116,8 +116,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+// Start server with increased timeout for file uploads
+const server = app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
+
+// Increase timeout for large file uploads (5 minutes)
+server.timeout = 300000; // 5 minutes
+server.keepAliveTimeout = 65000; // Keep alive for 65 seconds
+server.headersTimeout = 66000; // Headers timeout slightly longer than keep alive

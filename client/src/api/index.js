@@ -5,6 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onren
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  timeout: 120000, // 2 minutes for large file uploads
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,11 +32,27 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Network error handling
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      console.error('⏱️ Request timeout - upload taking too long');
+      error.userMessage = 'Upload timeout. Please check your internet connection or try smaller images.';
+    } else if (error.message === 'Network Error' || !error.response) {
+      console.error('🌐 Network error - cannot reach server');
+      error.userMessage = 'Cannot connect to server. Please check your internet connection.';
+    } else if (error.response?.status === 401) {
       // Token expired or invalid - clear and redirect to login
+      console.error('🔒 Authentication failed');
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      error.userMessage = 'Session expired. Please log in again.';
+      setTimeout(() => window.location.href = '/login', 2000);
+    } else if (error.response?.status === 403) {
+      console.error('🚫 Access denied');
+      error.userMessage = 'Access denied. Admin privileges required.';
+    } else if (error.response?.status >= 500) {
+      console.error('💥 Server error');
+      error.userMessage = 'Server error. Please try again later.';
     }
+    
     return Promise.reject(error);
   }
 );
@@ -96,6 +113,11 @@ export const adminAPI = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+      timeout: 180000, // 3 minutes for product creation with images
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`Upload progress: ${percentCompleted}%`);
+      }
     }).then(res => res.data);
   },
   updateProduct: (id, data) => {
@@ -104,6 +126,11 @@ export const adminAPI = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+      timeout: 180000, // 3 minutes for product update with images
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`Upload progress: ${percentCompleted}%`);
+      }
     }).then(res => res.data);
   },
   deleteProduct: (id) => api.delete(`/admin/products/${id}`).then(res => res.data),
