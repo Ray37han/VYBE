@@ -61,15 +61,25 @@ router.get('/dashboard', async (req, res) => {
 router.post('/products', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
   try {
     console.log('📦 Product creation request received');
+    console.log('User:', req.user?.email, 'Role:', req.user?.role);
     console.log('Files:', req.files?.length || 0);
     console.log('Body keys:', Object.keys(req.body));
+    
+    // Verify user has admin role
+    if (!req.user || req.user.role !== 'admin') {
+      console.error('❌ User is not admin:', req.user?.email);
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to create products. Admin access required.'
+      });
+    }
     
     // Check if Cloudinary is configured
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       console.error('❌ Cloudinary not configured');
       return res.status(500).json({
         success: false,
-        message: 'Cloudinary is not configured. Please add CLOUDINARY credentials to .env file'
+        message: 'Cloudinary is not configured. Please contact the administrator.'
       });
     }
 
@@ -82,7 +92,23 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
       console.error('❌ Parse error:', parseError);
       return res.status(400).json({
         success: false,
-        message: 'Invalid product data format'
+        message: 'Invalid product data format. Please try again.'
+      });
+    }
+    
+    // Validate required fields
+    if (!productData.name || !productData.description || !productData.basePrice) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: name, description, or basePrice'
+      });
+    }
+    
+    // Check if images are provided
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one product image is required'
       });
     }
     
@@ -136,6 +162,20 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
 // @access  Private/Admin
 router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
   try {
+    console.log('📝 Product update request received');
+    console.log('User:', req.user?.email, 'Role:', req.user?.role);
+    console.log('Product ID:', req.params.id);
+    console.log('Files:', req.files?.length || 0);
+    
+    // Verify user has admin role
+    if (!req.user || req.user.role !== 'admin') {
+      console.error('❌ User is not admin:', req.user?.email);
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to update products. Admin access required.'
+      });
+    }
+    
     const product = await Product.findById(req.params.id);
     
     if (!product) {
@@ -145,21 +185,41 @@ router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMu
       });
     }
 
-    const updateData = JSON.parse(req.body.productData);
+    let updateData;
+    try {
+      updateData = JSON.parse(req.body.productData);
+      console.log('✅ Update data parsed');
+    } catch (parseError) {
+      console.error('❌ Parse error:', parseError);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product data format'
+      });
+    }
 
     // Handle new image uploads
     if (req.files && req.files.length > 0) {
+      console.log(`📸 Uploading ${req.files.length} new images...`);
       const newImages = [];
       for (const file of req.files) {
-        const result = await uploadToCloudinary(file.buffer, 'vybe-products');
-        newImages.push({
-          url: result.secure_url,
-          publicId: result.public_id
-        });
+        try {
+          const result = await uploadToCloudinary(file.buffer, 'vybe-products');
+          newImages.push({
+            url: result.secure_url,
+            publicId: result.public_id
+          });
+        } catch (uploadError) {
+          console.error('❌ Image upload error:', uploadError);
+          return res.status(500).json({
+            success: false,
+            message: `Image upload failed: ${uploadError.message}`
+          });
+        }
       }
       
       // If replacing images, delete old ones
       if (updateData.replaceImages) {
+        console.log('🗑️ Deleting old images...');
         for (const img of product.images) {
           if (img.publicId) {
             await deleteFromCloudinary(img.publicId);
@@ -171,15 +231,18 @@ router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMu
       }
     }
 
+    console.log('💾 Updating product in database...');
     Object.assign(product, updateData);
     await product.save();
 
+    console.log('✅ Product updated successfully:', product._id);
     res.json({
       success: true,
       data: product,
       message: 'Product updated successfully'
     });
   } catch (error) {
+    console.error('❌ Product update error:', error);
     res.status(500).json({
       success: false,
       message: error.message
