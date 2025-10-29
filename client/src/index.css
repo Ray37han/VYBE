@@ -17,6 +17,9 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Performance optimizations */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }
 
@@ -37,60 +40,71 @@
 @layer components {
   .btn-primary {
     @apply px-6 py-3 bg-gradient-to-r from-vybe-purple to-vybe-pink text-white font-semibold rounded-full 
-           hover:shadow-lg hover:scale-105 transform transition-all duration-300 
            focus:outline-none focus:ring-2 focus:ring-vybe-purple focus:ring-offset-2;
+    transition: all 0.2s ease-out;
+  }
+
+  .btn-primary:hover {
+    @apply shadow-lg;
+    transform: scale(1.02) translate3d(0, 0, 0);
   }
 
   .btn-secondary {
     @apply px-6 py-3 bg-white text-vybe-purple font-semibold rounded-full border-2 border-vybe-purple
-           hover:bg-vybe-purple hover:text-white transform hover:scale-105 transition-all duration-300
            focus:outline-none focus:ring-2 focus:ring-vybe-purple focus:ring-offset-2;
+    transition: all 0.2s ease-out;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-vybe-purple text-white;
+    transform: scale(1.02) translate3d(0, 0, 0);
   }
 
   .btn-outline {
     @apply px-6 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-full
-           hover:border-vybe-purple hover:text-vybe-purple transition-all duration-300
            focus:outline-none focus:ring-2 focus:ring-vybe-purple focus:ring-offset-2;
+    transition: all 0.2s ease-out;
+  }
+
+  .btn-outline:hover {
+    @apply border-vybe-purple text-vybe-purple;
   }
 
   .btn-moon {
     @apply px-8 py-4 bg-gradient-to-r from-moon-mystical via-moon-gold to-moon-silver text-white font-bold rounded-full 
-           hover:shadow-2xl hover:scale-110 transform transition-all duration-500 
            focus:outline-none focus:ring-2 focus:ring-moon-mystical focus:ring-offset-2
            relative overflow-hidden;
+    transition: all 0.2s ease-out;
   }
 
-  .btn-moon::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.5s;
+  .btn-moon:hover {
+    @apply shadow-2xl;
+    transform: scale(1.05) translate3d(0, 0, 0);
   }
 
-  .btn-moon:hover::before {
-    left: 100%;
-  }
+  /* Removed btn-moon::before animation for better scrolling performance */
 
   .card {
-    @apply bg-white rounded-2xl shadow-md transition-all duration-500 ease-out;
+    @apply bg-white rounded-2xl shadow-md;
+    transition: all 0.3s ease-out;
+    will-change: transform;
   }
   
   .card:hover {
-    @apply shadow-xl transform translate-y-[-4px];
+    @apply shadow-xl;
+    transform: translate3d(0, -4px, 0);
   }
 
   .card-moon {
     @apply bg-gradient-to-br from-moon-midnight to-moon-blue rounded-2xl shadow-2xl 
-           transition-all duration-500 ease-out
            border border-moon-silver/20;
+    transition: all 0.3s ease-out;
+    will-change: transform;
   }
   
   .card-moon:hover {
-    @apply shadow-moon-mystical/50 transform translate-y-[-8px];
+    @apply shadow-moon-mystical/50;
+    transform: translate3d(0, -8px, 0);
   }
 
   .input-field {
@@ -115,35 +129,16 @@
   }
 
   .poster-card {
-    @apply relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-500 ease-out
-           cursor-pointer;
+    @apply relative overflow-hidden rounded-2xl shadow-2xl;
+    transition: transform 0.3s ease-out;
     will-change: transform;
   }
   
   .poster-card:hover {
-    @apply scale-105 -rotate-2;
+    transform: scale(1.03) rotate(-1deg) translate3d(0, 0, 0);
   }
 
-  .poster-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.1) 50%,
-      transparent 70%
-    );
-    transform: rotate(45deg);
-    transition: all 0.5s ease-out;
-  }
-
-  .poster-card:hover::after {
-    left: 100%;
-  }
+  /* Removed heavy poster-card::after animation for better performance */
 
   .glass-moon {
     @apply bg-moon-midnight/40 backdrop-blur-xl border border-moon-silver/20;
@@ -214,27 +209,23 @@
   animation: mystical-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Stars animation */
+/* Stars animation - optimized */
 @keyframes twinkle {
   0%, 100% { 
     opacity: 0.3;
-    transform: scale(1);
   }
   50% { 
     opacity: 1;
-    transform: scale(1.2);
   }
 }
 
 .star {
-  animation: twinkle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  will-change: opacity, transform;
+  animation: twinkle 3s ease-in-out infinite;
 }
 
-/* Parallax effect helper */
+/* Parallax effect helper - removed will-change for better performance */
 .parallax {
-  transition: transform 0.3s cubic-bezier(0.215, 0.610, 0.355, 1.000);
-  will-change: transform;
+  transition: transform 0.1s ease-out;
 }
 
 /* Smooth scroll animations */
@@ -307,14 +298,13 @@
   transform: rotateY(180deg);
 }
 
-/* Swiper Custom Styling for Moon Knight Theme */
+/* Swiper Custom Styling for Moon Knight Theme - Optimized */
 .poster-gallery-swiper .swiper-slide {
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform;
+  transition: transform 0.3s ease-out;
 }
 
 .poster-gallery-swiper .swiper-slide-active {
-  transform: scale(1.1) !important;
+  transform: scale(1.05) translate3d(0, 0, 0) !important;
 }
 
 .poster-gallery-swiper .swiper-button-next,
@@ -326,14 +316,14 @@
   border-radius: 50%;
   backdrop-filter: blur(10px);
   border: 2px solid rgba(245, 158, 11, 0.3);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.2s ease-out;
 }
 
 .poster-gallery-swiper .swiper-button-next:hover,
 .poster-gallery-swiper .swiper-button-prev:hover {
   background: rgba(139, 92, 246, 0.8);
   border-color: #8b5cf6;
-  transform: scale(1.1);
+  transform: scale(1.05) translate3d(0, 0, 0);
 }
 
 .poster-gallery-swiper .swiper-button-next::after,
@@ -355,25 +345,21 @@
   transform: scale(1.3);
 }
 
-/* Blob animation for hero section */
+/* Blob animation for hero section - optimized */
 @keyframes blob {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
-  25% {
-    transform: translate(20px, -20px) scale(1.1);
+  33% {
+    transform: translate3d(20px, -20px, 0) scale(1.05);
   }
-  50% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  75% {
-    transform: translate(20px, 20px) scale(1.05);
+  66% {
+    transform: translate3d(-20px, 20px, 0) scale(0.95);
   }
 }
 
 .animate-blob {
-  animation: blob 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-  will-change: transform;
+  animation: blob 8s ease-in-out infinite;
 }
 
 .animation-delay-2000 {
