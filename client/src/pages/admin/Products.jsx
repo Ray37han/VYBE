@@ -103,8 +103,18 @@ export default function AdminProducts() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+    
+    if (files.length === 0) return;
+    
     if (files.length + imageFiles.length > 5) {
       toast.error('Maximum 5 images allowed');
+      return;
+    }
+
+    // Check file sizes (5MB limit per file)
+    const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      toast.error('Each image must be less than 5MB');
       return;
     }
 
@@ -115,6 +125,9 @@ export default function AdminProducts() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreviews(prev => [...prev, reader.result]);
+      };
+      reader.onerror = () => {
+        toast.error('Failed to read image file');
       };
       reader.readAsDataURL(file);
     });
@@ -152,8 +165,15 @@ export default function AdminProducts() {
       return;
     }
 
+    // Only check for images when creating new product
     if (imageFiles.length === 0 && !editingProduct) {
       toast.error('Please add at least one image');
+      return;
+    }
+
+    // When editing, check if product has existing images or new ones being added
+    if (editingProduct && imageFiles.length === 0 && (!formData.images || formData.images.length === 0)) {
+      toast.error('Product must have at least one image');
       return;
     }
 
@@ -179,13 +199,20 @@ export default function AdminProducts() {
         }))
       };
       
+      // When editing, keep existing images if no new ones uploaded
+      if (editingProduct && imageFiles.length === 0) {
+        productData.images = formData.images;
+      }
+      
       // Append product data as JSON string
       formDataToSend.append('productData', JSON.stringify(productData));
       
-      // Append image files
-      imageFiles.forEach(file => {
-        formDataToSend.append('images', file);
-      });
+      // Append new image files if any
+      if (imageFiles.length > 0) {
+        imageFiles.forEach(file => {
+          formDataToSend.append('images', file);
+        });
+      }
 
       if (editingProduct) {
         await adminAPI.updateProduct(editingProduct._id, formDataToSend);
@@ -200,6 +227,7 @@ export default function AdminProducts() {
       fetchProducts();
     } catch (error) {
       console.error('Submit error:', error);
+      console.error('Error details:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to save product');
     } finally {
       setLoading(false);
@@ -674,7 +702,7 @@ export default function AdminProducts() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`flex-1 px-4 py-2 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                       darkMode 
                         ? 'bg-gradient-to-r from-moon-gold to-moon-mystical text-moon-night hover:shadow-lg hover:shadow-moon-gold/50' 
                         : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
@@ -688,32 +716,11 @@ export default function AdminProducts() {
                       setShowModal(false);
                       resetForm();
                     }}
-                    className={`flex-1 px-4 py-2 border rounded-lg ${
+                    className={`flex-1 px-4 py-2 border rounded-lg transition-colors ${
                       darkMode 
                         ? 'border-moon-gold/30 text-moon-silver hover:bg-moon-gold/20' 
                         : 'border-gray-300 text-gray-900 hover:bg-gray-50'
                     }`}
-                  >
-                    Cancel
-                  </button>
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="flex gap-4 pt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Create Product')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false);
-                      resetForm();
-                    }}
-                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
