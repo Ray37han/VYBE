@@ -69,6 +69,73 @@ const userSchema = new mongoose.Schema({
   codeExpires: {
     type: Date,
     default: null
+  },
+  // Trusted devices for "Remember Me" feature
+  trustedDevices: [{
+    deviceId: {
+      type: String,
+      required: true
+    },
+    deviceName: String, // e.g., "Chrome on MacOS"
+    fingerprint: String,
+    ipAddress: String,
+    userAgent: String,
+    lastUsed: {
+      type: Date,
+      default: Date.now
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    expiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+    }
+  }],
+  // Backup codes for emergency access
+  backupCodes: [{
+    code: {
+      type: String,
+      required: true
+    },
+    used: {
+      type: Boolean,
+      default: false
+    },
+    usedAt: Date
+  }],
+  // Login history and security
+  loginHistory: [{
+    ipAddress: String,
+    userAgent: String,
+    location: String,
+    deviceInfo: String,
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    success: Boolean,
+    method: {
+      type: String,
+      enum: ['otp', 'backup-code', 'trusted-device'],
+      default: 'otp'
+    }
+  }],
+  // Security settings
+  securitySettings: {
+    twoFactorEnabled: {
+      type: Boolean,
+      default: true
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true
+    },
+    loginAlerts: {
+      type: Boolean,
+      default: true
+    }
   }
 }, {
   timestamps: true

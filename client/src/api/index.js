@@ -63,8 +63,22 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   verifyCode: (data) => api.post('/auth/verify-code', data),
   resendCode: (data) => api.post('/auth/resend-code', data),
+  loginWithBackup: (data) => api.post('/auth/login-with-backup', data),
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
+  
+  // Trusted devices
+  getTrustedDevices: () => api.get('/auth/trusted-devices'),
+  removeTrustedDevice: (deviceId) => api.delete(`/auth/trusted-devices/${deviceId}`),
+  
+  // Backup codes
+  generateBackupCodes: () => api.post('/auth/backup-codes/generate'),
+  getBackupCodesStatus: () => api.get('/auth/backup-codes/status'),
+  getBackupCodes: (showUsed = false) => api.get(`/auth/backup-codes?showUsed=${showUsed}`),
+  
+  // Security
+  getLoginHistory: () => api.get('/auth/login-history'),
+  updateSecuritySettings: (data) => api.put('/auth/security-settings', data),
 };
 
 // Products API
