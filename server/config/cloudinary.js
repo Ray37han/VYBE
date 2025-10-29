@@ -24,11 +24,21 @@ export const uploadToCloudinary = async (fileBuffer, folder = 'vybe-products') =
         {
           folder: folder,
           resource_type: 'auto',
+          // Optimized transformations for best performance
           transformation: [
-            { width: 1200, height: 1200, crop: 'limit' },
-            { quality: 'auto' },
-            { fetch_format: 'auto' }
-          ]
+            { width: 1920, height: 1920, crop: 'limit' }, // HD quality support
+            { quality: 'auto:best' }, // Best quality with smart compression
+            { fetch_format: 'auto' }, // Auto WebP/AVIF for modern browsers
+            { dpr: 'auto' }, // Auto device pixel ratio for retina displays
+            { flags: 'progressive' } // Progressive loading for better UX
+          ],
+          eager: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'auto' }, // Thumbnail
+            { width: 800, height: 800, crop: 'limit' } // Medium size for mobile
+          ],
+          eager_async: true, // Generate eager transformations in background
+          overwrite: true,
+          invalidate: true
         },
         (error, result) => {
           if (error) {
