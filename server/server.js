@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import os from 'os';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -23,23 +24,35 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:5173',
   'https://vybe-sigma.vercel.app',
   process.env.CLIENT_URL
 ];
 
+// Function to check if origin is allowed
+const isOriginAllowed = (origin) => {
+  if (!origin) return true; // Allow requests with no origin
+  
+  // Allow Vercel deployments
+  if (origin.includes('.vercel.app') || origin.includes('vercel.app')) return true;
+  
+  // Allow localhost with any port
+  if (origin.match(/^http:\/\/localhost:\d+$/)) return true;
+  
+  // Allow local network IPs (192.168.x.x, 10.x.x.x, etc.)
+  if (origin.match(/^http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+):\d+$/)) return true;
+  
+  // Check against allowed origins
+  return allowedOrigins.includes(origin);
+};
+
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, curl)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list or is any vercel deployment
-    const isVercel = origin && (origin.includes('.vercel.app') || origin.includes('vercel.app'));
-    const isAllowed = allowedOrigins.includes(origin);
-    
-    if (isAllowed || isVercel) {
+    if (isOriginAllowed(origin)) {
       callback(null, true);
     } else {
+      console.log(`⚠️  Blocked origin: ${origin}`);
       callback(null, true); // Allow all for now during debugging
     }
   },
@@ -117,8 +130,24 @@ app.use((err, req, res, next) => {
 });
 
 // Start server with increased timeout for file uploads
-const server = app.listen(PORT, () => {
+// Bind to 0.0.0.0 to allow external access (global network)
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🌍 Accessible on your network at:`);
+  
+  // Get all network interfaces
+  const networkInterfaces = os.networkInterfaces();
+  
+  Object.keys(networkInterfaces).forEach(interfaceName => {
+    networkInterfaces[interfaceName].forEach(iface => {
+      // Skip internal and non-IPv4 addresses
+      if (iface.family === 'IPv4' && !iface.internal) {
+        console.log(`   http://${iface.address}:${PORT}`);
+      }
+    });
+  });
+  
+  console.log(`📱 Local: http://localhost:${PORT}`);
 });
 
 // Increase timeout for large file uploads (5 minutes)
