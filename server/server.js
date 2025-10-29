@@ -57,6 +57,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Request logging middleware (for debugging)
+app.use((req, res, next) => {
+  console.log(`📱 ${req.method} ${req.path}`);
+  console.log(`🌐 Origin: ${req.headers.origin || 'No origin'}`);
+  console.log(`🔑 Auth: ${req.headers.authorization ? 'Bearer token present' : 'No auth header'}`);
+  console.log(`🍪 Cookie: ${req.headers.cookie ? 'Cookie present' : 'No cookie'}`);
+  console.log(`📦 Content-Type: ${req.headers['content-type'] || 'Not set'}`);
+  next();
+});
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vybe-store')
   .then(() => console.log('✅ MongoDB connected successfully'))

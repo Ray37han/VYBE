@@ -227,8 +227,28 @@ export default function AdminProducts() {
       fetchProducts();
     } catch (error) {
       console.error('Submit error:', error);
+      console.error('Error response:', error.response);
       console.error('Error details:', error.response?.data);
-      toast.error(error.response?.data?.message || 'Failed to save product');
+      console.error('Status code:', error.response?.status);
+      console.error('Auth token exists:', !!localStorage.getItem('token'));
+      
+      // More specific error messages
+      let errorMessage = 'Failed to save product';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please log in again.';
+        // Clear token and redirect
+        localStorage.removeItem('token');
+        setTimeout(() => window.location.href = '/login', 2000);
+      } else if (error.response?.status === 403) {
+        errorMessage = 'Access denied. You do not have admin privileges.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage, { duration: 5000 });
     } finally {
       setLoading(false);
     }

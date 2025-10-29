@@ -16,8 +16,29 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // For FormData (file uploads), let browser set Content-Type with boundary
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid - clear and redirect to login
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth API
 export const authAPI = {
@@ -69,12 +90,22 @@ export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard').then(res => res.data),
   
   // Products
-  createProduct: (data) => api.post('/admin/products', data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }).then(res => res.data),
-  updateProduct: (id, data) => api.put(`/admin/products/${id}`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }).then(res => res.data),
+  createProduct: (data) => {
+    const token = localStorage.getItem('token');
+    return api.post('/admin/products', data, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    }).then(res => res.data);
+  },
+  updateProduct: (id, data) => {
+    const token = localStorage.getItem('token');
+    return api.put(`/admin/products/${id}`, data, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    }).then(res => res.data);
+  },
   deleteProduct: (id) => api.delete(`/admin/products/${id}`).then(res => res.data),
   deleteProductImage: (productId, imageId) => 
     api.delete(`/admin/products/${productId}/images/${imageId}`).then(res => res.data),
