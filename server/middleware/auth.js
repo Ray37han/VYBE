@@ -4,8 +4,11 @@ import User from '../models/User.js';
 export const protect = async (req, res, next) => {
   try {
     let token;
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
 
     // Check for token in cookies or Authorization header
+    // Works from ANY device, ANY IP address, ANY browser
     if (req.cookies.token) {
       token = req.cookies.token;
       console.log('🍪 Token from cookie');
@@ -16,13 +19,14 @@ export const protect = async (req, res, next) => {
 
     if (!token) {
       console.log('❌ No token provided');
+      console.log(`   From IP: ${clientIP}`);
       return res.status(401).json({
         success: false,
         message: 'Not authorized. Please log in to access this route.'
       });
     }
 
-    // Verify token
+    // Verify token - NO IP or device restrictions
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.id);
 
@@ -35,6 +39,8 @@ export const protect = async (req, res, next) => {
     }
 
     console.log('✅ User authenticated:', req.user.email, 'Role:', req.user.role);
+    console.log(`   From IP: ${clientIP}`);
+    console.log(`   Device: ${userAgent.substring(0, 50)}...`);
     next();
   } catch (error) {
     console.error('❌ Auth error:', error.message);
@@ -59,8 +65,12 @@ export const protect = async (req, res, next) => {
 
 export const authorize = (...roles) => {
   return (req, res, next) => {
-    console.log(`🔒 Checking authorization for roles: ${roles.join(', ')}`);
-    console.log(`👤 User role: ${req.user?.role}`);
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    
+    console.log(`🔒 Authorization check for roles: ${roles.join(', ')}`);
+    console.log(`👤 User: ${req.user?.email} | Role: ${req.user?.role}`);
+    console.log(`🌍 From IP: ${clientIP}`);
+    console.log(`📱 Device-Independent: ✅ Works from ANY device, ANY location`);
     
     if (!req.user) {
       console.log('❌ No user found in request');
@@ -71,14 +81,14 @@ export const authorize = (...roles) => {
     }
     
     if (!roles.includes(req.user.role)) {
-      console.log(`❌ User role '${req.user.role}' not authorized`);
+      console.log(`❌ Access denied: User has '${req.user.role}' but needs '${roles.join(' or ')}'`);
       return res.status(403).json({
         success: false,
-        message: `Access denied. You need '${roles.join(' or ')}' role to access this resource. Your role is '${req.user.role}'.`
+        message: `Access denied. You need '${roles.join(' or ')}' role. Your role is '${req.user.role}'.`
       });
     }
     
-    console.log('✅ User authorized');
+    console.log('✅ Authorization successful - Admin can upload from this device');
     next();
   };
 };

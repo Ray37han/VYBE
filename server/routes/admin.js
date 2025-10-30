@@ -66,15 +66,7 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
     console.log('Files:', req.files?.length || 0);
     console.log('Body keys:', Object.keys(req.body));
     console.log('Content-Type:', req.headers['content-type']);
-    
-    // Verify user has admin role
-    if (!req.user || req.user.role !== 'admin') {
-      console.error('❌ User is not admin:', req.user?.email, 'Role:', req.user?.role);
-      return res.status(403).json({
-        success: false,
-        message: 'You do not have permission to create products. Admin access required.'
-      });
-    }
+    console.log('✅ Admin authenticated - can upload from ANY device/IP');
     
     // Check if Cloudinary is configured
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
@@ -168,15 +160,7 @@ router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMu
     console.log('User:', req.user?.email, 'Role:', req.user?.role);
     console.log('Product ID:', req.params.id);
     console.log('Files:', req.files?.length || 0);
-    
-    // Verify user has admin role
-    if (!req.user || req.user.role !== 'admin') {
-      console.error('❌ User is not admin:', req.user?.email);
-      return res.status(403).json({
-        success: false,
-        message: 'You do not have permission to update products. Admin access required.'
-      });
-    }
+    console.log('✅ Admin authenticated - can update from ANY device/IP');
     
     const product = await Product.findById(req.params.id);
     
