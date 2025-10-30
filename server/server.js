@@ -32,16 +32,19 @@ const allowedOrigins = [
 
 // Function to check if origin is allowed
 const isOriginAllowed = (origin) => {
-  if (!origin) return true; // Allow requests with no origin
+  if (!origin) return true; // Allow requests with no origin (e.g., Postman, mobile apps)
   
   // Allow Vercel deployments
   if (origin.includes('.vercel.app') || origin.includes('vercel.app')) return true;
   
   // Allow localhost with any port
-  if (origin.match(/^http:\/\/localhost:\d+$/)) return true;
+  if (origin.match(/^https?:\/\/localhost:\d+$/)) return true;
   
-  // Allow local network IPs (192.168.x.x, 10.x.x.x, etc.)
-  if (origin.match(/^http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+):\d+$/)) return true;
+  // Allow 127.0.0.1 with any port
+  if (origin.match(/^https?:\/\/127\.0\.0\.1:\d+$/)) return true;
+  
+  // Allow local network IPs (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+  if (origin.match(/^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+):\d+$/)) return true;
   
   // Check against allowed origins
   return allowedOrigins.includes(origin);
@@ -57,10 +60,26 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
-  exposedHeaders: ['Set-Cookie'],
-  maxAge: 86400 // 24 hours
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'Cookie', 
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'User-Agent',
+    'DNT',
+    'Cache-Control',
+    'X-Mx-ReqToken',
+    'Keep-Alive',
+    'X-Requested-With',
+    'If-Modified-Since'
+  ],
+  exposedHeaders: ['Set-Cookie', 'Authorization'],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 // Handle preflight requests

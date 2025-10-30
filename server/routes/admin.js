@@ -61,13 +61,15 @@ router.get('/dashboard', async (req, res) => {
 router.post('/products', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
   try {
     console.log('📦 Product creation request received');
+    console.log('Origin:', req.headers.origin);
     console.log('User:', req.user?.email, 'Role:', req.user?.role);
     console.log('Files:', req.files?.length || 0);
     console.log('Body keys:', Object.keys(req.body));
+    console.log('Content-Type:', req.headers['content-type']);
     
     // Verify user has admin role
     if (!req.user || req.user.role !== 'admin') {
-      console.error('❌ User is not admin:', req.user?.email);
+      console.error('❌ User is not admin:', req.user?.email, 'Role:', req.user?.role);
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to create products. Admin access required.'

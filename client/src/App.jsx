@@ -84,8 +84,3 @@ function App() {
       </main>
       <Footer />
       <BackToTop />
-    </div>
-  )
-}
-
-export default App
