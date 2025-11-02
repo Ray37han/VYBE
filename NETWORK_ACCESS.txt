@@ -1,0 +1,126 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║                  VYBE - NETWORK ACCESS INSTRUCTIONS                    ║
+║                    Upload Products from ANY Device                     ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+🚀 SERVERS ARE RUNNING
+
+Backend:  http://192.168.0.140:5001
+Frontend: http://192.168.0.140:3001
+
+═══════════════════════════════════════════════════════════════════════
+
+📱 TO ACCESS FROM OTHER DEVICES (Windows/Android/iOS):
+
+1. Make sure your device is on the SAME WiFi network as this Mac
+
+2. Open your browser and go to:
+   
+   👉 http://192.168.0.140:3001
+   
+   (NOT localhost:3001 - use the IP address!)
+
+3. Log in with admin credentials:
+   
+   Email:    rayhan@vybe.com
+             (or any of the 5 admin emails)
+   
+   Password: admin123
+
+4. Go to Admin Dashboard → Products → Add Product
+
+5. Upload images and create products ✅
+
+═══════════════════════════════════════════════════════════════════════
+
+🔑 ADMIN ACCOUNTS (All can upload from anywhere):
+
+1. rayhan@vybe.com
+2. asifha1234567890@gmail.com
+3. dewanalruza@gmail.com
+4. rjrhythm2005@gmail.com
+5. ahamedniaj34@gmail.com
+
+Password for all: admin123
+
+═══════════════════════════════════════════════════════════════════════
+
+✅ WHAT'S FIXED:
+
+✓ Frontend now uses network IP (192.168.0.140)
+✓ Backend accessible from any device
+✓ CORS configured for all origins
+✓ No IP restrictions on admin uploads
+✓ Works from Windows, Android, Mac, iOS
+✓ Works from Chrome, Brave, Safari, Firefox, Edge
+
+═══════════════════════════════════════════════════════════════════════
+
+🧪 TEST IT:
+
+From your Windows/Android device:
+
+1. Open browser
+2. Type: http://192.168.0.140:3001
+3. Should see VYBE homepage
+4. Click Login
+5. Enter admin email and password
+6. Go to Admin → Products
+7. Click "Add New Product"
+8. Upload images ✅
+
+═══════════════════════════════════════════════════════════════════════
+
+⚠️ TROUBLESHOOTING:
+
+❌ Can't connect?
+   - Check both devices on same WiFi
+   - Check Mac IP hasn't changed (run: ipconfig getifaddr en0)
+   - Disable VPN if active
+   - Check Mac firewall allows Node.js
+
+❌ Backend not responding?
+   - Make sure backend is running on port 5001
+   - Test: http://192.168.0.140:5001 (should show API info)
+
+❌ Login not working?
+   - Password is: admin123 (all lowercase)
+   - Check browser console (F12) for errors
+
+═══════════════════════════════════════════════════════════════════════
+
+🔄 IF MAC IP CHANGES:
+
+Your Mac's IP can change when router restarts. To update:
+
+1. Find new IP:
+   ipconfig getifaddr en0
+
+2. Update client/.env:
+   VITE_API_URL=http://NEW_IP:5001/api
+
+3. Restart frontend:
+   cd client && npm run dev
+
+═══════════════════════════════════════════════════════════════════════
+
+📝 CURRENT CONFIGURATION:
+
+Mac IP Address:    192.168.0.140
+Backend Port:      5001
+Frontend Port:     3001
+MongoDB:           Connected ✅
+Cloudinary:        Connected ✅
+CORS:              All origins allowed ✅
+Admin Auth:        Role-based (no IP restriction) ✅
+
+═══════════════════════════════════════════════════════════════════════
+
+🎉 YOU'RE ALL SET!
+
+Access the website from other devices using:
+http://192.168.0.140:3001
+
+All admins can now upload products from any device! 🚀
+
+═══════════════════════════════════════════════════════════════════════
