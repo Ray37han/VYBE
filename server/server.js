@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 import os from 'os';
 
 // Import routes
@@ -16,7 +17,13 @@ import featuredPostersRoutes from './routes/featuredPosters.js';
 import imageRoutes from './routes/images.js';
 import heroItemsRoutes from './routes/heroItems.js';
 
+// Import Redis config
+import { connectRedis, closeRedis } from './config/redis.js';
+
 dotenv.config();
+
+// Set Node environment
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -85,23 +92,45 @@ app.use(cors({
 // Handle preflight requests
 app.options('*', cors());
 
+// Compression middleware - must come before routes
+app.use(compression({
+  level: 6, // Compression level (0-9)
+  threshold: 1024, // Only compress responses larger than 1KB
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Request logging middleware (for debugging)
 app.use((req, res, next) => {
-  console.log(`📱 ${req.method} ${req.path}`);
-  console.log(`🌐 Origin: ${req.headers.origin || 'No origin'}`);
-  console.log(`🔑 Auth: ${req.headers.authorization ? 'Bearer token present' : 'No auth header'}`);
-  console.log(`🍪 Cookie: ${req.headers.cookie ? 'Cookie present' : 'No cookie'}`);
-  console.log(`📦 Content-Type: ${req.headers['content-type'] || 'Not set'}`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`📱 ${req.method} ${req.path}`);
+    console.log(`🌐 Origin: ${req.headers.origin || 'No origin'}`);
+    console.log(`🔑 Auth: ${req.headers.authorization ? 'Bearer token present' : 'No auth header'}`);
+    console.log(`🍪 Cookie: ${req.headers.cookie ? 'Cookie present' : 'No cookie'}`);
+    console.log(`📦 Content-Type: ${req.headers['content-type'] || 'Not set'}`);
+  }
   next();
 });
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vybe-store')
-  .then(() => console.log('✅ MongoDB connected successfully'))
+// MongoDB connection with optimization options
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vybe-store', {
+  maxPoolSize: 10, // Connection pool size
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    // Connect to Redis (optional, continues without it if unavailable)
+    connectRedis();
+  })
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // Root route
@@ -173,3 +202,36 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 server.timeout = 300000; // 5 minutes
 server.keepAliveTimeout = 65000; // Keep alive for 65 seconds
 server.headersTimeout = 66000; // Headers timeout slightly longer than keep alive
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('👋 SIGTERM signal received: closing HTTP server');
+  server.close(async () => {
+    console.log('🔒 HTTP server closed');
+    
+    // Close database connection
+    await mongoose.connection.close();
+    console.log('🔒 MongoDB connection closed');
+    
+    // Close Redis connection
+    await closeRedis();
+    
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', async () => {
+  console.log('👋 SIGINT signal received: closing HTTP server');
+  server.close(async () => {
+    console.log('🔒 HTTP server closed');
+    
+    // Close database connection
+    await mongoose.connection.close();
+    console.log('🔒 MongoDB connection closed');
+    
+    // Close Redis connection
+    await closeRedis();
+    
+    process.exit(0);
+  });
+});

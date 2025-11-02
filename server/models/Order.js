@@ -8,7 +8,6 @@ const orderSchema = new mongoose.Schema({
   },
   orderNumber: {
     type: String,
-    unique: true,
     required: true
   },
   items: [{
@@ -94,5 +93,13 @@ const orderSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Indexes for performance
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ orderNumber: 1 }, { unique: true });
+orderSchema.index({ orderStatus: 1 });
+orderSchema.index({ 'paymentInfo.status': 1 });
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ user: 1, orderStatus: 1 });
 
 export default mongoose.model('Order', orderSchema);

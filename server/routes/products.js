@@ -1,22 +1,25 @@
 import express from 'express';
 import Product from '../models/Product.js';
+import { cacheMiddleware } from '../middleware/cache.js';
+import { paginate, parsePaginationParams } from '../utils/pagination.js';
 
 const router = express.Router();
 
 // @route   GET /api/products
 // @desc    Get all products with filtering, sorting, pagination
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', cacheMiddleware(300), async (req, res) => {
   try {
     const { 
       category, 
       minPrice, 
       maxPrice, 
       search, 
-      featured, 
-      sort = '-createdAt',
-      page = 1, 
-      limit = 12 
+      featured,
+      page,
+      limit,
+      sortBy,
+      order
     } = req.query;
 
     // Build query
@@ -33,26 +36,19 @@ router.get('/', async (req, res) => {
       query.$text = { $search: search };
     }
 
-    // Execute query with pagination
-    const skip = (Number(page) - 1) * Number(limit);
-    const products = await Product.find(query)
-      .sort(sort)
-      .limit(Number(limit))
-      .skip(skip)
-      .select('-reviews');
+    // Parse pagination params
+    const { page: pageNum, limit: limitNum, sort } = parsePaginationParams(req.query);
 
-    const total = await Product.countDocuments(query);
-
-    res.json({
-      success: true,
-      data: products,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        pages: Math.ceil(total / Number(limit))
-      }
+    // Use pagination helper with optimizations
+    const result = await paginate(Product, query, {
+      page: pageNum,
+      limit: limitNum,
+      sort,
+      select: '-reviews', // Exclude reviews for list view
+      lean: true // Convert to plain JS object for better performance
     });
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -64,10 +60,11 @@ router.get('/', async (req, res) => {
 // @route   GET /api/products/:id
 // @desc    Get single product
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:id', cacheMiddleware(600), async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate('reviews.user', 'name');
+      .populate('reviews.user', 'name')
+      .lean(); // Use lean for better performance
 
     if (!product) {
       return res.status(404).json({
@@ -91,12 +88,15 @@ router.get('/:id', async (req, res) => {
 // @route   GET /api/products/category/:category
 // @desc    Get products by category
 // @access  Public
-router.get('/category/:category', async (req, res) => {
+router.get('/category/:category', cacheMiddleware(300), async (req, res) => {
   try {
     const products = await Product.find({ 
       category: req.params.category,
       isActive: true 
-    }).select('-reviews');
+    })
+    .select('-reviews')
+    .lean()
+    .sort({ featured: -1, createdAt: -1 });
 
     res.json({
       success: true,

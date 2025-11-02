@@ -102,8 +102,14 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for search and filtering
+// Indexes for search and filtering
 productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 productSchema.index({ category: 1, featured: -1 });
+productSchema.index({ category: 1, isActive: 1 });
+productSchema.index({ featured: -1, createdAt: -1 });
+productSchema.index({ 'rating.average': -1 });
+productSchema.index({ sold: -1 });
+productSchema.index({ basePrice: 1 });
+productSchema.index({ createdAt: -1 });
 
 export default mongoose.model('Product', productSchema);

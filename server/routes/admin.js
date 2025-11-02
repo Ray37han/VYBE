@@ -7,6 +7,9 @@ import { upload, handleMulterError, watermarkImages } from '../middleware/upload
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import { sendOrderStatusUpdate } from '../utils/emailService.js';
 import { sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
+import { invalidateCache } from '../middleware/cache.js';
+import { cacheMiddleware } from '../middleware/cache.js';
+import { paginate, parsePaginationParams } from '../utils/pagination.js';
 
 const router = express.Router();
 
@@ -136,6 +139,10 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
       images: imageUploads
     });
 
+    // Invalidate product caches
+    await invalidateCache('cache:/api/products*');
+    await invalidateCache('cache:/api/admin/products*');
+
     console.log('✅ Product created successfully:', product._id);
     res.status(201).json({
       success: true,
@@ -221,6 +228,10 @@ router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMu
     Object.assign(product, updateData);
     await product.save();
 
+    // Invalidate product caches
+    await invalidateCache('cache:/api/products*');
+    await invalidateCache('cache:/api/admin/products*');
+
     console.log('✅ Product updated successfully:', product._id);
     res.json({
       success: true,
@@ -258,6 +269,10 @@ router.delete('/products/:id', async (req, res) => {
     }
 
     await product.deleteOne();
+
+    // Invalidate product caches
+    await invalidateCache('cache:/api/products*');
+    await invalidateCache('cache:/api/admin/products*');
 
     res.json({
       success: true,
@@ -322,21 +337,27 @@ router.delete('/products/:id/images/:imageId', async (req, res) => {
 // @route   GET /api/admin/orders
 // @desc    Get all orders
 // @access  Private/Admin
-router.get('/orders', async (req, res) => {
+router.get('/orders', cacheMiddleware(60), async (req, res) => {
   try {
-    const { status } = req.query;
+    const { status, page, limit, sortBy, order: sortOrder } = req.query;
     const query = status ? { orderStatus: status } : {};
 
-    const orders = await Order.find(query)
-      .populate('user', 'name email')
-      .populate('items.product', 'name images')
-      .sort('-createdAt');
+    // Parse pagination params
+    const { page: pageNum, limit: limitNum, sort } = parsePaginationParams(req.query);
 
-    res.json({
-      success: true,
-      data: orders,
-      count: orders.length
+    // Use pagination helper
+    const result = await paginate(Order, query, {
+      page: pageNum,
+      limit: limitNum,
+      sort,
+      populate: [
+        { path: 'user', select: 'name email' },
+        { path: 'items.product', select: 'name images' }
+      ],
+      lean: true
     });
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -378,6 +399,10 @@ router.put('/orders/:id/status', async (req, res) => {
     });
 
     await order.save();
+
+    // Invalidate order caches
+    await invalidateCache('cache:/api/admin/orders*');
+    await invalidateCache('cache:/api/orders*');
 
     // Send email notification
     if (order.user?.email) {
