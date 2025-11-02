@@ -1,0 +1,68 @@
+╔════════════════════════════════════════════════════════════════╗
+║                   🚂 RAILWAY DEPLOYMENT                        ║
+║                      QUICK REFERENCE                           ║
+╚════════════════════════════════════════════════════════════════╝
+
+📋 CHECKLIST:
+
+✅ Code pushed to GitHub (DONE!)
+   → https://github.com/Ray37han/VYBE
+
+⬜ Go to Railway
+   → https://railway.app
+   → Click "Login with GitHub"
+
+⬜ Create New Project
+   → Click "New Project"
+   → "Deploy from GitHub repo"
+   → Select "Ray37han/VYBE"
+
+⬜ Add Environment Variables (IMPORTANT!)
+   Click "Variables" tab and add these:
+
+   MONGODB_URI=mongodb+srv://2303037_db_user:kALl4kOIAR6mUefP@cluster0.p6xeucy.mongodb.net/vybe-store?retryWrites=true&w=majority
+   JWT_SECRET=vybe-secret-key-2024-production-secure
+   JWT_EXPIRE=7d
+   JWT_COOKIE_EXPIRE=7
+   CLOUDINARY_CLOUD_NAME=dyonj35w3
+   CLOUDINARY_API_KEY=158432847288626
+   CLOUDINARY_API_SECRET=CjFWYAT0TyEEGwUqSEblxo78vTA
+   EMAIL_USER=vybestore2024@gmail.com
+   EMAIL_PASS=temp-placeholder-configure-later
+   EMAIL_FROM_NAME=VYBE
+   CLIENT_URL=http://localhost:3000
+   NODE_ENV=production
+   PORT=5001
+
+⬜ Generate Domain
+   → Settings tab → Domains section
+   → Click "Generate Domain"
+   → Copy the URL (e.g., vybe-backend-production.up.railway.app)
+
+⬜ Update Frontend
+   cd client
+   Edit .env:
+   VITE_API_URL=https://YOUR-RAILWAY-URL.up.railway.app/api
+
+⬜ Test Backend
+   Open: https://YOUR-RAILWAY-URL.up.railway.app/api/health
+
+⬜ Restart Frontend
+   npm run dev
+
+⬜ Test Upload
+   Try uploading from Windows device - IT WILL WORK! ✅
+
+═══════════════════════════════════════════════════════════════
+
+🎯 YOUR RAILWAY URL WILL BE:
+   https://vybe-backend-production.up.railway.app
+
+📖 FULL GUIDE:
+   See RAILWAY_DEPLOYMENT_STEPS.md
+
+⏱️ TIME NEEDED: 10 minutes
+
+💰 COST: FREE ($5 credit included)
+
+═══════════════════════════════════════════════════════════════
