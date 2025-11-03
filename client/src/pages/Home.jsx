@@ -11,7 +11,7 @@ import 'swiper/css/effect-creative';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/navigation';
 
-// Snowflake component
+// Snowflake component - for dark mode
 const Snowflake = ({ delay, duration, left }) => (
   <motion.div
     className="absolute text-white text-2xl opacity-80"
@@ -33,12 +33,40 @@ const Snowflake = ({ delay, duration, left }) => (
   </motion.div>
 );
 
+// Floating Particles component - for light mode
+const FloatingParticle = ({ delay, duration, left }) => {
+  const particles = ['⚡', '✨', '⭐', '💫', '🌟'];
+  const particle = particles[Math.floor(Math.random() * particles.length)];
+  
+  return (
+    <motion.div
+      className="absolute text-2xl opacity-40"
+      style={{ left: `${left}%`, top: '-5%' }}
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ 
+        y: '110vh', 
+        opacity: [0, 0.4, 0.4, 0],
+        x: [0, Math.random() * 100 - 50, 0],
+        rotate: [0, 360, 0]
+      }}
+      transition={{ 
+        duration, 
+        delay, 
+        repeat: Infinity,
+        ease: 'linear'
+      }}
+    >
+      {particle}
+    </motion.div>
+  );
+};
+
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [posterGallery, setPosterGallery] = useState([]);
   const [heroItems, setHeroItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [snowEnabled, setSnowEnabled] = useState(true);
+  const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [activeHeroCard, setActiveHeroCard] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -109,33 +137,46 @@ export default function Home() {
       >
         {/* Control Buttons - Fixed Position */}
         <div className="fixed top-24 right-6 z-50 flex flex-col gap-3">
-          {/* Snowfall Toggle */}
+          {/* Effects Toggle */}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setSnowEnabled(!snowEnabled)}
+            onClick={() => setEffectsEnabled(!effectsEnabled)}
             className={`p-4 rounded-full shadow-lg backdrop-blur-md border-2 transition-all duration-300 ${
               darkMode 
                 ? 'bg-moon-midnight/60 border-moon-silver text-moon-silver hover:bg-moon-silver hover:text-moon-night' 
-                : 'bg-white/60 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white'
+                : 'bg-white/80 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white'
             }`}
-            title={snowEnabled ? "Disable Snowfall" : "Enable Snowfall"}
+            title={effectsEnabled ? (darkMode ? "Disable Snowfall" : "Disable Particles") : (darkMode ? "Enable Snowfall" : "Enable Particles")}
           >
-            <span className="text-2xl">{snowEnabled ? '❄️' : '🌙'}</span>
+            <span className="text-2xl">{effectsEnabled ? (darkMode ? '❄️' : '✨') : (darkMode ? '🌙' : '💫')}</span>
           </motion.button>
         </div>
 
-        {/* Snowfall Effect */}
-        {snowEnabled && (
+        {/* Floating Effects - Snowfall for Dark Mode, Particles for Light Mode */}
+        {effectsEnabled && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(50)].map((_, i) => (
-              <Snowflake
-                key={i}
-                delay={Math.random() * 5}
-                duration={5 + Math.random() * 10}
-                left={Math.random() * 100}
-              />
-            ))}
+            {darkMode ? (
+              // Snowfall for dark mode
+              [...Array(50)].map((_, i) => (
+                <Snowflake
+                  key={i}
+                  delay={Math.random() * 5}
+                  duration={5 + Math.random() * 10}
+                  left={Math.random() * 100}
+                />
+              ))
+            ) : (
+              // Floating particles for light mode
+              [...Array(30)].map((_, i) => (
+                <FloatingParticle
+                  key={i}
+                  delay={Math.random() * 5}
+                  duration={8 + Math.random() * 12}
+                  left={Math.random() * 100}
+                />
+              ))
+            )}
           </div>
         )}
 
@@ -157,7 +198,7 @@ export default function Home() {
           {darkMode ? (
             <FiMoon className="w-20 h-20 md:w-32 md:h-32 opacity-20 text-moon-gold" />
           ) : (
-            <FiSun className="w-20 h-20 md:w-32 md:h-32 opacity-20 text-yellow-400" />
+            <FiSun className="w-20 h-20 md:w-32 md:h-32 opacity-30 text-yellow-500" />
           )}
         </motion.div>
 
@@ -177,10 +218,10 @@ export default function Home() {
                 transition={{ delay: 0.2 }}
                 className="mb-4"
               >
-                <span className={`inline-block px-6 py-2 rounded-full font-semibold text-sm tracking-wider animate-pulse-slow ${
+                <span className={`inline-block px-6 py-2 rounded-full font-semibold text-sm tracking-wider animate-pulse-slow shadow-lg ${
                   darkMode 
                     ? 'bg-moon-mystical/20 border border-moon-gold/30 text-moon-gold' 
-                    : 'bg-purple-100 border border-purple-300 text-purple-600'
+                    : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border border-purple-600'
                 }`}>
                   ✨ VENGEANCE IN STYLE
                 </span>
@@ -196,13 +237,13 @@ export default function Home() {
               >
                 Rise of the{' '}
                 <span className={`block mt-2 ${darkMode ? 'moon-gradient-text neon-text' : 'gradient-text'}`}>
-                  Night Warriors
+                  Knight Warriors
                 </span>
               </motion.h1>
 
               <motion.p 
-                className={`text-xl mb-8 leading-relaxed ${
-                  darkMode ? 'text-moon-silver' : 'text-gray-700'
+                className={`text-xl mb-8 leading-relaxed font-medium ${
+                  darkMode ? 'text-moon-silver' : 'text-gray-800'
                 }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -226,10 +267,10 @@ export default function Home() {
                 </Link>
                 <Link 
                   to="/products?category=custom" 
-                  className={`px-8 py-4 bg-transparent border-2 font-bold rounded-full transform hover:scale-110 transition-all duration-500 ${
+                  className={`px-8 py-4 bg-transparent border-2 font-bold rounded-full transform hover:scale-110 transition-all duration-500 shadow-md ${
                     darkMode 
                       ? 'border-moon-gold text-moon-gold hover:bg-moon-gold hover:text-moon-night'
-                      : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white'
+                      : 'border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white hover:shadow-xl'
                   }`}
                 >
                   Custom Creations
@@ -495,7 +536,7 @@ export default function Home() {
               <span className={darkMode ? 'moon-gradient-text neon-text' : 'gradient-text'}>Mystical Collection</span>
             </motion.h2>
             <motion.p 
-              className={`text-xl max-w-2xl mx-auto ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}
+              className={`text-xl max-w-2xl mx-auto font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-800'}`}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -583,7 +624,7 @@ export default function Home() {
 
       {/* Features Section - Glass Morphism */}
       <section className={`py-20 relative overflow-hidden transition-colors duration-500 ${
-        darkMode ? 'bg-moon-midnight' : 'bg-white'
+        darkMode ? 'bg-moon-midnight' : 'bg-gradient-to-b from-white to-purple-50'
       }`}>
         <div className="absolute inset-0 hieroglyph-overlay opacity-20"></div>
         
@@ -639,7 +680,7 @@ export default function Home() {
                 }`}>
                   {feature.title}
                 </h3>
-                <p className={`leading-relaxed ${darkMode ? 'text-moon-silver' : 'text-gray-600'}`}>
+                <p className={`leading-relaxed font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>
                   {feature.description}
                 </p>
               </motion.div>
@@ -650,7 +691,7 @@ export default function Home() {
 
       {/* Featured Products - Swiper Carousel */}
       <section className={`py-20 transition-colors duration-500 ${
-        darkMode ? 'bg-gradient-to-b from-moon-midnight to-moon-night' : 'bg-gradient-to-b from-gray-50 to-white'
+        darkMode ? 'bg-gradient-to-b from-moon-midnight to-moon-night' : 'bg-gradient-to-b from-blue-50 to-purple-50'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -662,7 +703,7 @@ export default function Home() {
             <h2 className={`text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               <span className={darkMode ? 'moon-gradient-text' : 'gradient-text'}>Featured Treasures</span>
             </h2>
-            <p className={`text-xl ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>Curated selection of iconic wall art</p>
+            <p className={`text-xl font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-800'}`}>Curated selection of iconic wall art</p>
           </motion.div>
 
           {loading ? (
@@ -799,7 +840,7 @@ export default function Home() {
             </motion.h2>
             
             <motion.p 
-              className={`text-xl mb-8 max-w-2xl mx-auto ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}
+              className={`text-xl mb-8 max-w-2xl mx-auto font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-800'}`}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}

@@ -48,9 +48,7 @@ export default function ProductDetail() {
       const response = await productsAPI.getOne(id);
       const productData = response.data || response;
       setProduct(productData);
-      if (productData.sizes && productData.sizes.length > 0) {
-        setSelectedSize(productData.sizes[0].name);
-      }
+      // Don't auto-select size - force user to make explicit choice
     } catch (error) {
       toast.error('Product not found');
       navigate('/products');
@@ -190,28 +188,57 @@ export default function ProductDetail() {
             </div>
             
             <div className="flex items-center gap-4 mb-6">
-              <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
-              <div className="flex flex-col">
-                <span className="text-2xl text-gray-400 line-through">৳{Math.round(currentPrice / 0.75)}</span>
-                <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                  25% OFF
-                </span>
-              </div>
+              {selectedSize ? (
+                <>
+                  <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
+                  <div className="flex flex-col">
+                    <span className="text-2xl text-gray-400 line-through">৳{Math.round(currentPrice / 0.75)}</span>
+                    <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                      25% OFF
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <p className="text-3xl font-bold text-gray-400">৳{product.basePrice}+</p>
+                  <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    Starting price
+                  </span>
+                </div>
+              )}
             </div>
             <p className="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
 
             {/* Size Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2">Select Size:</label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-semibold">Select Size: <span className="text-red-500">*</span></label>
+                {!selectedSize && (
+                  <motion.span 
+                    className="text-xs text-vybe-purple font-semibold flex items-center gap-1"
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <span className="w-2 h-2 bg-vybe-purple rounded-full animate-pulse"></span>
+                    Please choose a size
+                  </motion.span>
+                )}
+              </div>
+              <div className={`flex flex-wrap gap-3 p-4 rounded-lg border-2 transition-all ${
+                !selectedSize 
+                  ? 'border-vybe-purple/30 bg-vybe-purple/5 shadow-lg shadow-vybe-purple/10' 
+                  : 'border-transparent bg-transparent'
+              }`}>
                 {product.sizes.map((size) => (
-                  <button
+                  <motion.button
                     key={size.name}
                     onClick={() => setSelectedSize(size.name)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     className={`px-6 py-3 rounded-full border-2 transition-all ${
                       selectedSize === size.name
-                        ? 'border-vybe-purple bg-vybe-purple text-white'
-                        : 'border-gray-300 hover:border-vybe-purple'
+                        ? 'border-vybe-purple bg-vybe-purple text-white shadow-lg'
+                        : 'border-gray-300 hover:border-vybe-purple hover:shadow-md'
                     }`}
                   >
                     <div className="flex flex-col items-start">
@@ -225,9 +252,19 @@ export default function ProductDetail() {
                         </span>
                       </div>
                     </div>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
+              {!selectedSize && (
+                <motion.p 
+                  className="text-xs text-gray-500 mt-2 flex items-center gap-1"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <span>💡</span>
+                  Tip: Select your preferred poster size to see the price
+                </motion.p>
+              )}
             </div>
 
             {/* Quantity */}
@@ -266,14 +303,33 @@ export default function ProductDetail() {
 
             {/* Actions */}
             <div className="flex gap-4">
-              <button onClick={handleAddToCart} className="flex-1 btn-primary flex items-center justify-center gap-2">
+              <motion.button 
+                onClick={handleAddToCart} 
+                disabled={!selectedSize}
+                whileTap={selectedSize ? { scale: 0.95 } : {}}
+                className={`flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all ${
+                  !selectedSize
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'btn-primary'
+                }`}
+              >
                 <FiShoppingCart />
-                Add to Cart
-              </button>
+                {!selectedSize ? 'Select Size First' : 'Add to Cart'}
+              </motion.button>
               <button className="btn-secondary">
                 <FiHeart className="w-6 h-6" />
               </button>
             </div>
+            
+            {!selectedSize && (
+              <motion.div 
+                className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                ⚠️ Please select a size above to add this product to your cart
+              </motion.div>
+            )}
 
             {product.customizable && (
               <div className="mt-6 p-4 bg-purple-50 rounded-lg">
@@ -392,15 +448,28 @@ export default function ProductDetail() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-moon-midnight border-t border-gray-200 dark:border-moon-gold/20 p-4 shadow-2xl z-50">
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <p className="text-lg font-bold text-gray-900 dark:text-moon-gold">
-              ৳{currentPrice}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-moon-silver/60">
-              {selectedSize ? `Size: ${selectedSize}` : 'Select a size'}
-            </p>
+            {selectedSize ? (
+              <>
+                <p className="text-lg font-bold text-gray-900 dark:text-moon-gold">
+                  ৳{currentPrice}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-moon-silver/60">
+                  Size: {selectedSize}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-lg font-bold text-gray-400">
+                  ৳{product.basePrice}+
+                </p>
+                <p className="text-xs text-vybe-purple dark:text-moon-gold font-semibold animate-pulse">
+                  ⚠️ Select a size first
+                </p>
+              </>
+            )}
           </div>
           <motion.button
-            whileTap={{ scale: 0.95 }}
+            whileTap={selectedSize ? { scale: 0.95 } : {}}
             onClick={handleAddToCart}
             disabled={!selectedSize}
             className={`px-6 py-3 rounded-xl font-bold shadow-lg transition-all ${
@@ -411,7 +480,7 @@ export default function ProductDetail() {
           >
             <div className="flex items-center gap-2">
               <FiShoppingCart className="w-5 h-5" />
-              <span>Add to Cart</span>
+              <span>{!selectedSize ? 'Select Size' : 'Add to Cart'}</span>
             </div>
           </motion.button>
         </div>

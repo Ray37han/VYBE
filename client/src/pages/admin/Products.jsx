@@ -429,336 +429,369 @@ export default function AdminProducts() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto"
             onClick={() => {
               setShowModal(false);
               resetForm();
             }}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className={`rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto my-8 border ${
-                darkMode 
-                  ? 'bg-moon-midnight border-moon-gold/30' 
-                  : 'bg-white border-purple-100'
-              }`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className={`text-2xl font-bold ${darkMode ? 'text-moon-gold' : 'text-gray-900'}`}>
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </h2>
-                <button 
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                  className={`text-2xl ${darkMode ? 'text-moon-silver hover:text-moon-gold' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  ×
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Product Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+            <div className="min-h-screen flex items-center justify-center p-0 sm:p-4">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className={`w-full sm:w-auto sm:min-w-[600px] sm:max-w-2xl md:max-w-3xl lg:max-w-4xl m-0 sm:my-8 sm:mx-auto rounded-none sm:rounded-2xl shadow-2xl border-0 sm:border max-h-screen sm:max-h-[95vh] overflow-hidden flex flex-col ${
+                  darkMode 
+                    ? 'bg-moon-midnight sm:border-moon-gold/30' 
+                    : 'bg-white sm:border-purple-100'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Sticky Header */}
+                <div className={`flex-shrink-0 px-4 sm:px-6 md:px-8 py-4 border-b ${
+                  darkMode 
+                    ? 'bg-moon-midnight border-moon-gold/20' 
+                    : 'bg-white border-purple-100'
+                }`}>
+                  <div className="flex justify-between items-center">
+                    <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold ${darkMode ? 'text-moon-gold' : 'text-gray-900'}`}>
+                      {editingProduct ? 'Edit Product' : 'Add New Product'}
+                    </h2>
+                    <button 
+                      onClick={() => {
+                        setShowModal(false);
+                        resetForm();
+                      }}
+                      className={`text-3xl sm:text-2xl font-light w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
                         darkMode 
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
-                      }`}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Category *
-                    </label>
-                    <select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
-                        darkMode 
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:ring-moon-gold' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                          ? 'text-moon-silver hover:text-moon-gold hover:bg-moon-gold/10' 
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      {categories.map(cat => (
-                        <option key={cat} value={cat} className={darkMode ? 'bg-moon-midnight text-moon-silver' : ''}>
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                    Description *
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
-                      darkMode 
-                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
-                        : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
-                    }`}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Base Price (৳) *
-                    </label>
-                    <input
-                      type="number"
-                      name="basePrice"
-                      value={formData.basePrice}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
-                        darkMode 
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
-                      }`}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Stock *
-                    </label>
-                    <input
-                      type="number"
-                      name="stock"
-                      value={formData.stock}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
-                        darkMode 
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
-                      }`}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Tags (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={handleInputChange}
-                      placeholder="poster, art, modern"
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
-                        darkMode 
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
-                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {/* Sizes */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className={`block text-sm font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>Sizes & Pricing</label>
-                    <button
-                      type="button"
-                      onClick={addSize}
-                      className={`text-sm ${darkMode ? 'text-moon-gold hover:text-moon-silver' : 'text-purple-600 hover:text-purple-700'}`}
-                    >
-                      + Add Size
+                      ×
                     </button>
                   </div>
-                  <div className="space-y-2">
-                    {formData.sizes.map((size, index) => (
-                      <div key={index} className="flex gap-2">
-                        <select
-                          value={size.name}
-                          onChange={(e) => {
-                            const selected = sizeOptions.find(s => s.name === e.target.value);
-                            handleSizeChange(index, 'name', e.target.value);
-                            if (selected) {
-                              handleSizeChange(index, 'dimensions', selected.dimensions);
-                            }
-                          }}
-                          className={`flex-1 px-3 py-2 border rounded-lg ${
-                            darkMode 
-                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver' 
-                              : 'bg-white border-gray-300 text-gray-900'
-                          }`}
-                        >
-                          <option value="" className={darkMode ? 'bg-moon-midnight' : ''}>Select Size</option>
-                          {sizeOptions.map(opt => (
-                            <option key={opt.name} value={opt.name} className={darkMode ? 'bg-moon-midnight text-moon-silver' : ''}>{opt.name}</option>
-                          ))}
-                        </select>
+                </div>
+
+                {/* Scrollable Form Content */}
+                <div className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                    {/* Basic Info */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="sm:col-span-2">
+                        <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                          Product Name *
+                        </label>
                         <input
                           type="text"
-                          value={size.dimensions}
-                          onChange={(e) => handleSizeChange(index, 'dimensions', e.target.value)}
-                          placeholder="Dimensions"
-                          className={`flex-1 px-3 py-2 border rounded-lg ${
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Enter product name"
+                          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
                             darkMode 
-                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40' 
-                              : 'bg-white border-gray-300 text-gray-900'
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                              : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
                           }`}
+                          required
                         />
+                      </div>
+
+                      <div>
+                        <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                          Category *
+                        </label>
+                        <select
+                          name="category"
+                          value={formData.category}
+                          onChange={handleInputChange}
+                          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                            darkMode 
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:ring-moon-gold' 
+                              : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                          }`}
+                        >
+                          {categories.map(cat => (
+                            <option key={cat} value={cat} className={darkMode ? 'bg-moon-midnight text-moon-silver' : ''}>
+                              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                          Base Price (৳) *
+                        </label>
                         <input
                           type="number"
-                          value={size.price}
-                          onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
-                          placeholder="Price"
-                          className={`w-24 px-3 py-2 border rounded-lg ${
+                          name="basePrice"
+                          value={formData.basePrice}
+                          onChange={handleInputChange}
+                          placeholder="0"
+                          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
                             darkMode 
-                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40' 
-                              : 'bg-white border-gray-300 text-gray-900'
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                              : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                          }`}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        Description *
+                      </label>
+                      <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        rows={3}
+                        placeholder="Describe your product..."
+                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all resize-none ${
+                          darkMode 
+                            ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                            : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                        }`}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                      <div>
+                        <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                          Stock *
+                        </label>
+                        <input
+                          type="number"
+                          name="stock"
+                          value={formData.stock}
+                          onChange={handleInputChange}
+                          placeholder="0"
+                          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                            darkMode 
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                              : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                          }`}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-span-2">
+                        <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                          Tags (comma separated)
+                        </label>
+                        <input
+                          type="text"
+                          name="tags"
+                          value={formData.tags}
+                          onChange={handleInputChange}
+                          placeholder="poster, art, modern"
+                          className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                            darkMode 
+                              ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold' 
+                              : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
                           }`}
                         />
-                        {formData.sizes.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeSize(index)}
-                            className={`px-3 py-2 rounded-lg ${
-                              darkMode 
-                                ? 'text-red-400 hover:bg-red-500/20' 
-                                : 'text-red-600 hover:bg-red-50'
-                            }`}
-                          >
-                            ×
-                          </button>
-                        )}
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Sizes */}
+                    <div>
+                      <div className="flex justify-between items-center mb-2 sm:mb-3">
+                        <label className={`block text-xs sm:text-sm font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>Sizes & Pricing</label>
+                        <button
+                          type="button"
+                          onClick={addSize}
+                          className={`text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                            darkMode 
+                              ? 'text-moon-gold hover:bg-moon-gold/10' 
+                              : 'text-purple-600 hover:bg-purple-50'
+                          }`}
+                        >
+                          + Add Size
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {formData.sizes.map((size, index) => (
+                          <div key={index} className="flex flex-col sm:flex-row gap-2">
+                            <select
+                              value={size.name}
+                              onChange={(e) => {
+                                const selected = sizeOptions.find(s => s.name === e.target.value);
+                                handleSizeChange(index, 'name', e.target.value);
+                                if (selected) {
+                                  handleSizeChange(index, 'dimensions', selected.dimensions);
+                                }
+                              }}
+                              className={`w-full sm:w-24 px-2 sm:px-3 py-2 text-sm border rounded-lg ${
+                                darkMode 
+                                  ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver' 
+                                  : 'bg-white border-gray-300 text-gray-900'
+                              }`}
+                            >
+                              <option value="" className={darkMode ? 'bg-moon-midnight' : ''}>Size</option>
+                              {sizeOptions.map(opt => (
+                                <option key={opt.name} value={opt.name} className={darkMode ? 'bg-moon-midnight text-moon-silver' : ''}>{opt.name}</option>
+                              ))}
+                            </select>
+                            <input
+                              type="text"
+                              value={size.dimensions}
+                              onChange={(e) => handleSizeChange(index, 'dimensions', e.target.value)}
+                              placeholder="Dimensions"
+                              className={`flex-1 px-2 sm:px-3 py-2 text-sm border rounded-lg ${
+                                darkMode 
+                                  ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40' 
+                                  : 'bg-white border-gray-300 text-gray-900'
+                              }`}
+                            />
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                value={size.price}
+                                onChange={(e) => handleSizeChange(index, 'price', e.target.value)}
+                                placeholder="Price"
+                                className={`flex-1 sm:w-24 px-2 sm:px-3 py-2 text-sm border rounded-lg ${
+                                  darkMode 
+                                    ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40' 
+                                    : 'bg-white border-gray-300 text-gray-900'
+                                }`}
+                              />
+                              {formData.sizes.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeSize(index)}
+                                  className={`px-3 py-2 rounded-lg transition-all ${
+                                    darkMode 
+                                      ? 'text-red-400 hover:bg-red-500/20' 
+                                      : 'text-red-600 hover:bg-red-50'
+                                  }`}
+                                >
+                                  ×
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Images */}
+                    <div>
+                      <label className={`block text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        Product Images * <span className="text-xs opacity-60">(Max 5, 5MB each)</span>
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageChange}
+                        className={`w-full px-3 sm:px-4 py-2 text-xs sm:text-sm border rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold transition-all ${
+                          darkMode 
+                            ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver file:bg-moon-gold file:text-moon-night' 
+                            : 'bg-white border-gray-300 text-gray-900 file:bg-purple-600 file:text-white'
+                        }`}
+                      />
+                      {imagePreviews.length > 0 && (
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3 sm:mt-4">
+                          {imagePreviews.map((preview, index) => (
+                            <div key={index} className="relative group aspect-square">
+                              <img
+                                src={preview}
+                                alt={`Preview ${index + 1}`}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-sm shadow-lg"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Checkboxes */}
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                      <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        <input
+                          type="checkbox"
+                          name="featured"
+                          checked={formData.featured}
+                          onChange={handleInputChange}
+                          className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'accent-purple-600'}`}
+                        />
+                        <span className="text-xs sm:text-sm">Featured</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        <input
+                          type="checkbox"
+                          name="customizable"
+                          checked={formData.customizable}
+                          onChange={handleInputChange}
+                          className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'accent-purple-600'}`}
+                        />
+                        <span className="text-xs sm:text-sm">Customizable</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        <input
+                          type="checkbox"
+                          name="isActive"
+                          checked={formData.isActive}
+                          onChange={handleInputChange}
+                          className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'accent-purple-600'}`}
+                        />
+                        <span className="text-xs sm:text-sm">Active</span>
+                      </label>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Sticky Footer */}
+                <div className={`flex-shrink-0 px-4 sm:px-6 md:px-8 py-4 border-t ${
+                  darkMode 
+                    ? 'bg-moon-midnight border-moon-gold/20' 
+                    : 'bg-white border-purple-100'
+                }`}>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className={`w-full sm:flex-1 px-4 py-3 sm:py-3 text-sm sm:text-base rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${
+                        darkMode 
+                          ? 'bg-gradient-to-r from-moon-gold to-moon-mystical text-moon-night hover:shadow-moon-gold/50' 
+                          : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-purple-500/50'
+                      }`}
+                    >
+                      {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Create Product')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowModal(false);
+                        resetForm();
+                      }}
+                      className={`w-full sm:flex-1 px-4 py-3 sm:py-3 text-sm sm:text-base border rounded-lg font-semibold transition-all ${
+                        darkMode 
+                          ? 'border-moon-gold/30 text-moon-silver hover:bg-moon-gold/10' 
+                          : 'border-gray-300 text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
-
-                {/* Images */}
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                    Product Images * (Max 5, 5MB each)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
-                    className={`w-full px-4 py-2 border rounded-lg ${
-                      darkMode 
-                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver' 
-                        : 'bg-white border-gray-300 text-gray-900'
-                    }`}
-                  />
-                  {imagePreviews.length > 0 && (
-                    <div className="grid grid-cols-5 gap-2 mt-4">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Checkboxes */}
-                <div className="flex gap-6">
-                  <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                    <input
-                      type="checkbox"
-                      name="featured"
-                      checked={formData.featured}
-                      onChange={handleInputChange}
-                      className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'text-purple-600'}`}
-                    />
-                    <span className="text-sm">Featured Product</span>
-                  </label>
-
-                  <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                    <input
-                      type="checkbox"
-                      name="customizable"
-                      checked={formData.customizable}
-                      onChange={handleInputChange}
-                      className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'text-purple-600'}`}
-                    />
-                    <span className="text-sm">Allow Customization</span>
-                  </label>
-
-                  <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                    <input
-                      type="checkbox"
-                      name="isActive"
-                      checked={formData.isActive}
-                      onChange={handleInputChange}
-                      className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'text-purple-600'}`}
-                    />
-                    <span className="text-sm">Active</span>
-                  </label>
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="flex gap-4 pt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                      darkMode 
-                        ? 'bg-gradient-to-r from-moon-gold to-moon-mystical text-moon-night hover:shadow-lg hover:shadow-moon-gold/50' 
-                        : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
-                    }`}
-                  >
-                    {loading ? 'Saving...' : (editingProduct ? 'Update Product' : 'Create Product')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false);
-                      resetForm();
-                    }}
-                    className={`flex-1 px-4 py-2 border rounded-lg transition-colors ${
-                      darkMode 
-                        ? 'border-moon-gold/30 text-moon-silver hover:bg-moon-gold/20' 
-                        : 'border-gray-300 text-gray-900 hover:bg-gray-50'
-                    }`}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
