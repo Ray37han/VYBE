@@ -1,0 +1,54 @@
+# Node modules
+node_modules
+server/node_modules
+client/node_modules
+
+# Environment files (Railway will inject these)
+.env
+.env.*
+server/.env
+server/.env.*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+RAILWAY_*.md
+*.txt
+
+# Client files (not needed for backend deployment)
+client
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Production files
+dist
+build
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# PM2
+.pm2
