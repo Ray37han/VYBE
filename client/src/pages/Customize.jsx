@@ -110,18 +110,21 @@ export default function Customize() {
       return;
     }
 
-    // Check if instructions have been read
-    if (!instructionsRead) {
-      setShowInstructions(true);
-      // Store the file for later upload after instructions are read
-      fileInputRef.current.dataset.pendingFile = 'true';
-      return;
-    }
-
-    // Preview image locally FIRST
+    // Preview image locally FIRST (always show preview)
     const reader = new FileReader();
     reader.onload = (readerEvent) => {
-      setUploadedImage(readerEvent.target.result);
+      const img = new Image();
+      img.onload = () => {
+        // Check minimum dimensions
+        if (img.width < 300 || img.height < 300) {
+          toast.error('Image must be at least 300x300 pixels');
+          setUploadedImage(null);
+          return;
+        }
+        setUploadedImage(readerEvent.target.result);
+        console.log(`Image dimensions: ${img.width}x${img.height}`);
+      };
+      img.src = readerEvent.target.result;
     };
     reader.readAsDataURL(file);
 
@@ -132,9 +135,13 @@ export default function Customize() {
       formData.append('image', file);
 
       console.log('Uploading image to server...');
+      console.log('File details:', { name: file.name, size: file.size, type: file.type });
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      console.log('API URL:', apiUrl);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/customizations/upload-image`,
+        `${apiUrl}/api/customizations/upload-image`,
         formData,
         {
           headers: { 
@@ -149,16 +156,30 @@ export default function Customize() {
 
       console.log('Upload response:', response.data);
 
-      setUploadedImageData({
-        url: response.data.url,
-        publicId: response.data.publicId,
-      });
-
-      toast.success('Image uploaded successfully!');
+      if (response.data && response.data.url && response.data.publicId) {
+        setUploadedImageData({
+          url: response.data.url,
+          publicId: response.data.publicId,
+        });
+        toast.success('Image uploaded successfully! You can now add to cart.');
+        console.log('✅ Image data saved, Add to Cart button should be enabled');
+      } else {
+        console.error('Invalid response format:', response.data);
+        toast.error('Upload succeeded but response was invalid');
+      }
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload image');
-      // Don't clear the preview on error - keep the local preview
+      console.error('Upload error details:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error 
+        || error.message 
+        || 'Failed to upload image';
+      
+      toast.error(errorMessage);
+      
+      // Keep the preview but clear server data
       setUploadedImageData(null);
     } finally {
       setUploading(false);
