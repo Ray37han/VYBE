@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid } from 'react-icons/fi';
 import { productsAPI } from '../api';
 import { ProductGridSkeleton } from '../components/LoadingSkeleton';
+import LoadingSpinner, { FullPageLoader } from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const categories = [
@@ -27,6 +28,7 @@ export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
@@ -73,6 +75,7 @@ export default function Products() {
       toast.error('Failed to load products');
     } finally {
       setLoading(false);
+      setInitialLoad(false); // Mark initial load as complete
     }
   };
 
@@ -89,11 +92,16 @@ export default function Products() {
   };
 
   return (
-    <div className={`pt-28 pb-12 min-h-screen relative overflow-hidden ${
-      darkMode
-        ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
-        : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
-    }`}>
+    <>
+      {/* Show full page loader on initial load */}
+      {initialLoad ? (
+        <FullPageLoader text="Loading Mystical Collection..." />
+      ) : (
+        <div className={`pt-28 pb-12 min-h-screen relative overflow-hidden ${
+          darkMode
+            ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
+            : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
+        }`}>
       {/* Background Effects */}
       <div className={`absolute inset-0 hieroglyph-overlay ${darkMode ? 'opacity-10' : 'opacity-5'}`}></div>
       <div className={`absolute inset-0 animate-pulse-slow ${
@@ -413,5 +421,7 @@ export default function Products() {
         )}
       </div>
     </div>
+      )}
+    </>
   );
 }

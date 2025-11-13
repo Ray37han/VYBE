@@ -4,6 +4,7 @@ import { authAPI } from '../api';
 import { useAuthStore } from '../store';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ButtonSpinner } from '../components/LoadingSpinner';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -238,8 +239,9 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full btn-primary bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full btn-primary bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
+                  {loading && <ButtonSpinner darkMode={false} />}
                   {loading ? 'Processing...' : 'Continue'}
                 </button>
               </form>
