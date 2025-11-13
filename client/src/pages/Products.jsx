@@ -5,6 +5,9 @@ import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid } from 'react-icon
 import { productsAPI } from '../api';
 import { ProductGridSkeleton } from '../components/LoadingSkeleton';
 import LoadingSpinner, { FullPageLoader } from '../components/LoadingSpinner';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
+import SpotlightContainer from '../components/SpotlightContainer';
+import MagneticButton from '../components/MagneticButton';
 import toast from 'react-hot-toast';
 
 const categories = [
@@ -29,7 +32,7 @@ export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false); // Default to light theme
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     search: searchParams.get('search') || '',
@@ -40,7 +43,7 @@ export default function Products() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    setDarkMode(savedTheme ? savedTheme === 'dark' : true);
+    setDarkMode(savedTheme ? savedTheme === 'dark' : false); // Default to light
 
     const handleThemeChange = () => {
       const currentTheme = localStorage.getItem('theme');
@@ -285,43 +288,38 @@ export default function Products() {
             }`}>Try adjusting your filters</p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product, index) => (
-              <motion.div
-                key={product._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  delay: index * 0.03,
-                  duration: 0.4,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                whileHover={{ 
-                  y: -10,
-                  transition: { duration: 0.3, ease: "easeOut" }
-                }}
-              >
-                <Link to={`/products/${product._id}`} className="block group">
-                  <div className={`card-moon overflow-hidden h-full flex flex-col relative ${
-                    !darkMode && 'bg-white border-2 border-purple-100'
-                  }`}>
-                    {/* Glow Effect */}
-                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 ${
-                      darkMode
-                        ? 'bg-gradient-to-b from-moon-mystical/0 via-moon-gold/0 to-moon-mystical/20'
-                        : 'bg-gradient-to-b from-purple-100/0 via-pink-100/0 to-purple-100/30'
-                    }`}></div>
+          <SpotlightContainer>
+            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product, index) => (
+                <StaggerItem key={product._id}>
+                  <motion.div
+                    whileHover={{ 
+                      y: -10,
+                      transition: { duration: 0.3, ease: "easeOut" }
+                    }}
+                    className="product-card-spotlight"
+                  >
+                    <Link to={`/products/${product._id}`} className="block group">
+                      <div className={`card-moon overflow-hidden h-full flex flex-col relative transition-all duration-500 ${
+                        !darkMode && 'bg-white border-2 border-purple-100 hover:border-gray-900 hover:shadow-2xl hover:shadow-black/30'
+                      } ${darkMode && 'hover:border-black hover:bg-black/40 hover:shadow-2xl hover:shadow-black/50'}`}>
+                        {/* Sharp Black Overlay on Hover */}
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 ${
+                          darkMode
+                            ? 'bg-gradient-to-br from-black/30 via-black/50 to-black/70'
+                            : 'bg-gradient-to-br from-black/20 via-black/30 to-black/50'
+                        }`}></div>
                     
-                    <div className={`relative aspect-[3/4] overflow-hidden border-b ${
+                    <div className={`relative aspect-[3/4] overflow-hidden border-b transition-all duration-500 ${
                       darkMode
-                        ? 'bg-moon-night/30 border-moon-gold/20'
-                        : 'bg-gray-50 border-purple-100'
+                        ? 'bg-moon-night/30 border-moon-gold/20 group-hover:bg-black/60 group-hover:border-black'
+                        : 'bg-gray-50 border-purple-100 group-hover:bg-black/80 group-hover:border-black'
                     }`}>
                       <img
                         src={product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%230a0e27" width="400" height="500"/%3E%3Ctext fill="%23cbd5e1" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
                         alt={product.name}
                         loading="lazy"
-                        className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-700 ease-out"
+                        className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 group-hover:brightness-125 group-hover:contrast-110 transition-all duration-700 ease-out relative z-20"
                       />
                       
                       {/* Discount Badge */}
@@ -351,57 +349,69 @@ export default function Products() {
                         </motion.span>
                       )}
                       
-                      {/* Hover Overlay */}
-                      <div className={`absolute inset-0 bg-gradient-to-t from-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out flex items-end justify-center pb-4 ${
-                        darkMode ? 'from-moon-night/90' : 'from-white/90'
-                      }`}>
+                      {/* Hover Overlay - Sharp Black Background */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out flex items-end justify-center pb-4">
                         <motion.span
                           initial={{ y: 20, opacity: 0 }}
                           whileInView={{ y: 0, opacity: 1 }}
-                          className={`font-bold text-lg tracking-wider ${
-                            darkMode ? 'text-moon-gold' : 'text-purple-600'
-                          }`}
+                          className="font-bold text-lg tracking-wider text-white drop-shadow-lg"
                         >
                           View Details →
                         </motion.span>
                       </div>
                     </div>
                     
-                    <div className={darkMode ? 'p-5 flex-1 flex flex-col bg-moon-midnight/30' : 'p-5 flex-1 flex flex-col bg-white'}>
+                    <div className={`${darkMode ? 'p-5 flex-1 flex flex-col bg-moon-midnight/30 group-hover:bg-black/60' : 'p-5 flex-1 flex flex-col bg-white group-hover:bg-black/90'} transition-all duration-500 relative z-20`}>
                       <h3 className={`font-bold text-lg mb-2 line-clamp-2 transition-colors duration-300 ${
                         darkMode
-                          ? 'text-moon-silver group-hover:text-moon-gold'
-                          : 'text-gray-900 group-hover:text-purple-600'
+                          ? 'text-moon-silver group-hover:text-white'
+                          : 'text-gray-900 group-hover:text-white'
                       }`}>
                         {product.name}
                       </h3>
-                      <p className={`text-sm mb-4 line-clamp-2 flex-1 ${
-                        darkMode ? 'text-moon-silver/60' : 'text-gray-600'
+                      <p className={`text-sm mb-4 line-clamp-2 flex-1 transition-colors duration-300 ${
+                        darkMode ? 'text-moon-silver/60 group-hover:text-gray-300' : 'text-gray-600 group-hover:text-gray-300'
                       }`}>
                         {product.description}
                       </p>
-                      <div className={`flex items-center justify-between pt-3 border-t ${
-                        darkMode ? 'border-moon-gold/20' : 'border-purple-100'
+                      <div className={`flex items-center justify-between pt-3 border-t transition-colors duration-500 ${
+                        darkMode ? 'border-moon-gold/20 group-hover:border-white/30' : 'border-purple-100 group-hover:border-white/30'
                       }`}>
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-2xl font-bold animate-glow ${
-                              darkMode ? 'text-moon-gold' : 'text-purple-600'
+                        <motion.div 
+                          className="relative inline-block"
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-2xl font-bold tracking-tight transition-colors duration-300 ${
+                                darkMode ? 'text-moon-gold group-hover:text-white' : 'text-purple-600'
+                              }`}>
+                                ৳{product.basePrice}
+                              </span>
+                              <span className={`text-sm line-through ${
+                                darkMode ? 'text-moon-silver/40' : 'text-gray-400'
+                              }`}>
+                                ৳{Math.round(product.basePrice / 0.75)}
+                              </span>
+                            </div>
+                            <span className={`text-xs font-semibold ${
+                              darkMode ? 'text-green-400' : 'text-green-600'
                             }`}>
-                              ৳{product.basePrice}
-                            </span>
-                            <span className={`text-sm line-through ${
-                              darkMode ? 'text-moon-silver/40' : 'text-gray-400'
-                            }`}>
-                              ৳{Math.round(product.basePrice / 0.75)}
+                              25% OFF
                             </span>
                           </div>
-                          <span className={`text-xs font-semibold ${
-                            darkMode ? 'text-green-400' : 'text-green-600'
-                          }`}>
-                            25% OFF
-                          </span>
-                        </div>
+                          {/* Premium Minimal Accent Line */}
+                          <motion.div 
+                            className={`absolute bottom-0 left-0 h-0.5 ${
+                              darkMode 
+                                ? 'bg-gradient-to-r from-moon-gold via-moon-mystical to-moon-gold' 
+                                : 'bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500'
+                            }`}
+                            initial={{ width: 0 }}
+                            whileInView={{ width: '100%' }}
+                            transition={{ delay: 0.3, duration: 0.6 }}
+                          />
+                        </motion.div>
                         <div className={`flex items-center space-x-1 text-sm ${
                           darkMode ? 'text-moon-silver/80' : 'text-gray-600'
                         }`}>
@@ -412,15 +422,15 @@ export default function Products() {
                       </div>
                     </div>
                     
-                    {/* Border Glow on Hover */}
-                    <div className={`absolute inset-0 border-2 border-transparent rounded-2xl transition-all duration-500 ease-out pointer-events-none ${
-                      darkMode ? 'group-hover:border-moon-gold/50' : 'group-hover:border-purple-400/50'
-                    }`}></div>
+                    {/* Sharp Border Glow on Hover */}
+                    <div className="absolute inset-0 border-2 border-transparent rounded-2xl transition-all duration-500 ease-out pointer-events-none group-hover:border-white/40 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]"></div>
                   </div>
                 </Link>
               </motion.div>
-            ))}
-          </div>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      </SpotlightContainer>
         )}
       </div>
     </div>

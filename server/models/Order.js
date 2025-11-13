@@ -29,9 +29,17 @@ const orderSchema = new mongoose.Schema({
       required: true
     },
     customization: {
-      uploadedImage: String,
-      text: String,
-      frameColor: String
+      uploadedImageUrl: String,        // Cloudinary URL for the uploaded image
+      uploadedImagePublicId: String,   // Cloudinary public ID for downloading original
+      textOverlay: String,             // Text to overlay on the poster
+      frameColor: String,              // Selected frame color
+      adminInstructions: String,       // Special instructions for admin
+      status: {                        // Status of custom order item
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+      },
+      rejectionReason: String          // Reason if rejected
     }
   }],
   shippingAddress: {

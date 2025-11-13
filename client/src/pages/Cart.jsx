@@ -3,17 +3,18 @@ import { useState, useEffect } from 'react';
 import { FiTrash2, FiShoppingBag } from 'react-icons/fi';
 import { useCartStore, useAuthStore } from '../store';
 import { cartAPI } from '../api';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
 import toast from 'react-hot-toast';
 
 export default function Cart() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, getTotal } = useCartStore();
   const { isAuthenticated } = useAuthStore();
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false); // Default to light theme
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    setDarkMode(savedTheme ? savedTheme === 'dark' : true);
+    setDarkMode(savedTheme ? savedTheme === 'dark' : false); // Default to light
 
     const handleThemeChange = () => {
       const currentTheme = localStorage.getItem('theme');

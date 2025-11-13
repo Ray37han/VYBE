@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn, FiImage } from 'react-icons/fi';
 import { productsAPI, cartAPI } from '../api';
 import { useAuthStore, useCartStore } from '../store';
 import { ProductDetailSkeleton } from '../components/LoadingSkeleton';
+import { ScrollReveal } from '../components/PageTransition';
+import { HeartButton } from '../components/AnimatedIcon';
+import MagneticButton from '../components/MagneticButton';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
@@ -17,7 +20,7 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false); // Default to light theme
   const { isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
 
@@ -302,12 +305,29 @@ export default function ProductDetail() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4">
+            <div className="space-y-3">
+              {/* Customize Button */}
+              <Link to={`/customize/${product._id}`}>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+                    darkMode
+                      ? 'bg-moon-midnight border-2 border-moon-gold text-moon-gold hover:bg-moon-gold hover:text-moon-night'
+                      : 'bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white'
+                  }`}
+                >
+                  <FiImage className="text-xl" />
+                  Customize This Poster
+                </motion.button>
+              </Link>
+
+              {/* Add to Cart Button */}
               <motion.button 
                 onClick={handleAddToCart} 
                 disabled={!selectedSize}
                 whileTap={selectedSize ? { scale: 0.95 } : {}}
-                className={`flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all ${
+                className={`w-full flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all ${
                   !selectedSize
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'btn-primary'
@@ -316,9 +336,6 @@ export default function ProductDetail() {
                 <FiShoppingCart />
                 {!selectedSize ? 'Select Size First' : 'Add to Cart'}
               </motion.button>
-              <button className="btn-secondary">
-                <FiHeart className="w-6 h-6" />
-              </button>
             </div>
             
             {!selectedSize && (

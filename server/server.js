@@ -16,6 +16,7 @@ import adminRoutes from './routes/admin.js';
 import featuredPostersRoutes from './routes/featuredPosters.js';
 import imageRoutes from './routes/images.js';
 import heroItemsRoutes from './routes/heroItems.js';
+import customizationRoutes from './routes/customizations.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
@@ -180,6 +181,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/featured-posters', featuredPostersRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/hero-items', heroItemsRoutes);
+app.use('/api/customizations', customizationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

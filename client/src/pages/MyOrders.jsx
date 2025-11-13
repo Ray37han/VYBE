@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiPackage, FiClock, FiCheck, FiTruck, FiX, FiShoppingBag, FiMapPin, FiCreditCard, FiFileText } from 'react-icons/fi';
 import { ordersAPI } from '../api';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
 import toast from 'react-hot-toast';
 
 const statusConfig = {
@@ -133,85 +134,110 @@ export default function MyOrders() {
             </motion.div>
           </motion.div>
         ) : (
-          <div className="space-y-6">
+          <StaggerContainer className="space-y-6">
             {orders.map((order, index) => {
               const StatusIcon = statusConfig[order.orderStatus]?.icon || FiPackage;
               const statusData = statusConfig[order.orderStatus] || statusConfig.pending;
 
               return (
-                <motion.div
-                  key={order._id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.01 }}
-                  className="card-moon overflow-hidden border-2 border-moon-gold/20 hover:border-moon-gold/50 transition-all duration-300 relative group"
-                >
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-moon-mystical/0 via-moon-gold/0 to-moon-mystical/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                  
-                  {/* Order Header */}
-                  <div className="bg-moon-night/50 p-6 border-b border-moon-gold/20 flex justify-between items-center flex-wrap gap-4 relative z-10">
-                    <div className="flex items-center gap-8">
-                      <motion.div whileHover={{ scale: 1.05 }}>
-                        <p className="text-xs text-moon-silver/60 uppercase tracking-wider mb-1">Order ID</p>
-                        <p className="font-bold text-moon-gold text-lg">{order.orderNumber}</p>
-                      </motion.div>
-                      <div>
-                        <p className="text-xs text-moon-silver/60 uppercase tracking-wider mb-1">Date</p>
-                        <p className="font-medium text-moon-silver">{formatDate(order.createdAt)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-moon-silver/60 uppercase tracking-wider mb-1">Total</p>
-                        <p className="font-bold text-2xl text-moon-gold animate-glow">৳{order.pricing.total}</p>
-                      </div>
-                    </div>
-                    <motion.div 
-                      whileHover={{ scale: 1.05 }}
-                      className={`flex items-center gap-3 px-5 py-3 rounded-xl ${statusData.bg} border ${statusData.border} shadow-lg ${statusData.glow}`}
-                    >
-                      <StatusIcon className={`w-5 h-5 ${statusData.color} animate-pulse-slow`} />
-                      <span className={`font-bold text-base ${statusData.color}`}>
-                        {statusData.label}
-                      </span>
-                    </motion.div>
-                  </div>
-
-                  {/* Order Items */}
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      {order.items.map((item, itemIndex) => (
-                        <motion.div 
-                          key={item._id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 + itemIndex * 0.05 }}
-                          className="flex gap-4 p-4 bg-moon-midnight/30 rounded-xl border border-moon-gold/10 hover:border-moon-gold/30 transition-all duration-300 group/item"
-                        >
-                          {item.product?.images?.[0] && (
-                            <motion.div whileHover={{ scale: 1.1 }}>
-                              <img
-                                src={item.product.images[0].url}
-                                alt={item.product.name}
-                                className="w-24 h-24 object-cover rounded-lg border-2 border-moon-gold/20 group-hover/item:border-moon-gold/50 transition-all duration-300"
-                              />
-                            </motion.div>
-                          )}
-                          <div className="flex-1">
-                            <p className="font-bold text-lg text-moon-silver group-hover/item:text-moon-gold transition-colors">
-                              {item.product?.name || 'Product'}
-                            </p>
-                            <p className="text-sm text-moon-silver/60 mt-1">
-                              📏 Size: <span className="text-moon-silver font-semibold">{item.size}</span> | 
-                              📦 Qty: <span className="text-moon-silver font-semibold">{item.quantity}</span>
-                            </p>
-                            <p className="text-lg font-bold text-moon-gold mt-2 animate-glow">
-                              ৳{item.price * item.quantity}
-                            </p>
-                          </div>
+                <StaggerItem key={order._id}>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    className="card-moon overflow-hidden border-2 border-moon-gold/20 hover:border-moon-midnight hover:bg-moon-night/80 transition-all duration-500 relative group"
+                  >
+                    {/* Dark Hover Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-moon-midnight/0 via-moon-night/0 to-moon-midnight/90 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10"></div>
+                    
+                    {/* Order Header */}
+                    <div className="bg-moon-night/50 p-6 border-b border-moon-gold/20 group-hover:border-moon-midnight/50 flex justify-between items-center flex-wrap gap-4 relative z-20">
+                      <div className="flex items-center gap-8">
+                        <motion.div whileHover={{ scale: 1.05 }}>
+                          <p className="text-xs text-moon-silver/60 uppercase tracking-wider mb-1">Order ID</p>
+                          <p className="font-bold text-moon-gold text-lg group-hover:text-moon-silver transition-colors duration-300">{order.orderNumber}</p>
                         </motion.div>
-                      ))}
+                        <div>
+                          <p className="text-xs text-moon-silver/60 uppercase tracking-wider mb-1">Date</p>
+                          <p className="font-medium text-moon-silver group-hover:text-white transition-colors duration-300">{formatDate(order.createdAt)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-moon-silver/60 uppercase tracking-wider mb-1">Total</p>
+                          {/* Premium Minimal Price Tag */}
+                          <motion.div
+                            className="relative inline-block"
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            <p className="font-bold text-2xl text-moon-gold relative z-10 tracking-tight group-hover:text-white transition-colors duration-300">
+                              ৳{order.pricing.total}
+                            </p>
+                            {/* Minimal underline accent */}
+                            <motion.div 
+                              className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-moon-gold via-moon-mystical to-moon-gold"
+                              initial={{ width: 0 }}
+                              whileInView={{ width: '100%' }}
+                              transition={{ delay: index * 0.1 + 0.3, duration: 0.6 }}
+                            />
+                          </motion.div>
+                        </div>
+                      </div>
+                      <motion.div 
+                        whileHover={{ scale: 1.05 }}
+                        className={`flex items-center gap-3 px-5 py-3 rounded-xl ${statusData.bg} border ${statusData.border} shadow-lg ${statusData.glow} group-hover:bg-moon-midnight/50 transition-all duration-300`}
+                      >
+                        <StatusIcon className={`w-5 h-5 ${statusData.color} animate-pulse-slow`} />
+                        <span className={`font-bold text-base ${statusData.color}`}>
+                          {statusData.label}
+                        </span>
+                      </motion.div>
                     </div>
+
+                    {/* Order Items */}
+                    <div className="p-6 relative z-20">
+                      <div className="space-y-4">
+                        {order.items.map((item, itemIndex) => (
+                          <motion.div 
+                            key={item._id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 + itemIndex * 0.05 }}
+                            className="flex gap-4 p-4 bg-moon-midnight/30 rounded-xl border border-moon-gold/10 hover:bg-moon-night/60 hover:border-moon-midnight transition-all duration-500 group/item"
+                          >
+                            {item.product?.images?.[0] && (
+                              <motion.div whileHover={{ scale: 1.1 }}>
+                                <img
+                                  src={item.product.images[0].url}
+                                  alt={item.product.name}
+                                  className="w-24 h-24 object-cover rounded-lg border-2 border-moon-gold/20 group-hover/item:border-moon-midnight transition-all duration-300"
+                                />
+                              </motion.div>
+                            )}
+                            <div className="flex-1">
+                              <p className="font-bold text-lg text-moon-silver group-hover/item:text-white transition-colors duration-300">
+                                {item.product?.name || 'Product'}
+                              </p>
+                              <p className="text-sm text-moon-silver/60 mt-1 group-hover/item:text-moon-silver/80 transition-colors duration-300">
+                                📏 Size: <span className="text-moon-silver font-semibold">{item.size}</span> | 
+                                📦 Qty: <span className="text-moon-silver font-semibold">{item.quantity}</span>
+                              </p>
+                              {/* Premium Minimal Price Tag for Items */}
+                              <motion.div
+                                className="relative inline-block mt-2"
+                                whileHover={{ scale: 1.05 }}
+                              >
+                                <p className="text-lg font-bold text-moon-gold relative z-10 tracking-tight group-hover/item:text-white transition-colors duration-300">
+                                  ৳{item.price * item.quantity}
+                                </p>
+                                {/* Minimal left accent bar */}
+                                <motion.div 
+                                  className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-moon-mystical to-moon-gold"
+                                  initial={{ height: 0 }}
+                                  whileInView={{ height: '100%' }}
+                                  transition={{ delay: index * 0.1 + itemIndex * 0.05 + 0.2, duration: 0.4 }}
+                                />
+                              </motion.div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
 
                     {/* Shipping Info */}
                     <div className="mt-6 pt-6 border-t border-moon-gold/20 bg-moon-night/30 p-5 rounded-xl">
@@ -269,9 +295,10 @@ export default function MyOrders() {
                     )}
                   </div>
                 </motion.div>
+              </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         )}
       </div>
     </div>

@@ -5,6 +5,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, EffectCreative, EffectCoverflow, Navigation } from 'swiper/modules';
 import { FiShoppingCart, FiStar, FiTruck, FiAward, FiZap, FiMoon, FiSun } from 'react-icons/fi';
 import { productsAPI, featuredPostersAPI } from '../api';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
+import SpotlightContainer from '../components/SpotlightContainer';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-creative';
@@ -70,7 +72,7 @@ export default function Home() {
   const [activeHeroCard, setActiveHeroCard] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme === 'dark' : true;
+    return savedTheme ? savedTheme === 'dark' : false; // Default to light theme
   });
   const heroRef = useRef(null);
   
@@ -488,20 +490,28 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mystical Scroll Indicator */}
+        {/* Mystical Scroll Indicator - Mobile Optimized */}
         <motion.div 
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          className="absolute bottom-6 sm:bottom-10 left-1/2 transform -translate-x-1/2 z-10"
           animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="w-8 h-12 border-2 border-moon-gold rounded-full flex justify-center relative overflow-hidden">
+          <div className={`w-6 h-10 sm:w-8 sm:h-12 border-2 rounded-full flex justify-center relative overflow-hidden ${
+            darkMode ? 'border-moon-gold' : 'border-purple-600'
+          }`}>
             <motion.div 
-              className="w-1 h-3 bg-moon-gold rounded-full mt-2"
-              animate={{ y: [0, 20, 0], opacity: [1, 0, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className={`w-1 h-2 sm:h-3 rounded-full mt-2 ${
+                darkMode ? 'bg-moon-gold' : 'bg-purple-600'
+              }`}
+              animate={{ y: [0, 16, 0], opacity: [1, 0, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             ></motion.div>
           </div>
-          <div className="text-moon-silver text-xs mt-2 text-center">Scroll</div>
+          <div className={`text-xs mt-1 sm:mt-2 text-center font-medium ${
+            darkMode ? 'text-moon-silver' : 'text-purple-700'
+          }`}>
+            Scroll
+          </div>
         </motion.div>
       </section>
 
@@ -629,7 +639,15 @@ export default function Home() {
         <div className="absolute inset-0 hieroglyph-overlay opacity-20"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid md:grid-cols-3 gap-8">
+          <ScrollReveal direction="up">
+            <h2 className={`text-4xl md:text-5xl font-bold text-center mb-12 ${
+              darkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              Why Choose VYBE
+            </h2>
+          </ScrollReveal>
+          
+          <StaggerContainer className="grid md:grid-cols-3 gap-8">
             {[
               {
                 icon: FiShoppingCart,
@@ -653,39 +671,36 @@ export default function Home() {
                 delay: 0.4
               }
             ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: feature.delay, type: "spring" }}
-                whileHover={{ y: -10, scale: 1.05 }}
-                className={`text-center p-8 rounded-2xl transition-all duration-500 group ${
-                  darkMode 
-                    ? 'glass-moon hover:shadow-2xl hover:shadow-moon-mystical/30'
-                    : 'bg-white/80 backdrop-blur-lg border border-gray-200 hover:shadow-2xl hover:shadow-purple-300/50'
-                }`}
-              >
-                <motion.div 
-                  className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-r ${feature.color} rounded-full flex items-center justify-center group-hover:animate-spin-slow`}
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 1 }}
+              <StaggerItem key={index}>
+                <motion.div
+                  whileHover={{ y: -10, scale: 1.05 }}
+                  className={`text-center p-8 rounded-2xl transition-all duration-500 group ${
+                    darkMode 
+                      ? 'glass-moon hover:shadow-2xl hover:shadow-moon-mystical/30'
+                      : 'bg-white/80 backdrop-blur-lg border border-gray-200 hover:shadow-2xl hover:shadow-purple-300/50'
+                  }`}
                 >
-                  <feature.icon className="w-10 h-10 text-white" />
+                  <motion.div 
+                    className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-r ${feature.color} rounded-full flex items-center justify-center`}
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 1 }}
+                  >
+                    <feature.icon className="w-10 h-10 text-white" />
+                  </motion.div>
+                  <h3 className={`text-2xl font-bold mb-3 transition-colors ${
+                    darkMode 
+                      ? 'text-white group-hover:text-moon-gold'
+                      : 'text-gray-900 group-hover:text-purple-600'
+                  }`}>
+                    {feature.title}
+                  </h3>
+                  <p className={`leading-relaxed font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>
+                    {feature.description}
+                  </p>
                 </motion.div>
-                <h3 className={`text-2xl font-bold mb-3 transition-colors ${
-                  darkMode 
-                    ? 'text-white group-hover:text-moon-gold'
-                    : 'text-gray-900 group-hover:text-purple-600'
-                }`}>
-                  {feature.title}
-                </h3>
-                <p className={`leading-relaxed font-medium ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>
-                  {feature.description}
-                </p>
-              </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 

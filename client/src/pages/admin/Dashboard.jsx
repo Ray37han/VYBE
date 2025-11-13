@@ -87,7 +87,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
         >
           <Link 
             to="/admin/products" 
@@ -138,6 +138,16 @@ export default function AdminDashboard() {
             }`}
           >
             Hero Items
+          </Link>
+          <Link 
+            to="/admin/custom-orders" 
+            className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
+              darkMode
+                ? 'bg-moon-midnight/50 border-moon-mystical/50 text-moon-mystical hover:bg-moon-mystical/20 hover:border-moon-mystical'
+                : 'bg-white border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-500'
+            }`}
+          >
+            Custom Orders
           </Link>
           <Link 
             to="/products" 

@@ -5,6 +5,7 @@ import BackToTop from './components/BackToTop'
 import Home from './pages/Home'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
+import Customize from './pages/Customize'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import OrderSuccess from './pages/OrderSuccess'
@@ -17,6 +18,7 @@ import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import AdminFeaturedPosters from './pages/admin/FeaturedPosters'
 import AdminHeroItems from './pages/admin/HeroItems'
+import AdminCustomOrders from './pages/admin/AdminCustomOrders'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -28,6 +30,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/customize/:id" element={<Customize />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -78,6 +81,11 @@ function App() {
           <Route path="/admin/hero-items" element={
             <ProtectedRoute adminOnly>
               <AdminHeroItems />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/custom-orders" element={
+            <ProtectedRoute adminOnly>
+              <AdminCustomOrders />
             </ProtectedRoute>
           } />
         </Routes>

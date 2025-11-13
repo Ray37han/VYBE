@@ -1,14 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiStar, FiMoon, FiSun } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiStar, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useCartStore } from '../store';
 import { authAPI } from '../api';
+import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import toast from 'react-hot-toast';
+
+// Categories for dropdown
+const categories = [
+  { value: '', label: '✨ All Collections', icon: '🌟' },
+  { value: 'abstract', label: 'Abstract Art', icon: '🎨' },
+  { value: 'minimalist', label: 'Minimalist', icon: '⚪' },
+  { value: 'nature', label: 'Nature', icon: '🌿' },
+  { value: 'typography', label: 'Typography', icon: '📝' },
+  { value: 'custom', label: 'Custom Creations', icon: '👑' },
+  { value: 'anime', label: 'Anime', icon: '⚡' },
+  { value: 'vintage', label: 'Vintage', icon: '📻' },
+  { value: 'modern', label: 'Modern', icon: '🔮' },
+  { value: 'sports', label: 'Sports', icon: '🏆' },
+  { value: 'cricket', label: 'Cricket', icon: '🏏' },
+  { value: 'football', label: 'Football', icon: '⚽' },
+  { value: 'nba', label: 'NBA', icon: '🏀' },
+  { value: 'cars', label: 'Cars', icon: '🏎️' },
+];
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // Default to light theme
   const { isAuthenticated, user, logout } = useAuthStore();
   const itemCount = useCartStore((state) => state.getItemCount());
   const navigate = useNavigate();
@@ -18,6 +38,9 @@ export default function Navbar() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       setDarkMode(savedTheme === 'dark');
+    } else {
+      // Set default light theme
+      localStorage.setItem('theme', 'light');
     }
 
     const handleStorageChange = () => {
@@ -69,38 +92,209 @@ export default function Navbar() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <motion.div
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative"
-            >
-              <h1 className={`text-2xl sm:text-3xl font-bold tracking-wider ${
-                darkMode ? 'moon-gradient-text animate-glow' : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600'
-              }`}>
-                VYBE
-              </h1>
-              <div className={`absolute -inset-1 rounded-lg blur-lg transition-opacity duration-500 -z-10 ${
-                darkMode 
-                  ? 'bg-gradient-to-r from-moon-mystical to-moon-gold opacity-0 group-hover:opacity-30'
-                  : 'bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-20'
-              }`}></div>
-            </motion.div>
-            <div className="hidden sm:block">
-              <p className={`text-[10px] tracking-widest uppercase leading-tight ${
-                darkMode ? 'text-moon-silver/80' : 'text-gray-500'
-              }`}>Visualize Your</p>
-              <p className={`text-xs font-bold tracking-wider leading-tight ${
+          {/* Logo with Typewriter Animation */}
+          <Link to="/" className="flex items-center space-x-3">
+            <motion.div className="relative py-2">
+              {/* VYBE Text with Typewriter Effect */}
+              <h1 className={`text-3xl sm:text-4xl font-bold tracking-wider ${
                 darkMode ? 'text-moon-gold' : 'text-purple-600'
-              }`}>Best Essence</p>
-            </div>
+              }`}>
+                {/* Individual Letters with Typewriter Animation */}
+                {['V', 'Y', 'B', 'E'].map((letter, index) => (
+                  <motion.span
+                    key={letter}
+                    className="inline-block"
+                    initial={{ opacity: 0, scale: 0, y: -20 }}
+                    animate={{ 
+                      opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                      scale: [0, 1.3, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                      y: [-20, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20],
+                      transition: { 
+                        duration: 4,
+                        repeat: Infinity,
+                        delay: index * 0.3,
+                        times: [0, 0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95, 1],
+                        ease: "easeOut"
+                      }
+                    }}
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </h1>
+
+              {/* Pulsing Glow Background */}
+              <motion.div 
+                className={`absolute -inset-3 rounded-xl blur-xl -z-10 ${
+                  darkMode 
+                    ? 'bg-gradient-to-r from-moon-mystical/40 via-moon-gold/40 to-moon-mystical/40'
+                    : 'bg-gradient-to-r from-purple-400/30 via-pink-400/30 to-purple-400/30'
+                }`}
+                animate={{ 
+                  opacity: [0.4, 0.7, 0.4],
+                  scale: [1, 1.05, 1],
+                  transition: {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }
+                }}
+              />
+
+              {/* Subtle Sparkle Effects */}
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className={`absolute w-1.5 h-1.5 rounded-full ${
+                    darkMode ? 'bg-moon-gold' : 'bg-purple-400'
+                  }`}
+                  style={{
+                    top: `${20 + i * 30}%`,
+                    left: `${85 + i * 5}%`,
+                  }}
+                  animate={{ 
+                    opacity: [0, 1, 0],
+                    scale: [0, 1.5, 0],
+                    transition: { 
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: i * 0.5,
+                      ease: "easeOut"
+                    }
+                  }}
+                />
+              ))}
+            </motion.div>
           </Link>
+
+          {/* Tagline - Hidden on mobile */}
+          <div className="hidden lg:block ml-4">
+            <p className={`text-xs tracking-widest uppercase ${
+              darkMode ? 'text-moon-silver/60' : 'text-gray-400'
+            }`}>
+              Visualize Your
+            </p>
+            <p className={`text-sm font-bold tracking-wider ${
+              darkMode ? 'text-moon-gold' : 'text-purple-600'
+            }`}>
+              Best Essence
+            </p>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             <NavLink to="/" icon={FiStar} darkMode={darkMode}>Home</NavLink>
-            <NavLink to="/products" icon={FiPackage} darkMode={darkMode}>Shop</NavLink>
+            
+            {/* Products Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setProductsDropdownOpen(true)}
+              onMouseLeave={() => setProductsDropdownOpen(false)}
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/products')}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl transition-all duration-300 ease-out border font-semibold text-sm group relative overflow-hidden ${
+                  darkMode
+                    ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-silver hover:text-moon-gold border-moon-gold/20 hover:border-moon-gold/50'
+                    : 'bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-800 border-purple-200 hover:border-purple-400'
+                }`}
+              >
+                <FiPackage className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300 ease-out" />
+                <span>Shop</span>
+                <motion.div
+                  animate={{ rotate: productsDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FiChevronDown className="w-4 h-4" />
+                </motion.div>
+                <div className={`absolute inset-0 bg-gradient-to-r from-transparent to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out ${
+                  darkMode ? 'via-moon-gold/20' : 'via-purple-400/20'
+                }`}></div>
+              </motion.button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {productsDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl backdrop-blur-xl border overflow-hidden z-50 ${
+                      darkMode
+                        ? 'bg-moon-midnight/95 border-moon-gold/30'
+                        : 'bg-white/95 border-purple-200'
+                    }`}
+                  >
+                    {/* Dropdown Header */}
+                    <div className={`px-4 py-3 border-b ${
+                      darkMode ? 'border-moon-gold/20' : 'border-purple-200'
+                    }`}>
+                      <p className={`text-xs font-bold uppercase tracking-wider ${
+                        darkMode ? 'text-moon-gold' : 'text-purple-600'
+                      }`}>
+                        Browse Categories
+                      </p>
+                    </div>
+
+                    {/* Categories List */}
+                    <div className="py-2 max-h-96 overflow-y-auto custom-scrollbar">
+                      {categories.map((category, index) => (
+                        <motion.div
+                          key={category.value}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.03, duration: 0.2 }}
+                        >
+                          <Link
+                            to={category.value ? `/products?category=${category.value}` : '/products'}
+                            className={`flex items-center space-x-3 px-4 py-2.5 transition-all duration-200 group ${
+                              darkMode
+                                ? 'hover:bg-moon-blue/30 text-moon-silver hover:text-moon-gold'
+                                : 'hover:bg-purple-50 text-gray-700 hover:text-purple-700'
+                            }`}
+                            onClick={() => setProductsDropdownOpen(false)}
+                          >
+                            <span className="text-xl group-hover:scale-125 transition-transform duration-200">
+                              {category.icon}
+                            </span>
+                            <span className="font-medium text-sm flex-1">
+                              {category.label}
+                            </span>
+                            <motion.div
+                              className={`w-1.5 h-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                                darkMode ? 'bg-moon-gold' : 'bg-purple-600'
+                              }`}
+                              whileHover={{ scale: 1.5 }}
+                            />
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Dropdown Footer */}
+                    <div className={`px-4 py-3 border-t ${
+                      darkMode ? 'border-moon-gold/20 bg-moon-night/50' : 'border-purple-200 bg-purple-50/50'
+                    }`}>
+                      <Link
+                        to="/products"
+                        className={`block text-center text-xs font-bold uppercase tracking-wider py-2 rounded-lg transition-all duration-200 ${
+                          darkMode
+                            ? 'text-moon-gold hover:bg-moon-gold/10'
+                            : 'text-purple-600 hover:bg-purple-100'
+                        }`}
+                        onClick={() => setProductsDropdownOpen(false)}
+                      >
+                        View All Products →
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <NavLink to="/products?category=custom" icon={FiStar} darkMode={darkMode}>Customize</NavLink>
             {isAuthenticated && user?.role === 'admin' && (
               <NavLink to="/admin" icon={FiUser} darkMode={darkMode}>Admin</NavLink>
@@ -128,34 +322,18 @@ export default function Navbar() {
             </motion.button>
 
             {/* Cart */}
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-              <Link 
-                to="/cart" 
-                className={`relative p-2.5 rounded-xl transition-all duration-300 border group block ${
+            {/* Cart Icon - Animated */}
+            <Link to="/cart">
+              <CartButton 
+                onClick={() => {}}
+                itemCount={itemCount}
+                className={`${
                   darkMode
-                    ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 border-moon-gold/20 hover:border-moon-gold/50'
-                    : 'bg-purple-50 hover:bg-purple-100 border-purple-200 hover:border-purple-400'
+                    ? 'text-moon-silver hover:text-moon-gold'
+                    : 'text-purple-600 hover:text-purple-700'
                 }`}
-              >
-                <FiShoppingCart className={`w-5 h-5 transition-colors duration-300 relative z-10 ${
-                  darkMode
-                    ? 'text-moon-silver group-hover:text-moon-gold'
-                    : 'text-purple-600 group-hover:text-purple-700'
-                }`} />
-                {itemCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-lg z-20"
-                  >
-                    {itemCount}
-                  </motion.span>
-                )}
-                <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300 pointer-events-none -z-10 ${
-                  darkMode ? 'bg-moon-gold/20' : 'bg-purple-400/20'
-                }`}></div>
-              </Link>
-            </motion.div>
+              />
+            </Link>
 
             {/* User Menu */}
             {isAuthenticated ? (
@@ -198,27 +376,18 @@ export default function Navbar() {
               </motion.div>
             )}
 
-            {/* Mobile menu button */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`md:hidden p-2.5 rounded-xl transition-all duration-300 border ${
-                darkMode
-                  ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 border-moon-gold/20 hover:border-moon-gold/50'
-                  : 'bg-purple-50 hover:bg-purple-100 border-purple-200 hover:border-purple-400'
-              }`}
-            >
-              {mobileMenuOpen ? (
-                <FiX className={`w-5 h-5 ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`} />
-              ) : (
-                <FiMenu className={`w-5 h-5 transition-colors ${
+            {/* Mobile menu button - Animated */}
+            <div className="md:hidden">
+              <MenuButton 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                isOpen={mobileMenuOpen}
+                className={`${
                   darkMode 
                     ? 'text-moon-silver hover:text-moon-gold' 
                     : 'text-purple-600 hover:text-purple-700'
-                }`} />
-              )}
-            </motion.button>
+                }`}
+              />
+            </div>
           </div>
         </div>
       </div>
