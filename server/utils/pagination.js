@@ -8,7 +8,7 @@
 export const paginate = async (model, query = {}, options = {}) => {
   const {
     page = 1,
-    limit = 10,
+    limit = 50, // Increased default to show more products
     sort = { createdAt: -1 },
     select = '',
     populate = null,
