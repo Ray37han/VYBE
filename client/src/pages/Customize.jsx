@@ -72,6 +72,12 @@ export default function Customize() {
     };
   }, []);
 
+  // Debug: Monitor uploadedImageData changes
+  useEffect(() => {
+    console.log('🔍 uploadedImageData changed:', uploadedImageData);
+    console.log('🔍 Button should be:', uploadedImageData ? 'ENABLED ✅' : 'DISABLED ❌');
+  }, [uploadedImageData]);
+
   // Fetch product data
   useEffect(() => {
     fetchProduct();
@@ -162,16 +168,29 @@ export default function Customize() {
       );
 
       console.log('Upload response:', response.data);
+      console.log('Response has url?', !!response.data.url);
+      console.log('Response has publicId?', !!response.data.publicId);
 
-      if (response.data && response.data.url && response.data.publicId) {
-        setUploadedImageData({
-          url: response.data.url,
-          publicId: response.data.publicId,
-        });
-        toast.success('Image uploaded successfully! You can now add to cart.');
+      // Check response data - handle both direct response and nested data
+      const responseData = response.data.data || response.data;
+      
+      if (responseData && (responseData.url || responseData.secure_url) && responseData.publicId) {
+        const imageData = {
+          url: responseData.url || responseData.secure_url,
+          publicId: responseData.publicId,
+        };
+        
+        console.log('Setting uploadedImageData:', imageData);
+        setUploadedImageData(imageData);
+        
         console.log('✅ Image data saved, Add to Cart button should be enabled');
+        console.log('uploadedImageData will be:', imageData);
+        
+        toast.success('Image uploaded successfully! You can now add to cart.');
       } else {
         console.error('Invalid response format:', response.data);
+        console.error('Expected: { url, publicId }');
+        console.error('Got:', responseData);
         toast.error('Upload succeeded but response was invalid');
       }
     } catch (error) {
