@@ -16,12 +16,13 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Upload configuration
+// Upload configuration with enhanced settings for remote devices
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB limit
+    fileSize: 50 * 1024 * 1024, // 50MB limit - enough for high-quality images from any device
+    files: 10 // Maximum 10 files per request
   }
 });
 

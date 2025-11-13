@@ -37,21 +37,30 @@ const allowedOrigins = [
   process.env.CLIENT_URL
 ];
 
-// Function to check if origin is allowed
+// Function to check if origin is allowed - Enhanced for multi-device access
 const isOriginAllowed = (origin) => {
-  if (!origin) return true; // Allow requests with no origin (e.g., Postman, mobile apps)
+  if (!origin) return true; // Allow requests with no origin (e.g., Postman, mobile apps, native apps)
   
-  // Allow Vercel deployments
+  // Allow Vercel deployments (including preview deployments)
   if (origin.includes('.vercel.app') || origin.includes('vercel.app')) return true;
   
-  // Allow localhost with any port
+  // Allow Railway deployments
+  if (origin.includes('.railway.app') || origin.includes('railway.app')) return true;
+  
+  // Allow localhost with any port (for development)
   if (origin.match(/^https?:\/\/localhost:\d+$/)) return true;
   
   // Allow 127.0.0.1 with any port
   if (origin.match(/^https?:\/\/127\.0\.0\.1:\d+$/)) return true;
   
-  // Allow local network IPs (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
-  if (origin.match(/^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+):\d+$/)) return true;
+  // Allow local network IPs (192.168.x.x, 10.x.x.x, 172.16-31.x.x) - for mobile devices on same network
+  if (origin.match(/^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+)(:\d+)?$/)) return true;
+  
+  // Allow ngrok tunnels (for remote testing)
+  if (origin.includes('ngrok.io') || origin.includes('ngrok-free.app')) return true;
+  
+  // Allow production domain if set
+  if (process.env.PRODUCTION_DOMAIN && origin.includes(process.env.PRODUCTION_DOMAIN)) return true;
   
   // Check against allowed origins
   return allowedOrigins.includes(origin);
@@ -63,7 +72,7 @@ app.use(cors({
       callback(null, true);
     } else {
       console.log(`⚠️  Blocked origin: ${origin}`);
-      callback(null, true); // Allow all for now during debugging
+      callback(null, true); // Allow all for now during debugging - consider tightening in production
     }
   },
   credentials: true,
@@ -81,9 +90,11 @@ app.use(cors({
     'X-Mx-ReqToken',
     'Keep-Alive',
     'X-Requested-With',
-    'If-Modified-Since'
+    'If-Modified-Since',
+    'X-Device-Type', // Custom header for device detection
+    'X-App-Version' // Custom header for app version tracking
   ],
-  exposedHeaders: ['Set-Cookie', 'Authorization'],
+  exposedHeaders: ['Set-Cookie', 'Authorization', 'X-Total-Count', 'X-Upload-Progress'],
   maxAge: 86400, // 24 hours
   preflightContinue: false,
   optionsSuccessStatus: 204
@@ -108,7 +119,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Request logging middleware (for debugging)
+// Request logging middleware (for debugging and device tracking)
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     console.log(`📱 ${req.method} ${req.path}`);
@@ -116,6 +127,8 @@ app.use((req, res, next) => {
     console.log(`🔑 Auth: ${req.headers.authorization ? 'Bearer token present' : 'No auth header'}`);
     console.log(`🍪 Cookie: ${req.headers.cookie ? 'Cookie present' : 'No cookie'}`);
     console.log(`📦 Content-Type: ${req.headers['content-type'] || 'Not set'}`);
+    console.log(`💻 User-Agent: ${req.headers['user-agent']?.substring(0, 60) || 'Not set'}`);
+    console.log(`🌍 IP: ${req.ip || req.connection.remoteAddress}`);
   }
   next();
 });

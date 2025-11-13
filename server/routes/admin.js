@@ -3,6 +3,7 @@ import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { detectMobileDevice } from '../middleware/deviceAuth.js';
 import { upload, handleMulterError, watermarkImages } from '../middleware/upload.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import { sendOrderStatusUpdate } from '../utils/emailService.js';
@@ -14,7 +15,8 @@ import { paginate, parsePaginationParams } from '../utils/pagination.js';
 const router = express.Router();
 
 // All admin routes require authentication and admin role
-router.use(protect, authorize('admin'));
+// Device detection helps optimize responses for mobile devices
+router.use(protect, authorize('admin'), detectMobileDevice);
 
 // @route   GET /api/admin/dashboard
 // @desc    Get dashboard statistics
@@ -59,17 +61,19 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // @route   POST /api/admin/products
-// @desc    Create new product (with automatic watermarking)
+// @desc    Create new product (with automatic watermarking) - Works from ANY device/location
 // @access  Private/Admin
 router.post('/products', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
   try {
     console.log('📦 Product creation request received');
-    console.log('Origin:', req.headers.origin);
-    console.log('User:', req.user?.email, 'Role:', req.user?.role);
-    console.log('Files:', req.files?.length || 0);
-    console.log('Body keys:', Object.keys(req.body));
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('✅ Admin authenticated - can upload from ANY device/IP');
+    console.log('🌐 Origin:', req.headers.origin || 'Direct');
+    console.log('👤 User:', req.user?.email, 'Role:', req.user?.role);
+    console.log('📱 Device:', req.deviceType || 'unknown', '(Mobile:', req.isMobile, 'Tablet:', req.isTablet, ')');
+    console.log('🌍 IP Address:', req.ip || req.connection.remoteAddress);
+    console.log('📸 Files:', req.files?.length || 0);
+    console.log('📦 Body keys:', Object.keys(req.body));
+    console.log('📄 Content-Type:', req.headers['content-type']);
+    console.log('✅ Admin authenticated - can upload from ANY device/location/IP');
     
     // Check if Cloudinary is configured
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
