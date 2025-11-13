@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion';
-import { useContext } from 'react';
-import { ThemeContext } from '../context/ThemeContext';
 
 /**
  * Modern Loading Spinner with +/- Signs Animation
@@ -14,9 +12,9 @@ export default function LoadingSpinner({
   size = 'medium', 
   text = 'Loading...', 
   fullScreen = false,
-  showText = true 
+  showText = true,
+  darkMode = true // Accept darkMode as prop
 }) {
-  const { darkMode } = useContext(ThemeContext);
 
   // Size configurations
   const sizes = {
@@ -151,8 +149,7 @@ export default function LoadingSpinner({
  * Full Page Loading Screen
  * Use this for page transitions and initial loads
  */
-export function FullPageLoader({ text = 'Loading...' }) {
-  const { darkMode } = useContext(ThemeContext);
+export function FullPageLoader({ text = 'Loading...', darkMode = true }) {
 
   return (
     <motion.div
@@ -174,7 +171,7 @@ export function FullPageLoader({ text = 'Loading...' }) {
 
       {/* Content */}
       <div className="relative z-10">
-        <LoadingSpinner size="large" text={text} showText={true} />
+        <LoadingSpinner size="large" text={text} showText={true} darkMode={darkMode} />
       </div>
 
       {/* Brand Name */}
@@ -205,7 +202,7 @@ export function FullPageLoader({ text = 'Loading...' }) {
  * Button Loading Spinner
  * Use inside buttons during form submissions
  */
-export function ButtonSpinner({ darkMode, size = 'small' }) {
+export function ButtonSpinner({ darkMode = true, size = 'small' }) {
   const config = {
     small: { container: 'w-12 h-4', fontSize: 'text-sm' },
     medium: { container: 'w-16 h-5', fontSize: 'text-base' }
@@ -258,13 +255,13 @@ export function ButtonSpinner({ darkMode, size = 'small' }) {
  * Card Loading Placeholder
  * Use for lazy-loaded content cards
  */
-export function CardLoader({ darkMode }) {
+export function CardLoader({ darkMode = true }) {
   return (
     <div className={`p-6 rounded-2xl ${
       darkMode ? 'bg-moon-midnight/50' : 'bg-white'
     } shadow-lg`}>
       <div className="flex items-center justify-center py-8">
-        <LoadingSpinner size="medium" text="Loading content..." showText={true} />
+        <LoadingSpinner size="medium" text="Loading content..." showText={true} darkMode={darkMode} />
       </div>
     </div>
   );
@@ -274,7 +271,7 @@ export function CardLoader({ darkMode }) {
  * Inline Loading Spinner
  * Use for small inline loading states
  */
-export function InlineSpinner({ darkMode, text = '' }) {
+export function InlineSpinner({ darkMode = true, text = '' }) {
   const signs = [
     { symbol: '+', delay: 0, duration: 1.5, y: -2 },
     { symbol: '-', delay: 0.25, duration: 1.6, y: 2 },
