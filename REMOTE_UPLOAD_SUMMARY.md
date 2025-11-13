@@ -58,7 +58,7 @@ Features:
 
 ### Method 1: Production (Recommended)
 ```
-Just visit: https://vybe-sigma.vercel.app
+Just visit: https://vybe-nu.vercel.app
 Login and upload from anywhere! ✅
 ```
 
@@ -102,8 +102,8 @@ Login and upload from anywhere! ✅
 ## 🧪 Testing Checklist
 
 ### ✅ Production Access:
-- [ ] Visit https://vybe-sigma.vercel.app on desktop
-- [ ] Visit https://vybe-sigma.vercel.app on mobile
+- [ ] Visit https://vybe-nu.vercel.app on desktop
+- [ ] Visit https://vybe-nu.vercel.app on mobile
 - [ ] Login successfully on both devices
 - [ ] Upload product with images on desktop
 - [ ] Upload product with images on mobile
@@ -188,7 +188,7 @@ root/
 ### For Immediate Use:
 ```bash
 # Just open browser on any device and visit:
-https://vybe-sigma.vercel.app
+https://vybe-nu.vercel.app
 
 # Login with admin credentials
 # Go to Admin → Products → Add New Product
@@ -344,7 +344,7 @@ All features tested and working:
 - **Complete Guide:** `REMOTE_UPLOAD_GUIDE.md`
 - **Quick Reference:** `QUICK_REFERENCE_UPLOAD.md`
 - **Setup Script:** `./setup-remote-upload.sh`
-- **Production URL:** https://vybe-sigma.vercel.app
+- **Production URL:** https://vybe-nu.vercel.app
 - **Backend URL:** https://vybe-backend-production-2ab6.up.railway.app
 
 ---

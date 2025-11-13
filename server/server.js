@@ -33,7 +33,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:5173',
-  'https://vybe-sigma.vercel.app',
+  'https://vybe-nu.vercel.app',
   process.env.CLIENT_URL
 ];
 

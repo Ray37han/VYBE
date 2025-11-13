@@ -18,7 +18,7 @@ Your VYBE backend now supports:
 ### Method 1: Production Website (Recommended)
 **Best for: Regular use from anywhere**
 
-1. Visit: `https://vybe-sigma.vercel.app`
+1. Visit: `https://vybe-nu.vercel.app`
 2. Login with admin credentials
 3. Navigate to Admin → Products
 4. Upload products normally
@@ -281,7 +281,7 @@ npm run dev
 - [ ] Backend deployed on Railway ✅
 - [ ] Frontend deployed on Vercel ✅
 - [ ] Admin account active ✅
-- [ ] Visit `https://vybe-sigma.vercel.app` ✅
+- [ ] Visit `https://vybe-nu.vercel.app` ✅
 - [ ] Login and upload from anywhere! ✅
 
 ### For Local Mobile Testing:
@@ -330,7 +330,7 @@ npm run dev
 ## 🎯 Common Use Cases
 
 ### Case 1: Upload products while traveling
-✅ Use production URL (`https://vybe-sigma.vercel.app`)  
+✅ Use production URL (`https://vybe-nu.vercel.app`)  
 ✅ Works on any internet connection  
 ✅ Mobile data or hotel WiFi  
 
@@ -393,7 +393,7 @@ You can now:
 - ✅ Secure authentication across all devices
 - ✅ Automatic image optimization and watermarking
 
-**Main URL:** `https://vybe-sigma.vercel.app`  
+**Main URL:** `https://vybe-nu.vercel.app`  
 **Backend API:** `https://vybe-backend-production-2ab6.up.railway.app`  
 
 **Just login and start uploading from anywhere! 🚀**

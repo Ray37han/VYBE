@@ -296,7 +296,7 @@ ifconfig | grep "inet " | grep -v 127.0.0.1
 - Admin: `http://192.168.0.209:3000/admin`
 
 ### Production (When Deployed):
-- Frontend: `https://vybe-sigma.vercel.app`
+- Frontend: `https://vybe-nu.vercel.app`
 - Backend: `https://vybe-backend-93eu.onrender.com`
 
 ---

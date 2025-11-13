@@ -13,7 +13,7 @@
 
    1. Open browser on ANY device (phone/tablet/laptop)
    
-   2. Visit: https://vybe-sigma.vercel.app
+   2. Visit: https://vybe-nu.vercel.app
    
    3. Login with your admin credentials
    
@@ -33,7 +33,7 @@
    iPhone/iPad:
    ┌──────────────────────────────────────────┐
    │  1. Open Safari or Chrome                │
-   │  2. Go to: vybe-sigma.vercel.app         │
+   │  2. Go to: vybe-nu.vercel.app         │
    │  3. Login                                │
    │  4. Tap "Choose Files"                   │
    │  5. Select "Photo Library" or "Camera"   │
@@ -44,7 +44,7 @@
    Android:
    ┌──────────────────────────────────────────┐
    │  1. Open Chrome                          │
-   │  2. Go to: vybe-sigma.vercel.app         │
+   │  2. Go to: vybe-nu.vercel.app         │
    │  3. Login                                │
    │  4. Tap "Choose Files"                   │
    │  5. Select "Camera" or "Gallery"         │
@@ -112,7 +112,7 @@
 
    Can't connect?
    → Check internet connection
-   → Use production URL: https://vybe-sigma.vercel.app
+   → Use production URL: https://vybe-nu.vercel.app
    → Run: ./setup-remote-upload.sh (option 4) to check status
 
    Upload failed?
@@ -171,7 +171,7 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 
    Production Website:
-   https://vybe-sigma.vercel.app
+   https://vybe-nu.vercel.app
 
    Backend API:
    https://vybe-backend-production-2ab6.up.railway.app
@@ -201,6 +201,6 @@
 ║                                                                               ║
 ║  🎉 YOU'RE READY! Just visit the site and start uploading from anywhere!     ║
 ║                                                                               ║
-║     Main URL: https://vybe-sigma.vercel.app                                  ║
+║     Main URL: https://vybe-nu.vercel.app                                  ║
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝

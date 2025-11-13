@@ -4,7 +4,7 @@
 
 ### Upload from Production Site:
 ```
-URL: https://vybe-sigma.vercel.app
+URL: https://vybe-nu.vercel.app
 ✅ Works on ANY device
 ✅ Works from ANY location
 ✅ No setup needed
@@ -12,7 +12,7 @@ URL: https://vybe-sigma.vercel.app
 
 **Steps:**
 1. Open browser on any device (phone/tablet/laptop)
-2. Visit: `https://vybe-sigma.vercel.app`
+2. Visit: `https://vybe-nu.vercel.app`
 3. Login with admin credentials
 4. Go to: Admin → Products → Add New Product
 5. Upload images and fill details
@@ -25,7 +25,7 @@ URL: https://vybe-sigma.vercel.app
 
 ### iPhone/iPad:
 1. Open **Safari** or **Chrome**
-2. Go to: `https://vybe-sigma.vercel.app`
+2. Go to: `https://vybe-nu.vercel.app`
 3. Login
 4. When uploading:
    - Tap "Choose Files"
@@ -35,7 +35,7 @@ URL: https://vybe-sigma.vercel.app
 
 ### Android:
 1. Open **Chrome**
-2. Go to: `https://vybe-sigma.vercel.app`
+2. Go to: `https://vybe-nu.vercel.app`
 3. Login
 4. When uploading:
    - Tap "Choose Files"
@@ -125,7 +125,7 @@ node makeAdmin.js YOUR_EMAIL
 curl https://vybe-backend-production-2ab6.up.railway.app/api/health
 
 # Production frontend
-curl -I https://vybe-sigma.vercel.app
+curl -I https://vybe-nu.vercel.app
 
 # Local backend
 curl http://localhost:5001/api/health
@@ -195,7 +195,7 @@ node makeAdmin.js YOUR_EMAIL
 
 ### Scenario 1: Upload from phone at home
 **Solution:** Use production URL  
-`https://vybe-sigma.vercel.app`
+`https://vybe-nu.vercel.app`
 
 ### Scenario 2: Upload while traveling
 **Solution:** Use production URL  
@@ -218,7 +218,7 @@ Or localhost for testing
 ## 🌐 URLs
 
 **Production:**
-- Frontend: https://vybe-sigma.vercel.app
+- Frontend: https://vybe-nu.vercel.app
 - Backend: https://vybe-backend-production-2ab6.up.railway.app
 
 **Local:**

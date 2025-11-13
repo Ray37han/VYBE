@@ -54,12 +54,12 @@ case $choice in
         echo ""
         print_success "Your site is already deployed!"
         echo ""
-        echo "Frontend: https://vybe-sigma.vercel.app"
+        echo "Frontend: https://vybe-nu.vercel.app"
         echo "Backend:  https://vybe-backend-production-2ab6.up.railway.app"
         echo ""
         print_info "Steps to upload from any device:"
         echo "1. Open browser (mobile or computer)"
-        echo "2. Visit: https://vybe-sigma.vercel.app"
+        echo "2. Visit: https://vybe-nu.vercel.app"
         echo "3. Login with admin credentials"
         echo "4. Go to Admin → Products"
         echo "5. Upload products from anywhere! 🎉"
@@ -227,7 +227,7 @@ case $choice in
         
         # Check frontend
         print_info "Checking frontend..."
-        FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://vybe-sigma.vercel.app)
+        FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://vybe-nu.vercel.app)
         if [ "$FRONTEND_STATUS" = "200" ]; then
             print_success "Frontend is online!"
         else
