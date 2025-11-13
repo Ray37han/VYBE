@@ -3,10 +3,10 @@ import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 
 /**
- * Modern Loading Spinner with Moon Knight Theme
+ * Modern Loading Spinner with +/- Signs Animation
  * Features:
- * - Animated crescent moon spinner
- * - Smooth pulsing effects
+ * - Animated +/- signs moving left to right
+ * - Random vertical positions
  * - Theme-aware colors
  * - Multiple size options
  */
@@ -21,17 +21,20 @@ export default function LoadingSpinner({
   // Size configurations
   const sizes = {
     small: {
-      spinner: 'w-8 h-8',
+      container: 'w-24 h-8',
+      fontSize: 'text-xl',
       text: 'text-sm',
       gap: 'gap-2'
     },
     medium: {
-      spinner: 'w-16 h-16',
+      container: 'w-32 h-12',
+      fontSize: 'text-3xl',
       text: 'text-base',
       gap: 'gap-3'
     },
     large: {
-      spinner: 'w-24 h-24',
+      container: 'w-40 h-16',
+      fontSize: 'text-5xl',
       text: 'text-xl',
       gap: 'gap-4'
     }
@@ -46,64 +49,55 @@ export default function LoadingSpinner({
       } backdrop-blur-sm`
     : 'flex items-center justify-center py-12';
 
+  // Random +/- signs with different speeds and positions
+  const signs = [
+    { symbol: '+', delay: 0, duration: 2, y: -8 },
+    { symbol: '-', delay: 0.2, duration: 2.3, y: 8 },
+    { symbol: '+', delay: 0.4, duration: 1.8, y: -15 },
+    { symbol: '-', delay: 0.6, duration: 2.1, y: 12 },
+    { symbol: '+', delay: 0.8, duration: 1.9, y: -5 },
+    { symbol: '-', delay: 1.0, duration: 2.2, y: 15 },
+    { symbol: '+', delay: 1.2, duration: 2.0, y: -12 },
+    { symbol: '-', delay: 1.4, duration: 1.85, y: 5 },
+  ];
+
+  const colors = {
+    primary: darkMode ? '#DAA520' : '#9333EA',
+    secondary: darkMode ? '#FFD700' : '#7C3AED'
+  };
+
   return (
     <div className={containerClasses}>
       <div className={`flex flex-col items-center ${sizeConfig.gap}`}>
-        {/* Animated Moon Spinner */}
-        <div className="relative">
-          {/* Outer rotating circle */}
-          <motion.div
-            className={`${sizeConfig.spinner} rounded-full border-4 ${
-              darkMode
-                ? 'border-moon-gold/20 border-t-moon-gold'
-                : 'border-purple-200 border-t-purple-600'
-            }`}
-            animate={{ rotate: 360 }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          />
-
-          {/* Inner pulsing circle */}
-          <motion.div
-            className={`absolute inset-0 m-auto ${
-              size === 'small' ? 'w-4 h-4' : size === 'large' ? 'w-12 h-12' : 'w-8 h-8'
-            } rounded-full ${
-              darkMode
-                ? 'bg-moon-gold/30'
-                : 'bg-purple-400/30'
-            }`}
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0.8, 0.5]
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
-          />
-
-          {/* Center glow */}
-          <motion.div
-            className={`absolute inset-0 m-auto ${
-              size === 'small' ? 'w-2 h-2' : size === 'large' ? 'w-6 h-6' : 'w-4 h-4'
-            } rounded-full ${
-              darkMode
-                ? 'bg-moon-gold shadow-[0_0_20px_rgba(218,165,32,0.5)]'
-                : 'bg-purple-600 shadow-[0_0_20px_rgba(147,51,234,0.5)]'
-            }`}
-            animate={{
-              opacity: [0.7, 1, 0.7]
-            }}
-            transition={{
-              duration: 1,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
-          />
+        {/* Animated +/- Signs Moving Left to Right */}
+        <div className={`relative ${sizeConfig.container} overflow-hidden`}>
+          {signs.map((sign, index) => (
+            <motion.div
+              key={index}
+              className={`absolute ${sizeConfig.fontSize} font-bold`}
+              style={{
+                color: index % 2 === 0 ? colors.primary : colors.secondary,
+                textShadow: `0 0 15px ${index % 2 === 0 ? colors.primary : colors.secondary}`,
+                top: `calc(50% + ${sign.y}px)`,
+                transform: 'translateY(-50%)',
+                left: 0,
+              }}
+              initial={{ x: -30, opacity: 0 }}
+              animate={{
+                x: ['-30px', '150px'],
+                opacity: [0, 1, 1, 0],
+              }}
+              transition={{
+                duration: sign.duration,
+                delay: sign.delay,
+                repeat: Infinity,
+                ease: "linear",
+                repeatDelay: 0
+              }}
+            >
+              {sign.symbol}
+            </motion.div>
+          ))}
         </div>
 
         {/* Loading Text */}
@@ -212,22 +206,51 @@ export function FullPageLoader({ text = 'Loading...' }) {
  * Use inside buttons during form submissions
  */
 export function ButtonSpinner({ darkMode, size = 'small' }) {
-  const spinnerSize = size === 'small' ? 'w-4 h-4' : 'w-5 h-5';
+  const config = {
+    small: { container: 'w-12 h-4', fontSize: 'text-sm' },
+    medium: { container: 'w-16 h-5', fontSize: 'text-base' }
+  };
+  
+  const sizeConfig = config[size] || config.small;
+  
+  const signs = [
+    { symbol: '+', delay: 0, duration: 1.5, y: -3 },
+    { symbol: '-', delay: 0.3, duration: 1.6, y: 3 },
+    { symbol: '+', delay: 0.6, duration: 1.4, y: -2 },
+  ];
+
+  const color = darkMode ? '#1F2937' : '#FFFFFF';
   
   return (
-    <motion.div
-      className={`${spinnerSize} rounded-full border-2 ${
-        darkMode
-          ? 'border-moon-night/30 border-t-moon-night'
-          : 'border-white/30 border-t-white'
-      }`}
-      animate={{ rotate: 360 }}
-      transition={{
-        duration: 0.8,
-        repeat: Infinity,
-        ease: 'linear'
-      }}
-    />
+    <div className={`relative ${sizeConfig.container} overflow-hidden inline-block`}>
+      {signs.map((sign, index) => (
+        <motion.div
+          key={index}
+          className={`absolute ${sizeConfig.fontSize} font-bold`}
+          style={{
+            color: color,
+            textShadow: `0 0 8px ${color}`,
+            top: `calc(50% + ${sign.y}px)`,
+            transform: 'translateY(-50%)',
+            left: 0,
+          }}
+          initial={{ x: -20, opacity: 0 }}
+          animate={{
+            x: ['-20px', '60px'],
+            opacity: [0, 1, 1, 0],
+          }}
+          transition={{
+            duration: sign.duration,
+            delay: sign.delay,
+            repeat: Infinity,
+            ease: "linear",
+            repeatDelay: 0
+          }}
+        >
+          {sign.symbol}
+        </motion.div>
+      ))}
+    </div>
   );
 }
 
@@ -252,21 +275,45 @@ export function CardLoader({ darkMode }) {
  * Use for small inline loading states
  */
 export function InlineSpinner({ darkMode, text = '' }) {
+  const signs = [
+    { symbol: '+', delay: 0, duration: 1.5, y: -2 },
+    { symbol: '-', delay: 0.25, duration: 1.6, y: 2 },
+    { symbol: '+', delay: 0.5, duration: 1.4, y: -1 },
+  ];
+
+  const color = darkMode ? '#DAA520' : '#9333EA';
+
   return (
     <div className="inline-flex items-center gap-2">
-      <motion.div
-        className={`w-4 h-4 rounded-full border-2 ${
-          darkMode
-            ? 'border-moon-gold/30 border-t-moon-gold'
-            : 'border-purple-200 border-t-purple-600'
-        }`}
-        animate={{ rotate: 360 }}
-        transition={{
-          duration: 1,
-          repeat: Infinity,
-          ease: 'linear'
-        }}
-      />
+      <div className="relative w-10 h-4 overflow-hidden">
+        {signs.map((sign, index) => (
+          <motion.div
+            key={index}
+            className="absolute text-sm font-bold"
+            style={{
+              color: color,
+              textShadow: `0 0 8px ${color}`,
+              top: `calc(50% + ${sign.y}px)`,
+              transform: 'translateY(-50%)',
+              left: 0,
+            }}
+            initial={{ x: -15, opacity: 0 }}
+            animate={{
+              x: ['-15px', '45px'],
+              opacity: [0, 1, 1, 0],
+            }}
+            transition={{
+              duration: sign.duration,
+              delay: sign.delay,
+              repeat: Infinity,
+              ease: "linear",
+              repeatDelay: 0
+            }}
+          >
+            {sign.symbol}
+          </motion.div>
+        ))}
+      </div>
       {text && (
         <span className={`text-sm ${
           darkMode ? 'text-moon-silver' : 'text-gray-600'
