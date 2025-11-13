@@ -140,8 +140,15 @@ export default function Customize() {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
       console.log('API URL:', apiUrl);
 
+      // Build the correct URL - if apiUrl already ends with /api, don't add it again
+      const uploadUrl = apiUrl.endsWith('/api') 
+        ? `${apiUrl}/customizations/upload-image`
+        : `${apiUrl}/api/customizations/upload-image`;
+      
+      console.log('Upload URL:', uploadUrl);
+
       const response = await axios.post(
-        `${apiUrl}/api/customizations/upload-image`,
+        uploadUrl,
         formData,
         {
           headers: { 
