@@ -62,7 +62,8 @@ export default function AdminProducts() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await productsAPI.getAll();
+      // Fetch all products with increased limit
+      const response = await productsAPI.getAll({ limit: 100 });
       console.log('Products response:', response);
       setProducts(response.data || response.products || []);
     } catch (error) {
