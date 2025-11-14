@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiEdit2, FiTrash2, FiEye, FiEyeOff, FiMove, FiImage, FiSave, FiX } from 'react-icons/fi';
-import { adminAPI } from '../../api';
+import { adminAPI, productsAPI } from '../../api';
 import toast from 'react-hot-toast';
 
 export default function FeaturedPosters() {
   const [posters, setPosters] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingPoster, setEditingPoster] = useState(null);
@@ -13,6 +14,7 @@ export default function FeaturedPosters() {
   const [draggedItem, setDraggedItem] = useState(null);
 
   const [formData, setFormData] = useState({
+    productId: '',
     title: '',
     category: '',
     image: '',
@@ -56,6 +58,7 @@ export default function FeaturedPosters() {
 
   useEffect(() => {
     fetchPosters();
+    fetchProducts();
   }, []);
 
   const fetchPosters = async () => {
@@ -67,6 +70,16 @@ export default function FeaturedPosters() {
       toast.error('Failed to load featured posters');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await productsAPI.getAll({ limit: 100 });
+      setProducts(response.data || response.products || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
     }
   };
 
@@ -105,6 +118,7 @@ export default function FeaturedPosters() {
   const handleEdit = (poster) => {
     setEditingPoster(poster);
     setFormData({
+      productId: poster.productId || '',
       title: poster.title,
       category: poster.category,
       image: poster.image,
@@ -142,6 +156,7 @@ export default function FeaturedPosters() {
 
   const resetForm = () => {
     setFormData({
+      productId: '',
       title: '',
       category: '',
       image: '',
@@ -149,6 +164,19 @@ export default function FeaturedPosters() {
       isActive: true
     });
     setEditingPoster(null);
+  };
+
+  const handleProductChange = (productId) => {
+    const product = products.find(p => p._id === productId);
+    if (product) {
+      setFormData({
+        ...formData,
+        productId,
+        title: product.name,
+        category: product.category.charAt(0).toUpperCase() + product.category.slice(1),
+        image: product.images?.[0]?.url || ''
+      });
+    }
   };
 
   // Drag and drop handlers
@@ -409,6 +437,35 @@ export default function FeaturedPosters() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Product Selection */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                      Select Product *
+                    </label>
+                    <select
+                      value={formData.productId}
+                      onChange={(e) => handleProductChange(e.target.value)}
+                      required
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                        darkMode 
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:ring-moon-gold' 
+                          : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                      }`}
+                    >
+                      <option value="">-- Choose a Product --</option>
+                      {products.map(product => (
+                        <option key={product._id} value={product._id}>
+                          {product.name} - ৳{product.basePrice} ({product.category})
+                        </option>
+                      ))}
+                    </select>
+                    {formData.productId && (
+                      <p className={`text-xs mt-1 ${darkMode ? 'text-moon-silver/60' : 'text-gray-500'}`}>
+                        Product details will auto-fill below
+                      </p>
+                    )}
+                  </div>
+
                   {/* Title */}
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
