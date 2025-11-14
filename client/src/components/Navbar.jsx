@@ -66,17 +66,33 @@ export default function Navbar() {
   // Listen for theme changes from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
+    const isDark = savedTheme === 'dark';
+    
     if (savedTheme) {
-      setDarkMode(savedTheme === 'dark');
+      setDarkMode(isDark);
+      // Apply dark class to HTML element
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     } else {
       // Set default light theme
       localStorage.setItem('theme', 'light');
+      document.documentElement.classList.remove('dark');
     }
 
     const handleStorageChange = () => {
       const theme = localStorage.getItem('theme');
       if (theme) {
-        setDarkMode(theme === 'dark');
+        const isDarkTheme = theme === 'dark';
+        setDarkMode(isDarkTheme);
+        // Apply dark class to HTML element
+        if (isDarkTheme) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
       }
     };
 
@@ -93,6 +109,14 @@ export default function Navbar() {
     const newTheme = !darkMode;
     setDarkMode(newTheme);
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+    
+    // Apply dark class to HTML element
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
     window.dispatchEvent(new Event('themeChange'));
   };
 
