@@ -145,6 +145,7 @@ export default {
         'light-gradient': 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
         'purple-gradient': 'linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #8b5cf6 100%)',
         'dark-gradient': 'linear-gradient(135deg, #1f2937 0%, #111827 50%, #0f172a 100%)',
+        'moon-gradient': 'linear-gradient(135deg, #0a0e27 0%, #151b36 50%, #1e293b 100%)',
       },
     },
   },

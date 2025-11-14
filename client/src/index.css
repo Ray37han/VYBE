@@ -19,6 +19,11 @@
     /* Performance optimizations */
     will-change: scroll-position;
   }
+
+  /* Dark mode body styles */
+  .dark body {
+    @apply text-moon-silver bg-gradient-to-br from-moon-night via-moon-midnight to-moon-blue;
+  }
 }
 
 @keyframes shimmer {
