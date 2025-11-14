@@ -13,7 +13,13 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['abstract', 'minimalist', 'nature', 'typography', 'custom', 'anime', 'vintage', 'modern', 'other']
+    enum: [
+      'bikes', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars',
+      'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
+      'marvel', 'dc', 'movies', 'tv-series', 'music', 'games',
+      'motivational', 'best-selling',
+      'abstract', 'minimalist', 'nature', 'typography', 'custom', 'anime', 'vintage', 'modern', 'other'
+    ]
   },
   images: [{
     url: {
@@ -90,6 +96,14 @@ const productSchema = new mongoose.Schema({
     }
   }],
   featured: {
+    type: Boolean,
+    default: false
+  },
+  newArrival: {
+    type: Boolean,
+    default: false
+  },
+  bestSelling: {
     type: Boolean,
     default: false
   },

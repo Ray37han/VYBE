@@ -12,13 +12,15 @@ export default function AdminProducts() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: 'abstract',
+    category: 'motivational',
     basePrice: '',
     sizes: [{ name: 'A4', dimensions: '8.3 x 11.7 inches', price: '' }],
     images: [],
     stock: '',
     tags: '',
     featured: false,
+    newArrival: false,
+    bestSelling: false,
     customizable: true,
     isActive: true
   });
@@ -26,8 +28,16 @@ export default function AdminProducts() {
   const [imagePreviews, setImagePreviews] = useState([]);
 
   const categories = [
-    'abstract', 'minimalist', 'nature', 'typography', 
-    'custom', 'anime', 'vintage', 'modern'
+    // All Posters
+    'motivational', 'best-selling',
+    // Cars & Bikes
+    'bikes', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars',
+    // Sports
+    'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
+    // Pop Culture
+    'marvel', 'dc', 'movies', 'tv-series', 'music', 'games',
+    // Legacy categories
+    'abstract', 'minimalist', 'nature', 'typography', 'custom', 'anime', 'vintage', 'modern', 'other'
   ];
 
   const sizeOptions = [
@@ -143,13 +153,15 @@ export default function AdminProducts() {
     setFormData({
       name: '',
       description: '',
-      category: 'abstract',
+      category: 'motivational',
       basePrice: '',
       sizes: [{ name: 'A4', dimensions: '8.3 x 11.7 inches', price: '' }],
       images: [],
       stock: '',
       tags: '',
       featured: false,
+      newArrival: false,
+      bestSelling: false,
       customizable: true,
       isActive: true
     });
@@ -191,6 +203,8 @@ export default function AdminProducts() {
         stock: Number(formData.stock),
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
         featured: formData.featured,
+        newArrival: formData.newArrival,
+        bestSelling: formData.bestSelling,
         customizable: formData.customizable,
         isActive: formData.isActive,
         sizes: formData.sizes.map(size => ({
@@ -279,6 +293,8 @@ export default function AdminProducts() {
       stock: product.stock,
       tags: product.tags?.join(', ') || '',
       featured: product.featured || false,
+      newArrival: product.newArrival || false,
+      bestSelling: product.bestSelling || false,
       customizable: product.customizable !== false,
       isActive: product.isActive !== false
     });
@@ -371,15 +387,35 @@ export default function AdminProducts() {
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className={`font-semibold text-lg ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>{product.name}</h3>
-                    {product.featured && (
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        darkMode
-                          ? 'bg-yellow-500/20 text-yellow-300'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        Featured
-                      </span>
-                    )}
+                    <div className="flex flex-wrap gap-1">
+                      {product.featured && (
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          darkMode
+                            ? 'bg-yellow-500/20 text-yellow-300'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          ⭐
+                        </span>
+                      )}
+                      {product.newArrival && (
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          darkMode
+                            ? 'bg-green-500/20 text-green-300'
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          NEW
+                        </span>
+                      )}
+                      {product.bestSelling && (
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          darkMode
+                            ? 'bg-red-500/20 text-red-300'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          🔥
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className={`text-sm mb-2 line-clamp-2 ${darkMode ? 'text-moon-silver/60' : 'text-gray-600'}`}>
                     {product.description}
@@ -719,7 +755,7 @@ export default function AdminProducts() {
                     </div>
 
                     {/* Checkboxes */}
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                       <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
                         <input
                           type="checkbox"
@@ -729,6 +765,28 @@ export default function AdminProducts() {
                           className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'accent-purple-600'}`}
                         />
                         <span className="text-xs sm:text-sm">Featured</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        <input
+                          type="checkbox"
+                          name="newArrival"
+                          checked={formData.newArrival}
+                          onChange={handleInputChange}
+                          className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'accent-purple-600'}`}
+                        />
+                        <span className="text-xs sm:text-sm">New Arrival</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        <input
+                          type="checkbox"
+                          name="bestSelling"
+                          checked={formData.bestSelling}
+                          onChange={handleInputChange}
+                          className={`w-4 h-4 ${darkMode ? 'accent-moon-gold' : 'accent-purple-600'}`}
+                        />
+                        <span className="text-xs sm:text-sm">Best Selling</span>
                       </label>
 
                       <label className={`flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
