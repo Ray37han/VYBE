@@ -9,6 +9,7 @@ import { productsAPI } from '../api';
 import axios from 'axios';
 import { useCartStore } from '../store';
 import { toast } from 'react-hot-toast';
+import imageCompression from 'browser-image-compression';
 
 // Size options with prices (after 30% discount)
 const SIZES = [
@@ -49,6 +50,7 @@ export default function Customize() {
 
   // UI state
   const [uploading, setUploading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [instructionsRead, setInstructionsRead] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
@@ -97,7 +99,7 @@ export default function Customize() {
     }
   };
 
-  // Handle image upload
+  // Handle image upload with compression
   const handleImageSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -134,11 +136,50 @@ export default function Customize() {
     };
     reader.readAsDataURL(file);
 
-    // Upload to server
+    // ===== CLIENT-SIDE IMAGE COMPRESSION =====
+    let compressedFile;
+    try {
+      setCompressing(true);
+      
+      // Compression options
+      const compressionOptions = {
+        maxSizeMB: 2,              // Target max file size: 2MB
+        maxWidthOrHeight: 1920,     // Max dimension: 1920px (high quality)
+        useWebWorker: true,         // Use web worker for faster compression
+        fileType: 'image/jpeg',     // Convert to JPEG (widely supported)
+        initialQuality: 0.85,       // Start with 85% quality
+      };
+
+      console.log('📦 Compressing image...');
+      console.log(`Original file size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+      
+      // Show compression toast
+      toast.loading('Compressing image...', { id: 'compress' });
+      
+      // Compress the image in the browser
+      compressedFile = await imageCompression(file, compressionOptions);
+      
+      console.log(`✅ Compressed file size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+      console.log(`🎯 Compression saved: ${((file.size - compressedFile.size) / 1024 / 1024).toFixed(2)} MB`);
+      
+      toast.success(`Compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`, { id: 'compress' });
+      
+      setCompressing(false);
+      
+    } catch (compressionError) {
+      console.error('❌ Image compression failed:', compressionError);
+      toast.error('Compression failed, uploading original', { id: 'compress' });
+      setCompressing(false);
+      // Fallback to original file if compression fails
+      compressedFile = file;
+    }
+
+    // Upload compressed image to server
     try {
       setUploading(true);
       const formData = new FormData();
-      formData.append('image', file);
+      // Use compressed file but keep original filename
+      formData.append('image', compressedFile, file.name);
 
       console.log('Uploading image to server...');
       console.log('File details:', { name: file.name, size: file.size, type: file.type });
@@ -661,12 +702,12 @@ export default function Customize() {
 
             {/* Add to Cart Button */}
             <motion.button
-              whileHover={{ scale: (loading || !uploadedImageData || uploading) ? 1 : 1.01 }}
-              whileTap={{ scale: (loading || !uploadedImageData || uploading) ? 1 : 0.99 }}
+              whileHover={{ scale: (loading || !uploadedImageData || uploading || compressing) ? 1 : 1.01 }}
+              whileTap={{ scale: (loading || !uploadedImageData || uploading || compressing) ? 1 : 0.99 }}
               onClick={handleAddToCart}
-              disabled={loading || !uploadedImageData || uploading}
+              disabled={loading || !uploadedImageData || uploading || compressing}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                loading || !uploadedImageData || uploading
+                loading || !uploadedImageData || uploading || compressing
                   ? 'bg-gray-400 cursor-not-allowed'
                   : darkMode
                   ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-lg'
@@ -676,6 +717,8 @@ export default function Customize() {
               <FiCheck className="inline mr-2" />
               {loading
                 ? 'Loading Product...'
+                : compressing
+                ? 'Compressing Image...'
                 : uploading 
                 ? 'Uploading...' 
                 : !uploadedImageData && uploadedImage
