@@ -34,22 +34,46 @@ router.post('/', async (req, res) => {
   try {
     const { productId, quantity = 1, size, customization } = req.body;
 
+    console.log('=== ADD TO CART DEBUG ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Product ID:', productId);
+    console.log('Size:', size);
+    console.log('Quantity:', quantity);
+    console.log('Customization object:', JSON.stringify(customization, null, 2));
+    console.log('Customization.uploadedImageUrl:', customization?.uploadedImageUrl);
+    console.log('========================');
+
     const user = await User.findById(req.user._id);
 
-    // Check if item already in cart
-    const existingItem = user.cart.find(
-      item => item.product.toString() === productId && item.size === size
-    );
-
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
+    // For customized items, always add as new item (don't merge with existing)
+    if (customization && customization.uploadedImageUrl) {
+      console.log('Customized item - adding as new item (no merge)');
       user.cart.push({
         product: productId,
         quantity,
         size,
         customization
       });
+    } else {
+      // For regular items, check if already in cart and merge
+      const existingItem = user.cart.find(
+        item => item.product.toString() === productId && 
+                item.size === size && 
+                !item.customization
+      );
+
+      if (existingItem) {
+        console.log('Regular item already exists - updating quantity');
+        existingItem.quantity += quantity;
+      } else {
+        console.log('Regular item - adding as new');
+        user.cart.push({
+          product: productId,
+          quantity,
+          size,
+          customization
+        });
+      }
     }
 
     await user.save();

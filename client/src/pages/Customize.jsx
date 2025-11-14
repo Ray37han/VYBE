@@ -144,14 +144,18 @@ export default function Customize() {
       console.log('File details:', { name: file.name, size: file.size, type: file.type });
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-      console.log('API URL:', apiUrl);
+      console.log('=== UPLOAD DEBUG START ===');
+      console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
+      console.log('API URL (resolved):', apiUrl);
+      console.log('API URL ends with /api?', apiUrl.endsWith('/api'));
 
       // Build the correct URL - if apiUrl already ends with /api, don't add it again
       const uploadUrl = apiUrl.endsWith('/api') 
         ? `${apiUrl}/customizations/upload-image`
         : `${apiUrl}/api/customizations/upload-image`;
       
-      console.log('Upload URL:', uploadUrl);
+      console.log('Final Upload URL:', uploadUrl);
+      console.log('=== UPLOAD DEBUG END ===');
 
       const response = await axios.post(
         uploadUrl,
@@ -194,9 +198,17 @@ export default function Customize() {
         toast.error('Upload succeeded but response was invalid');
       }
     } catch (error) {
-      console.error('Upload error details:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
+      console.error('=== UPLOAD ERROR START ===');
+      console.error('Full error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response);
+      console.error('Response status:', error.response?.status);
+      console.error('Response statusText:', error.response?.statusText);
+      console.error('Response data:', error.response?.data);
+      console.error('Response headers:', error.response?.headers);
+      console.error('Request URL:', error.config?.url);
+      console.error('Request method:', error.config?.method);
+      console.error('=== UPLOAD ERROR END ===');
       
       const errorMessage = error.response?.data?.message 
         || error.response?.data?.error 
@@ -214,37 +226,68 @@ export default function Customize() {
 
   // Handle add to cart
   const handleAddToCart = () => {
+    console.log('=== handleAddToCart START ===');
+    
+    // FIX #1: Guard clause - Check if product data is loaded
+    if (!product) {
+      console.error('Add to cart failed: Product data is not loaded yet.');
+      toast.error('Please wait, product is loading...');
+      return;
+    }
+    
+    console.log('Product loaded:', product.name);
+    console.log('uploadedImage:', uploadedImage);
+    console.log('uploadedImageData:', uploadedImageData);
+    console.log('uploading:', uploading);
+
     if (!uploadedImage) {
       toast.error('Please upload an image first');
       return;
     }
 
     // If upload is still in progress, wait for it
-    if (!uploadedImageData && uploadedImage) {
+    if (!uploadedImageData) {
       toast.error('Please wait for image upload to complete');
+      console.log('Upload still in progress, cannot add to cart yet');
       return;
     }
+
+    const customizationData = {
+      uploadedImageUrl: uploadedImageData.url,
+      uploadedImagePublicId: uploadedImageData.publicId,
+      textOverlay: textOverlay.trim(),
+      frameColor: frameColor.id,
+      adminInstructions: adminInstructions.trim(),
+    };
+
+    console.log('Customization data being sent:');
+    console.log('- uploadedImageUrl:', customizationData.uploadedImageUrl);
+    console.log('- uploadedImagePublicId:', customizationData.uploadedImagePublicId);
+    console.log('- textOverlay:', customizationData.textOverlay);
+    console.log('- frameColor:', customizationData.frameColor);
+    console.log('- adminInstructions:', customizationData.adminInstructions);
 
     const cartItem = {
       product: {
         _id: product._id,
         name: product.name,
-        image: product.images[0],
+        images: product.images && product.images.length > 0 
+          ? product.images 
+          : (product.image ? [{ url: product.image }] : [{ url: '' }]), // Ensure proper format
         basePrice: selectedSize.price,
         sizes: [{ name: selectedSize.name, price: selectedSize.price }],
       },
       size: selectedSize.name,
       quantity: 1,
-      customization: {
-        uploadedImageUrl: uploadedImageData.url,
-        uploadedImagePublicId: uploadedImageData.publicId,
-        textOverlay: textOverlay.trim(),
-        frameColor: frameColor.id,
-        adminInstructions: adminInstructions.trim(),
-      },
+      customization: customizationData,
     };
 
+    console.log('Complete cart item:', JSON.stringify(cartItem, null, 2));
+    console.log('Calling addToCart...');
     addToCart(cartItem);
+    console.log('addToCart called successfully');
+    console.log('=== handleAddToCart END ===');
+    
     toast.success('Custom poster added to cart!');
     navigate('/cart');
   };
@@ -618,12 +661,12 @@ export default function Customize() {
 
             {/* Add to Cart Button */}
             <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+              whileHover={{ scale: (loading || !uploadedImageData || uploading) ? 1 : 1.01 }}
+              whileTap={{ scale: (loading || !uploadedImageData || uploading) ? 1 : 0.99 }}
               onClick={handleAddToCart}
-              disabled={!uploadedImage || uploading}
+              disabled={loading || !uploadedImageData || uploading}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                !uploadedImage || uploading
+                loading || !uploadedImageData || uploading
                   ? 'bg-gray-400 cursor-not-allowed'
                   : darkMode
                   ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-lg'
@@ -631,7 +674,16 @@ export default function Customize() {
               }`}
             >
               <FiCheck className="inline mr-2" />
-              Add to Cart - ৳{selectedSize.price}
+              {loading
+                ? 'Loading Product...'
+                : uploading 
+                ? 'Uploading...' 
+                : !uploadedImageData && uploadedImage
+                ? 'Processing...'
+                : !uploadedImage
+                ? 'Upload Image First'
+                : `Add to Cart - ৳${selectedSize.price}`
+              }
             </motion.button>
           </div>
         </div>

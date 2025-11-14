@@ -47,9 +47,11 @@ const userSchema = new mongoose.Schema({
     },
     size: String,
     customization: {
-      uploadedImage: String,
-      text: String,
-      frameColor: String
+      uploadedImageUrl: String,
+      uploadedImagePublicId: String,
+      textOverlay: String,
+      frameColor: String,
+      adminInstructions: String
     }
   }],
   wishlist: [{

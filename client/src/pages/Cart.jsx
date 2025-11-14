@@ -136,6 +136,22 @@ export default function Cart() {
                     <p className={`text-sm mb-2 ${
                       darkMode ? 'text-moon-silver/60' : 'text-gray-600'
                     }`}>Size: {item.size}</p>
+                    {item.customization && (
+                      <div className={`text-xs mb-2 space-y-1 ${
+                        darkMode ? 'text-moon-gold/80' : 'text-purple-600'
+                      }`}>
+                        <p>✨ Customized Poster</p>
+                        {item.customization.uploadedImageUrl && (
+                          <p>📸 Custom Image Uploaded</p>
+                        )}
+                        {item.customization.textOverlay && (
+                          <p>✍️ Text: {item.customization.textOverlay}</p>
+                        )}
+                        {item.customization.frameColor && (
+                          <p>🖼️ Frame: {item.customization.frameColor}</p>
+                        )}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <p className={`text-lg font-bold ${
                         darkMode ? 'text-moon-gold' : 'text-purple-600'

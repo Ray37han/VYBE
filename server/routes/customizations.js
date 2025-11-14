@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import sharp from 'sharp';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '../config/cloudinary.js';
 import { protect, authorize } from '../middleware/auth.js';
 import Order from '../models/Order.js';
 import { sendEmail } from '../utils/emailService.js';
