@@ -617,9 +617,12 @@ export default function Home() {
                       <h3 className="text-3xl font-bold mb-4 group-hover:scale-110 transition-transform">
                         {poster.title}
                       </h3>
-                      <button className="px-6 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full font-semibold hover:bg-white hover:text-moon-night transition-all duration-300 transform hover:scale-105">
+                      <Link 
+                        to={`/products?category=${encodeURIComponent(poster.category.toLowerCase().replace(/\s+/g, '-'))}`}
+                        className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full font-semibold hover:bg-white hover:text-moon-night transition-all duration-300 transform hover:scale-105"
+                      >
                         View Poster
-                      </button>
+                      </Link>
                     </motion.div>
                   </div>
 
