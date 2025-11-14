@@ -7,22 +7,52 @@ import { authAPI } from '../api';
 import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import toast from 'react-hot-toast';
 
-// Categories for dropdown
+// Categories with subcategories for dropdown
 const categories = [
-  { value: '', label: '✨ All Collections', icon: '🌟' },
-  { value: 'abstract', label: 'Abstract Art', icon: '🎨' },
-  { value: 'minimalist', label: 'Minimalist', icon: '⚪' },
-  { value: 'nature', label: 'Nature', icon: '🌿' },
-  { value: 'typography', label: 'Typography', icon: '📝' },
-  { value: 'custom', label: 'Custom Creations', icon: '👑' },
-  { value: 'anime', label: 'Anime', icon: '⚡' },
-  { value: 'vintage', label: 'Vintage', icon: '📻' },
-  { value: 'modern', label: 'Modern', icon: '🔮' },
-  { value: 'sports', label: 'Sports', icon: '🏆' },
-  { value: 'cricket', label: 'Cricket', icon: '🏏' },
-  { value: 'football', label: 'Football', icon: '⚽' },
-  { value: 'nba', label: 'NBA', icon: '🏀' },
-  { value: 'cars', label: 'Cars', icon: '🏎️' },
+  {
+    label: 'All Posters',
+    icon: '🌟',
+    subcategories: [
+      { value: '', label: 'New Arrivals', icon: '✨' },
+      { value: 'best-selling', label: 'Best Selling', icon: '🔥' },
+      { value: 'motivational', label: 'Motivational', icon: '💪' },
+    ]
+  },
+  {
+    label: 'Cars & Bikes',
+    icon: '🏎️',
+    subcategories: [
+      { value: 'bikes', label: 'Bikes', icon: '🏍️' },
+      { value: 'sports-cars', label: 'Sports Cars', icon: '🏎️' },
+      { value: 'vintage-cars', label: 'Vintage Cars', icon: '🚗' },
+      { value: 'muscle-cars', label: 'Muscle Cars', icon: '💨' },
+      { value: 'vector-cars', label: 'Vector Cars', icon: '🎨' },
+    ]
+  },
+  {
+    label: 'Sports',
+    icon: '⚽',
+    subcategories: [
+      { value: 'football-motivational', label: 'Football Motivational', icon: '⚽' },
+      { value: 'cricket', label: 'Cricket', icon: '🏏' },
+      { value: 'ufc', label: 'UFC', icon: '🥊' },
+      { value: 'nba', label: 'NBA', icon: '🏀' },
+      { value: 'f1', label: 'F1', icon: '🏁' },
+      { value: 'f1-motivational', label: 'F1 Motivational', icon: '🏎️' },
+    ]
+  },
+  {
+    label: 'Pop Culture',
+    icon: '🎬',
+    subcategories: [
+      { value: 'marvel', label: 'Marvel', icon: '🦸' },
+      { value: 'dc', label: 'DC', icon: '🦇' },
+      { value: 'movies', label: 'Movies', icon: '🎬' },
+      { value: 'tv-series', label: 'TV Series', icon: '📺' },
+      { value: 'music', label: 'Music', icon: '🎵' },
+      { value: 'games', label: 'Games', icon: '🎮' },
+    ]
+  },
 ];
 
 export default function Navbar() {
@@ -240,37 +270,59 @@ export default function Navbar() {
                     </div>
 
                     {/* Categories List */}
-                    <div className="py-2 max-h-96 overflow-y-auto custom-scrollbar">
-                      {categories.map((category, index) => (
-                        <motion.div
-                          key={category.value}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.03, duration: 0.2 }}
-                        >
-                          <Link
-                            to={category.value ? `/products?category=${category.value}` : '/products'}
-                            className={`flex items-center space-x-3 px-4 py-2.5 transition-all duration-200 group ${
-                              darkMode
-                                ? 'hover:bg-moon-blue/30 text-moon-silver hover:text-moon-gold'
-                                : 'hover:bg-purple-50 text-gray-700 hover:text-purple-700'
-                            }`}
-                            onClick={() => setProductsDropdownOpen(false)}
-                          >
-                            <span className="text-xl group-hover:scale-125 transition-transform duration-200">
-                              {category.icon}
-                            </span>
-                            <span className="font-medium text-sm flex-1">
+                    <div className="py-2 max-h-[32rem] overflow-y-auto custom-scrollbar">
+                      {categories.map((category, categoryIndex) => (
+                        <div key={category.label} className="mb-1">
+                          {/* Category Header */}
+                          <div className={`px-4 py-2 flex items-center space-x-2 ${
+                            darkMode ? 'text-moon-gold' : 'text-purple-600'
+                          }`}>
+                            <span className="text-lg">{category.icon}</span>
+                            <span className="font-bold text-xs uppercase tracking-wider">
                               {category.label}
                             </span>
+                          </div>
+                          
+                          {/* Subcategories */}
+                          {category.subcategories.map((subcategory, subIndex) => (
                             <motion.div
-                              className={`w-1.5 h-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                                darkMode ? 'bg-moon-gold' : 'bg-purple-600'
-                              }`}
-                              whileHover={{ scale: 1.5 }}
-                            />
-                          </Link>
-                        </motion.div>
+                              key={subcategory.value}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: (categoryIndex * 0.1) + (subIndex * 0.03), duration: 0.2 }}
+                            >
+                              <Link
+                                to={subcategory.value ? `/products?category=${subcategory.value}` : '/products'}
+                                className={`flex items-center space-x-3 pl-8 pr-4 py-2 transition-all duration-200 group ${
+                                  darkMode
+                                    ? 'hover:bg-moon-blue/30 text-moon-silver hover:text-moon-gold'
+                                    : 'hover:bg-purple-50 text-gray-700 hover:text-purple-700'
+                                }`}
+                                onClick={() => setProductsDropdownOpen(false)}
+                              >
+                                <span className="text-base group-hover:scale-125 transition-transform duration-200">
+                                  {subcategory.icon}
+                                </span>
+                                <span className="font-medium text-sm flex-1">
+                                  {subcategory.label}
+                                </span>
+                                <motion.div
+                                  className={`w-1.5 h-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${
+                                    darkMode ? 'bg-moon-gold' : 'bg-purple-600'
+                                  }`}
+                                  whileHover={{ scale: 1.5 }}
+                                />
+                              </Link>
+                            </motion.div>
+                          ))}
+                          
+                          {/* Divider between categories */}
+                          {categoryIndex < categories.length - 1 && (
+                            <div className={`mx-4 my-2 border-t ${
+                              darkMode ? 'border-moon-gold/10' : 'border-purple-100'
+                            }`} />
+                          )}
+                        </div>
                       ))}
                     </div>
 
