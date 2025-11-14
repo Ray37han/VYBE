@@ -214,8 +214,14 @@ export default function Customize() {
 
   // Handle add to cart
   const handleAddToCart = () => {
-    if (!uploadedImageData) {
+    if (!uploadedImage) {
       toast.error('Please upload an image first');
+      return;
+    }
+
+    // If upload is still in progress, wait for it
+    if (!uploadedImageData && uploadedImage) {
+      toast.error('Please wait for image upload to complete');
       return;
     }
 
@@ -612,16 +618,16 @@ export default function Customize() {
 
             {/* Add to Cart Button */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={handleAddToCart}
-              disabled={!uploadedImageData || uploading}
+              disabled={!uploadedImage || uploading}
               className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                !uploadedImageData || uploading
+                !uploadedImage || uploading
                   ? 'bg-gray-400 cursor-not-allowed'
                   : darkMode
-                  ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-2xl hover:shadow-moon-gold/50'
-                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-2xl hover:shadow-purple-500/50'
+                  ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-lg'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
               }`}
             >
               <FiCheck className="inline mr-2" />
