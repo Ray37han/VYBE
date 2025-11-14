@@ -132,10 +132,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b shadow-2xl transition-colors duration-500 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 ${
       darkMode 
-        ? 'bg-moon-night/95 border-moon-gold/20' 
-        : 'bg-white/95 border-purple-200'
+        ? 'bg-moon-night border-moon-gold/20' 
+        : 'bg-white border-purple-200'
     }`}>
       {/* Glow Effect */}
       <div className={`absolute inset-0 animate-pulse-slow pointer-events-none ${
@@ -276,10 +276,10 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl backdrop-blur-xl border overflow-hidden z-50 ${
+                    className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl border overflow-hidden z-50 ${
                       darkMode
-                        ? 'bg-moon-midnight/95 border-moon-gold/30'
-                        : 'bg-white/95 border-purple-200'
+                        ? 'bg-moon-midnight border-moon-gold/30'
+                        : 'bg-white border-purple-200'
                     }`}
                   >
                     {/* Dropdown Header */}
@@ -474,10 +474,10 @@ export default function Navbar() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className={`md:hidden backdrop-blur-xl border-t ${
+          className={`md:hidden border-t ${
             darkMode
-              ? 'bg-moon-midnight/98 border-moon-gold/20'
-              : 'bg-white/98 border-purple-200'
+              ? 'bg-moon-midnight border-moon-gold/20'
+              : 'bg-white border-purple-200'
           }`}
         >
           <div className="px-4 py-4 space-y-2">

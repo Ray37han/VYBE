@@ -165,10 +165,10 @@ export default function Products() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className={`mb-12 backdrop-blur-xl p-6 rounded-2xl border shadow-2xl relative overflow-hidden group ${
+          className={`mb-12 p-6 rounded-2xl border shadow-2xl relative overflow-hidden group ${
             darkMode
-              ? 'bg-moon-midnight/50 border-moon-gold/20'
-              : 'bg-white/70 border-purple-200'
+              ? 'bg-moon-midnight border-moon-gold/20'
+              : 'bg-white border-purple-200'
           }`}
         >
           {/* Animated Background */}

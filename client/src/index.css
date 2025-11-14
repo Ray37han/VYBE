@@ -269,7 +269,7 @@
   /* Removed heavy poster-card::after animation for better performance */
 
   .glass-moon {
-    @apply bg-moon-midnight/40 backdrop-blur-xl border border-moon-silver/20;
+    @apply bg-moon-midnight border border-moon-silver/20;
   }
 
   .glow-border {
@@ -279,7 +279,7 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white bg-opacity-80 backdrop-blur-lg;
+    @apply bg-white;
   }
 
   .animate-on-scroll {
