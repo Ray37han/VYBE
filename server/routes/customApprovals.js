@@ -1,14 +1,15 @@
-const express = require('express');
+import express from 'express';
+import Order from '../models/Order.js';
+import User from '../models/User.js';
+import { protect, authorize } from '../middleware/auth.js';
+import { sendCustomOrderRejectionEmail } from '../utils/emailService.js';
+
 const router = express.Router();
-const Order = require('../models/Order');
-const User = require('../models/User');
-const { protect, admin } = require('../middleware/auth');
-const { sendCustomOrderRejectionEmail } = require('../utils/emailService');
 
 // @route   GET /api/admin/custom-approvals
 // @desc    Get all orders pending admin review
 // @access  Private/Admin
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', protect, authorize('admin'), async (req, res) => {
   try {
     const { page = 1, limit = 20, status = 'pending_admin_review' } = req.query;
 
@@ -44,7 +45,7 @@ router.get('/', protect, admin, async (req, res) => {
 // @route   GET /api/admin/custom-approvals/:orderId
 // @desc    Get single order details
 // @access  Private/Admin
-router.get('/:orderId', protect, admin, async (req, res) => {
+router.get('/:orderId', protect, authorize('admin'), async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId)
       .populate('user', 'name email phone');
@@ -72,7 +73,7 @@ router.get('/:orderId', protect, admin, async (req, res) => {
 // @route   PUT /api/admin/custom-approvals/:orderId/approve
 // @desc    Approve a custom order
 // @access  Private/Admin
-router.put('/:orderId/approve', protect, admin, async (req, res) => {
+router.put('/:orderId/approve', protect, authorize('admin'), async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId);
 
@@ -129,7 +130,7 @@ router.put('/:orderId/approve', protect, admin, async (req, res) => {
 // @route   PUT /api/admin/custom-approvals/:orderId/reject
 // @desc    Reject a custom order with reason
 // @access  Private/Admin
-router.put('/:orderId/reject', protect, admin, async (req, res) => {
+router.put('/:orderId/reject', protect, authorize('admin'), async (req, res) => {
   try {
     const { rejectionReason } = req.body;
 
@@ -204,7 +205,7 @@ router.put('/:orderId/reject', protect, admin, async (req, res) => {
 // @route   GET /api/admin/custom-approvals/stats
 // @desc    Get statistics for custom orders
 // @access  Private/Admin
-router.get('/stats/overview', protect, admin, async (req, res) => {
+router.get('/stats/overview', protect, authorize('admin'), async (req, res) => {
   try {
     const pendingCount = await Order.countDocuments({
       orderStatus: 'pending_admin_review',
@@ -243,4 +244,4 @@ router.get('/stats/overview', protect, admin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
