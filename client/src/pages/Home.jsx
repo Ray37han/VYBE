@@ -110,7 +110,7 @@ export default function Home() {
       try {
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
         const [productsResponse, postersResponse, heroResponse] = await Promise.all([
-          productsAPI.getAll({ featured: true, limit: 8 }),
+          productsAPI.getAll({ featured: true, limit: 100 }),
           featuredPostersAPI.getAll(),
           fetch(`${API_URL}/hero-items`).then(res => res.json())
         ]);
