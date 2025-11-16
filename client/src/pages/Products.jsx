@@ -33,12 +33,19 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 20
+  });
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     search: searchParams.get('search') || '',
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     sort: searchParams.get('sort') || '-createdAt',
+    page: searchParams.get('page') || '1',
   });
 
   useEffect(() => {
@@ -67,14 +74,27 @@ export default function Products() {
     setLoading(true);
     try {
       const params = Object.fromEntries(searchParams);
-      // ALWAYS fetch all products (up to 500) - force the limit
-      params.limit = 500;
+      // Set pagination - 20 products per page
+      params.limit = 20;
+      params.page = params.page || 1;
       
       console.log('Fetching products with params:', params);
       console.log('API URL:', import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api');
       const response = await productsAPI.getAll(params);
       console.log('Products response:', response);
+      
+      // Update products and pagination data
       setProducts(response.data || response || []);
+      
+      // Update pagination state from response
+      if (response.pagination) {
+        setPagination({
+          currentPage: response.pagination.currentPage,
+          totalPages: response.pagination.totalPages,
+          totalItems: response.pagination.totalItems,
+          itemsPerPage: response.pagination.itemsPerPage
+        });
+      }
     } catch (error) {
       console.error('Failed to load products:', error);
       console.error('Error details:', error.response?.data || error.message);
@@ -87,6 +107,10 @@ export default function Products() {
 
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value };
+    // Reset to page 1 when filters change
+    if (key !== 'page') {
+      newFilters.page = '1';
+    }
     setFilters(newFilters);
     
     // Update URL params
@@ -95,6 +119,11 @@ export default function Products() {
       if (v) params.set(k, v);
     });
     setSearchParams(params);
+  };
+
+  const handlePageChange = (page) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleFilterChange('page', page.toString());
   };
 
   return (
@@ -431,6 +460,160 @@ export default function Products() {
           ))}
         </StaggerContainer>
       </SpotlightContainer>
+        )}
+
+        {/* Pagination Controls */}
+        {!loading && products.length > 0 && pagination.totalPages > 1 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12 flex flex-col items-center gap-6"
+          >
+            {/* Page Info */}
+            <div className={`text-center ${darkMode ? 'text-moon-silver' : 'text-gray-600'}`}>
+              <p className="text-sm font-medium">
+                Showing <span className={`font-bold ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>
+                  {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1}
+                </span> to <span className={`font-bold ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>
+                  {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)}
+                </span> of <span className={`font-bold ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>
+                  {pagination.totalItems}
+                </span> products
+              </p>
+            </div>
+
+            {/* Pagination Buttons */}
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              {/* Previous Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                  pagination.currentPage === 1
+                    ? darkMode 
+                      ? 'bg-moon-midnight/30 text-moon-silver/30 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                    : darkMode
+                      ? 'bg-moon-midnight border border-moon-gold/30 text-moon-gold hover:bg-moon-gold hover:text-moon-night'
+                      : 'bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white'
+                }`}
+              >
+                ← Previous
+              </motion.button>
+
+              {/* Page Numbers */}
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const pages = [];
+                  const maxVisible = 7;
+                  let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisible / 2));
+                  let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
+                  
+                  if (endPage - startPage + 1 < maxVisible) {
+                    startPage = Math.max(1, endPage - maxVisible + 1);
+                  }
+
+                  // First page
+                  if (startPage > 1) {
+                    pages.push(
+                      <motion.button
+                        key={1}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handlePageChange(1)}
+                        className={`w-10 h-10 rounded-lg font-bold transition-all duration-300 ${
+                          darkMode
+                            ? 'bg-moon-midnight border border-moon-gold/30 text-moon-silver hover:bg-moon-gold hover:text-moon-night'
+                            : 'bg-white border-2 border-purple-200 text-gray-700 hover:border-purple-600 hover:text-purple-600'
+                        }`}
+                      >
+                        1
+                      </motion.button>
+                    );
+                    if (startPage > 2) {
+                      pages.push(
+                        <span key="dots1" className={darkMode ? 'text-moon-silver' : 'text-gray-400'}>
+                          ...
+                        </span>
+                      );
+                    }
+                  }
+
+                  // Page numbers
+                  for (let i = startPage; i <= endPage; i++) {
+                    pages.push(
+                      <motion.button
+                        key={i}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handlePageChange(i)}
+                        className={`w-10 h-10 rounded-lg font-bold transition-all duration-300 ${
+                          pagination.currentPage === i
+                            ? darkMode
+                              ? 'bg-moon-gold text-moon-night shadow-lg shadow-moon-gold/50'
+                              : 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
+                            : darkMode
+                              ? 'bg-moon-midnight border border-moon-gold/30 text-moon-silver hover:bg-moon-gold hover:text-moon-night'
+                              : 'bg-white border-2 border-purple-200 text-gray-700 hover:border-purple-600 hover:text-purple-600'
+                        }`}
+                      >
+                        {i}
+                      </motion.button>
+                    );
+                  }
+
+                  // Last page
+                  if (endPage < pagination.totalPages) {
+                    if (endPage < pagination.totalPages - 1) {
+                      pages.push(
+                        <span key="dots2" className={darkMode ? 'text-moon-silver' : 'text-gray-400'}>
+                          ...
+                        </span>
+                      );
+                    }
+                    pages.push(
+                      <motion.button
+                        key={pagination.totalPages}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handlePageChange(pagination.totalPages)}
+                        className={`w-10 h-10 rounded-lg font-bold transition-all duration-300 ${
+                          darkMode
+                            ? 'bg-moon-midnight border border-moon-gold/30 text-moon-silver hover:bg-moon-gold hover:text-moon-night'
+                            : 'bg-white border-2 border-purple-200 text-gray-700 hover:border-purple-600 hover:text-purple-600'
+                        }`}
+                      >
+                        {pagination.totalPages}
+                      </motion.button>
+                    );
+                  }
+
+                  return pages;
+                })()}
+              </div>
+
+              {/* Next Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                  pagination.currentPage === pagination.totalPages
+                    ? darkMode 
+                      ? 'bg-moon-midnight/30 text-moon-silver/30 cursor-not-allowed'
+                      : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                    : darkMode
+                      ? 'bg-moon-midnight border border-moon-gold/30 text-moon-gold hover:bg-moon-gold hover:text-moon-night'
+                      : 'bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white'
+                }`}
+              >
+                Next →
+              </motion.button>
+            </div>
+          </motion.div>
         )}
       </div>
     </div>
