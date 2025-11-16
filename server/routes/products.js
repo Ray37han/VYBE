@@ -2,6 +2,7 @@ import express from 'express';
 import Product from '../models/Product.js';
 import { cacheMiddleware } from '../middleware/cache.js';
 import { paginate, parsePaginationParams } from '../utils/pagination.js';
+import { transformProductsImages, transformProductImages } from '../utils/cloudinaryTransform.js';
 
 const router = express.Router();
 
@@ -48,7 +49,13 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       lean: true // Convert to plain JS object for better performance
     });
 
-    res.json(result);
+    // Transform all product images to include watermarked URLs
+    const transformedData = transformProductsImages(result.data);
+
+    res.json({
+      ...result,
+      data: transformedData
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -73,9 +80,12 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
       });
     }
 
+    // Transform product images to include watermarked URLs
+    const transformedProduct = transformProductImages(product);
+
     res.json({
       success: true,
-      data: product
+      data: transformedProduct
     });
   } catch (error) {
     res.status(500).json({

@@ -1,6 +1,4 @@
 import multer from 'multer';
-import path from 'path';
-import { addSecureWatermark, optimizeImage } from '../utils/watermark.js';
 
 // Configure multer for memory storage
 const storage = multer.memoryStorage();
@@ -44,56 +42,13 @@ export const handleMulterError = (err, req, res, next) => {
 };
 
 /**
- * Middleware to automatically watermark uploaded images
- * Use this after multer upload middleware
+ * No watermarking middleware needed!
+ * Cloudinary handles watermarks via URL transformations
+ * Just pass through the original files
  */
-export const watermarkImages = async (req, res, next) => {
-  try {
-    if (!req.files || req.files.length === 0) {
-      return next();
-    }
-
-    // Process each uploaded file
-    const watermarkedFiles = await Promise.all(
-      req.files.map(async (file) => {
-        try {
-          // Add watermark
-          const watermarkedBuffer = await addSecureWatermark(file.buffer, {
-            text: '© VYBE',
-            cornerText: '© VYBE 2025 - All Rights Reserved',
-            repeatPattern: true,
-          });
-
-          // Optimize the watermarked image
-          const optimizedBuffer = await optimizeImage(watermarkedBuffer, {
-            maxWidth: 2000,
-            maxHeight: 2000,
-            quality: 90,
-          });
-
-          // Update file buffer with watermarked version
-          return {
-            ...file,
-            buffer: optimizedBuffer,
-            originalBuffer: file.buffer, // Keep original for backup
-            watermarked: true,
-          };
-        } catch (error) {
-          console.error('Error watermarking file:', file.originalname, error);
-          // Return original file if watermarking fails
-          return {
-            ...file,
-            watermarked: false,
-            watermarkError: error.message,
-          };
-        }
-      })
-    );
-
-    req.files = watermarkedFiles;
-    next();
-  } catch (error) {
-    console.error('Watermarking middleware error:', error);
-    next(error);
-  }
+export const processImages = (req, res, next) => {
+  // Images uploaded as-is to Cloudinary
+  // Watermarks applied when generating URLs
+  console.log('✅ Images ready for Cloudinary upload (no pre-processing)');
+  next();
 };

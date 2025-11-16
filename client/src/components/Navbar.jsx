@@ -33,6 +33,7 @@ const categories = [
     label: 'Sports',
     icon: '⚽',
     subcategories: [
+      { value: 'football', label: 'Football', icon: '⚽' },
       { value: 'football-motivational', label: 'Football Motivational', icon: '⚽' },
       { value: 'cricket', label: 'Cricket', icon: '🏏' },
       { value: 'ufc', label: 'UFC', icon: '🥊' },
@@ -371,7 +372,11 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            <NavLink to="/products?category=custom" icon={FiStar} darkMode={darkMode}>Customize</NavLink>
+            <div className={`relative px-4 py-2 rounded-xl cursor-not-allowed opacity-60 flex items-center gap-2 ${darkMode ? 'text-moon-silver' : 'text-gray-500'}`}>
+              <FiStar className="w-4 h-4" />
+              <span>Customize</span>
+              <span className={`text-xs ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>(Coming Soon)</span>
+            </div>
             {isAuthenticated && user?.role === 'admin' && (
               <NavLink to="/admin" icon={FiUser} darkMode={darkMode}>Admin</NavLink>
             )}
@@ -487,9 +492,10 @@ export default function Navbar() {
             <MobileNavLink to="/products" onClick={() => setMobileMenuOpen(false)} darkMode={darkMode}>
               🛍️ Shop Collection
             </MobileNavLink>
-            <MobileNavLink to="/products?category=custom" onClick={() => setMobileMenuOpen(false)} darkMode={darkMode}>
-              ✨ Customize Art
-            </MobileNavLink>
+            <div className={`py-3 px-4 rounded-xl opacity-60 cursor-not-allowed ${darkMode ? 'bg-moon-midnight/30 text-moon-silver' : 'bg-gray-100 text-gray-500'}`}>
+              <span>✨ Customize Art</span>
+              <span className={`ml-2 text-xs ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>(Coming Soon)</span>
+            </div>
             {isAuthenticated ? (
               <>
                 <MobileNavLink to="/my-orders" onClick={() => setMobileMenuOpen(false)} darkMode={darkMode}>

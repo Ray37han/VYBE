@@ -306,21 +306,21 @@ export default function ProductDetail() {
 
             {/* Actions */}
             <div className="space-y-3">
-              {/* Customize Button */}
-              <Link to={`/customize/${product._id}`}>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
-                    darkMode
-                      ? 'bg-moon-midnight border-2 border-moon-gold text-moon-gold hover:bg-moon-gold hover:text-moon-night'
-                      : 'bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white'
-                  }`}
-                >
-                  <FiImage className="text-xl" />
-                  Customize This Poster
-                </motion.button>
-              </Link>
+              {/* Customize Button - Coming Soon */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 cursor-not-allowed opacity-60 ${
+                  darkMode
+                    ? 'bg-moon-midnight border-2 border-moon-silver/30 text-moon-silver'
+                    : 'bg-gray-100 border-2 border-gray-300 text-gray-500'
+                }`}
+              >
+                <FiImage className="text-xl" />
+                <span>Customize This Poster</span>
+                <span className={`text-sm font-normal ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>
+                  (Coming Soon...)
+                </span>
+              </motion.div>
 
               {/* Add to Cart Button */}
               <motion.button 
@@ -349,9 +349,9 @@ export default function ProductDetail() {
             )}
 
             {product.customizable && (
-              <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-                <p className="text-sm text-purple-800">
-                  ✨ This product is customizable! You can upload your own image during checkout.
+              <div className={`mt-6 p-4 rounded-lg ${darkMode ? 'bg-moon-midnight/50 border border-moon-gold/30' : 'bg-yellow-50 border border-yellow-200'}`}>
+                <p className={`text-sm ${darkMode ? 'text-moon-gold' : 'text-yellow-800'}`}>
+                  🎨 Customization feature coming soon! You'll be able to upload your own images and create personalized posters.
                 </p>
               </div>
             )}

@@ -99,6 +99,60 @@ export default function Customize() {
     }
   };
 
+  // Validate image DPI/resolution for print quality
+  const validateImageForPrint = (width, height, selectedSize) => {
+    // Minimum DPI requirement for print quality (300 DPI recommended)
+    const MIN_DPI = 200; // Minimum acceptable DPI
+    const RECOMMENDED_DPI = 300; // Recommended DPI for high quality
+
+    // Get poster dimensions in inches
+    const posterDimensions = {
+      'A4': { width: 8.3, height: 11.7 },
+      'A3': { width: 11.7, height: 16.5 },
+      'A5': { width: 5.8, height: 8.3 },
+      '12x18': { width: 12, height: 18 },
+      '13x19': { width: 13, height: 19 },
+    };
+
+    const poster = posterDimensions[selectedSize.id];
+    if (!poster) return { valid: true, warning: false }; // Unknown size, allow
+
+    // Calculate effective DPI (pixels per inch)
+    const widthDPI = width / poster.width;
+    const heightDPI = height / poster.height;
+    const effectiveDPI = Math.min(widthDPI, heightDPI);
+
+    console.log('🖨️ Print Quality Check:', {
+      imageSize: `${width}x${height}`,
+      posterSize: `${poster.width}" x ${poster.height}"`,
+      effectiveDPI: effectiveDPI.toFixed(0),
+      minRequired: MIN_DPI,
+      recommended: RECOMMENDED_DPI
+    });
+
+    if (effectiveDPI < MIN_DPI) {
+      return {
+        valid: false,
+        dpi: Math.round(effectiveDPI),
+        message: `Image resolution too low for ${selectedSize.name} poster. Current: ${Math.round(effectiveDPI)} DPI, Required: ${MIN_DPI}+ DPI. Please upload a higher resolution image (at least ${Math.round(poster.width * MIN_DPI)}x${Math.round(poster.height * MIN_DPI)} pixels).`
+      };
+    } else if (effectiveDPI < RECOMMENDED_DPI) {
+      return {
+        valid: true,
+        warning: true,
+        dpi: Math.round(effectiveDPI),
+        message: `Image quality acceptable but not optimal for ${selectedSize.name}. Current: ${Math.round(effectiveDPI)} DPI, Recommended: ${RECOMMENDED_DPI}+ DPI for best quality. For optimal results, use ${Math.round(poster.width * RECOMMENDED_DPI)}x${Math.round(poster.height * RECOMMENDED_DPI)} pixels or higher.`
+      };
+    }
+
+    return {
+      valid: true,
+      warning: false,
+      dpi: Math.round(effectiveDPI),
+      message: `Excellent! Image quality is perfect for ${selectedSize.name} poster (${Math.round(effectiveDPI)} DPI).`
+    };
+  };
+
   // Handle image upload with compression
   const handleImageSelect = async (e) => {
     const file = e.target.files[0];
@@ -129,8 +183,25 @@ export default function Customize() {
           setUploadedImage(null);
           return;
         }
+
+        // VALIDATE DPI/RESOLUTION FOR PRINT QUALITY
+        const qualityCheck = validateImageForPrint(img.width, img.height, selectedSize);
+        
+        if (!qualityCheck.valid) {
+          // Image resolution is too low - BLOCK upload
+          toast.error(qualityCheck.message, { duration: 6000 });
+          setUploadedImage(null);
+          return;
+        } else if (qualityCheck.warning) {
+          // Resolution is acceptable but not optimal - WARN user
+          toast.warning(qualityCheck.message, { duration: 5000 });
+        } else {
+          // Resolution is excellent
+          toast.success(qualityCheck.message, { duration: 3000 });
+        }
+
         setUploadedImage(readerEvent.target.result);
-        console.log(`Image dimensions: ${img.width}x${img.height}`);
+        console.log(`Image dimensions: ${img.width}x${img.height}, DPI: ${qualityCheck.dpi}`);
       };
       img.src = readerEvent.target.result;
     };

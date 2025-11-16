@@ -33,7 +33,7 @@ export default function AdminProducts() {
     // Cars & Bikes
     'bikes', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars',
     // Sports
-    'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
+    'football', 'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
     // Pop Culture
     'marvel', 'dc', 'movies', 'tv-series', 'music', 'games',
     // Legacy categories

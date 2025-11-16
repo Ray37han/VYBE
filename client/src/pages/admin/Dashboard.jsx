@@ -150,6 +150,16 @@ export default function AdminDashboard() {
             Custom Orders
           </Link>
           <Link 
+            to="/admin/custom-approvals" 
+            className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
+              darkMode
+                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-500 hover:to-orange-500'
+                : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-400 hover:to-orange-400'
+            }`}
+          >
+            🎨 Custom Approvals
+          </Link>
+          <Link 
             to="/products" 
             className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
               darkMode

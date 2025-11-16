@@ -10,42 +10,50 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Upload image to Cloudinary
-export const uploadToCloudinary = async (fileBuffer, folder = 'vybe-products') => {
+/**
+ * Upload image to Cloudinary private folder
+ * Raw images stored securely, transformations applied via URL
+ * @param {Buffer} fileBuffer - Image buffer
+ * @param {Object} options - Upload options
+ * @returns {Promise<Object>} - Cloudinary result with publicId
+ */
+export const uploadToCloudinary = async (fileBuffer, options = {}) => {
   try {
-    console.log('📤 Starting Cloudinary upload...');
+    const {
+      folder = 'vybe/products',
+      type = 'private', // private upload - requires signed URLs
+      imageType = 'product' // product, custom, hero, featured
+    } = options;
+
+    console.log('📤 Uploading to Cloudinary:', { folder, type, imageType });
     console.log('Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
-    console.log('API Key:', process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing');
-    console.log('API Secret:', process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing');
-    console.log('File buffer size:', fileBuffer?.length || 0, 'bytes');
+    console.log('File size:', fileBuffer?.length || 0, 'bytes');
     
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: folder,
+          type: type, // private for products, upload for public
           resource_type: 'auto',
-          // Optimized transformations for best performance
-          transformation: [
-            { width: 1920, height: 1920, crop: 'limit' }, // HD quality support
-            { quality: 'auto:best' }, // Best quality with smart compression
-            { fetch_format: 'auto' }, // Auto WebP/AVIF for modern browsers
-            { dpr: 'auto' }, // Auto device pixel ratio for retina displays
-            { flags: 'progressive' } // Progressive loading for better UX
-          ],
-          eager: [
-            { width: 400, height: 400, crop: 'fill', gravity: 'auto' }, // Thumbnail
-            { width: 800, height: 800, crop: 'limit' } // Medium size for mobile
-          ],
-          eager_async: true, // Generate eager transformations in background
-          overwrite: true,
-          invalidate: true
+          // Store RAW image - no transformations on upload
+          // Transformations applied via URL when serving
+          overwrite: false, // Keep original versions
+          invalidate: true,
+          // Add context for organization
+          context: {
+            type: imageType,
+            uploaded_at: new Date().toISOString()
+          },
+          // Add tags for easy filtering
+          tags: [imageType, 'vybe']
         },
         (error, result) => {
           if (error) {
             console.error('❌ Cloudinary upload error:', error);
             reject(error);
           } else {
-            console.log('✅ Upload successful:', result.secure_url);
+            console.log('✅ Upload successful:', result.public_id);
+            console.log('📁 Type:', result.type, '| Format:', result.format);
             resolve(result);
           }
         }

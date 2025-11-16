@@ -65,7 +65,14 @@ const getOrderConfirmationEmail = (order) => {
     <div class="content">
       <p>Hi <strong>${order.shippingAddress?.name}</strong>,</p>
       
-      <p>Your order has been successfully placed! We're excited to get your customizable posters ready for you.</p>
+      <p>Your order has been successfully placed! We're excited to get your ${order.hasCustomItems ? 'custom' : 'customizable'} posters ready for you.</p>
+      
+      ${order.hasCustomItems ? `
+        <div style="background: #fef3c7; border: 1px solid #fbbf24; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0;"><strong>🎨 Custom Order Notice:</strong> Your order contains custom items that require admin review for quality assurance.</p>
+          <p style="margin: 10px 0 0 0;">Our team will review your custom design within 24 hours. You'll receive an email once your order is approved and moves to production!</p>
+        </div>
+      ` : ''}
       
       <div class="order-details">
         <h2 style="margin-top: 0; color: #667eea;">Order Details</h2>
@@ -245,8 +252,104 @@ const sendOrderStatusUpdate = async (order, userEmail, statusUpdate) => {
   return sendEmail(userEmail, subject, html);
 };
 
+const getCustomOrderRejectionEmail = (user, order, rejectionReason) => {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #ffffff; padding: 30px; border: 1px solid #eee; }
+    .rejection-box { background: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 4px; }
+    .info-box { background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0; border-radius: 4px; }
+    .button { display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    ul { margin: 10px 0; padding-left: 20px; }
+    li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0;">⚠️ Custom Order Requires Revision</h1>
+      <p style="margin: 10px 0 0 0;">Order #${order.orderNumber}</p>
+    </div>
+    
+    <div class="content">
+      <p>Hi <strong>${user.name || 'valued customer'}</strong>,</p>
+      
+      <p>Thank you for your custom poster order. Unfortunately, we're unable to proceed with your order as submitted due to quality requirements.</p>
+      
+      <div class="rejection-box">
+        <h2 style="margin: 0 0 10px 0; color: #991b1b;">❌ Reason for Rejection:</h2>
+        <p style="margin: 0; font-size: 16px;"><strong>${rejectionReason}</strong></p>
+      </div>
+      
+      <div class="info-box">
+        <h3 style="margin: 0 0 10px 0; color: #0284c7;">📋 Order Details:</h3>
+        <p style="margin: 5px 0;"><strong>Order Number:</strong> ${order.orderNumber}</p>
+        <p style="margin: 5px 0;"><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString('en-GB', { 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric' 
+        })}</p>
+        <p style="margin: 5px 0;"><strong>Total Amount:</strong> ৳${order.pricing?.total || 0}</p>
+      </div>
+      
+      <h3>What Happens Next?</h3>
+      <ul>
+        <li><strong>No charges applied:</strong> Your payment has not been processed and no money has been deducted.</li>
+        <li><strong>Resubmit your order:</strong> You can create a new custom order with the corrected requirements.</li>
+        <li><strong>Contact support:</strong> If you have questions, our team is here to help!</li>
+      </ul>
+      
+      <h3>Tips for Resubmission:</h3>
+      <ul>
+        <li>Ensure your image has <strong>at least 300 DPI</strong> resolution for the selected poster size</li>
+        <li>Upload high-quality images (minimum 2000x2000 pixels recommended)</li>
+        <li>Avoid heavily compressed or low-resolution images from social media</li>
+        <li>Check that your text is clearly readable and properly positioned</li>
+        <li>Review all customization details before submitting</li>
+      </ul>
+      
+      <div style="text-align: center;">
+        <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}/customize" class="button">Create New Custom Order</a>
+      </div>
+      
+      <p>We apologize for any inconvenience and look forward to helping you create the perfect custom poster!</p>
+      
+      <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+      
+      <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0;"><strong>📧 Support Email:</strong> support@vybe.com</p>
+        <p style="margin: 5px 0 0 0;"><strong>📱 WhatsApp:</strong> +880 1747809138</p>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p><strong>VYBE - Customizable Posters</strong></p>
+      <p>Quality prints, every time!</p>
+      <p style="color: #999; margin-top: 10px;">This is an automated email. Please do not reply.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+};
+
+// Send custom order rejection email
+const sendCustomOrderRejectionEmail = async (user, order, rejectionReason) => {
+  const subject = `Custom Order Revision Required - ${order.orderNumber}`;
+  const html = getCustomOrderRejectionEmail(user, order, rejectionReason);
+  return sendEmail(user.email, subject, html);
+};
+
 export {
   sendOrderConfirmation,
   sendOrderStatusUpdate,
   sendEmail,
+  sendCustomOrderRejectionEmail,
 };

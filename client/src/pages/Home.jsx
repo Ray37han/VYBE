@@ -268,14 +268,18 @@ export default function Home() {
                   </span>
                 </Link>
                 <Link 
-                  to="/products?category=custom" 
-                  className={`px-8 py-4 bg-transparent border-2 font-bold rounded-full transform hover:scale-110 transition-all duration-500 shadow-md ${
+                  to="/products" 
+                  className={`px-8 py-4 bg-transparent border-2 font-bold rounded-full transform hover:scale-110 transition-all duration-500 shadow-md group ${
                     darkMode 
-                      ? 'border-moon-gold text-moon-gold hover:bg-moon-gold hover:text-moon-night'
-                      : 'border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white hover:shadow-xl'
+                      ? 'border-moon-silver/30 text-moon-silver/50 cursor-not-allowed'
+                      : 'border-gray-300 text-gray-400 cursor-not-allowed'
                   }`}
+                  onClick={(e) => e.preventDefault()}
                 >
-                  Custom Creations
+                  <span className="flex items-center gap-2">
+                    Custom Creations
+                    <span className={`text-xs ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>(Soon)</span>
+                  </span>
                 </Link>
               </motion.div>
             </motion.div>
@@ -655,7 +659,7 @@ export default function Home() {
               {
                 icon: FiShoppingCart,
                 title: "Custom Creations",
-                description: "Create your own masterpiece with iconic designs and custom artworks",
+                description: "Coming Soon: Create your own masterpiece with custom artworks",
                 color: "from-moon-mystical to-purple-600",
                 delay: 0
               },
@@ -873,22 +877,16 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              <Link 
-                to="/products?category=custom" 
-                className="inline-block px-12 py-5 bg-gradient-to-r from-moon-gold via-moon-mystical to-moon-silver text-moon-night font-bold text-xl rounded-full hover:shadow-2xl hover:shadow-moon-gold/50 transform hover:scale-110 transition-all duration-500 relative overflow-hidden group"
+              <div 
+                className="inline-block px-12 py-5 bg-gradient-to-r from-gray-400 to-gray-500 text-white font-bold text-xl rounded-full cursor-not-allowed opacity-60 relative overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  <FiZap className="group-hover:rotate-180 transition-transform duration-500" />
+                  <FiZap />
                   Begin Your Legacy
-                  <FiZap className="group-hover:rotate-180 transition-transform duration-500" />
+                  <span className="text-sm">(Coming Soon)</span>
+                  <FiZap />
                 </span>
-                <motion.div
-                  className="absolute inset-0 bg-white"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: "100%" }}
-                  transition={{ duration: 0.6 }}
-                ></motion.div>
-              </Link>
+              </div>
             </motion.div>
           </motion.div>
         </div>

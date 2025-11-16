@@ -17,6 +17,7 @@ import featuredPostersRoutes from './routes/featuredPosters.js';
 import imageRoutes from './routes/images.js';
 import heroItemsRoutes from './routes/heroItems.js';
 import customizationRoutes from './routes/customizations.js';
+import customApprovalsRoutes from './routes/customApprovals.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
@@ -182,6 +183,7 @@ app.use('/api/featured-posters', featuredPostersRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/hero-items', heroItemsRoutes);
 app.use('/api/customizations', customizationRoutes);
+app.use('/api/admin/custom-approvals', customApprovalsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

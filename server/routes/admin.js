@@ -4,8 +4,9 @@ import Order from '../models/Order.js';
 import User from '../models/User.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { detectMobileDevice } from '../middleware/deviceAuth.js';
-import { upload, handleMulterError, watermarkImages } from '../middleware/upload.js';
+import { upload, handleMulterError, processImages } from '../middleware/upload.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
+import { getProductImageUrls, transformProductImages } from '../utils/cloudinaryTransform.js';
 import { sendOrderStatusUpdate } from '../utils/emailService.js';
 import { sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
 import { invalidateCache } from '../middleware/cache.js';
@@ -61,9 +62,9 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // @route   POST /api/admin/products
-// @desc    Create new product (with automatic watermarking) - Works from ANY device/location
+// @desc    Create new product - Cloudinary handles ALL image processing
 // @access  Private/Admin
-router.post('/products', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
+router.post('/products', upload.array('images', 5), processImages, handleMulterError, async (req, res) => {
   try {
     console.log('📦 Product creation request received');
     console.log('🌐 Origin:', req.headers.origin || 'Direct');
@@ -113,20 +114,29 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
       });
     }
     
-    // Upload images to Cloudinary
+    // Upload images to Cloudinary (RAW - no processing)
     const imageUploads = [];
     if (req.files && req.files.length > 0) {
-      console.log(`📸 Uploading ${req.files.length} images...`);
+      console.log(`📸 Uploading ${req.files.length} raw images to Cloudinary...`);
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
         console.log(`Uploading image ${i + 1}/${req.files.length}...`);
         try {
-          const result = await uploadToCloudinary(file.buffer, 'vybe-products');
-          imageUploads.push({
-            url: result.secure_url,
-            publicId: result.public_id
+          // Upload RAW image to private folder
+          const result = await uploadToCloudinary(file.buffer, {
+            folder: 'vybe/products',
+            type: 'private',
+            imageType: 'product'
           });
-          console.log(`✅ Image ${i + 1} uploaded`);
+          
+          // Store publicId - URLs generated on-demand with transformations
+          imageUploads.push({
+            publicId: result.public_id,
+            format: result.format,
+            // Generate all URL variants
+            urls: getProductImageUrls(result.public_id)
+          });
+          console.log(`✅ Image ${i + 1} uploaded: ${result.public_id}`);
         } catch (uploadError) {
           console.error(`❌ Upload error for image ${i + 1}:`, uploadError);
           return res.status(500).json({
@@ -143,6 +153,9 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
       images: imageUploads
     });
 
+    // Transform images for response (add watermarked URLs)
+    const productWithUrls = transformProductImages(product.toObject());
+
     // Invalidate product caches
     await invalidateCache('cache:/api/products*');
     await invalidateCache('cache:/api/admin/products*');
@@ -150,7 +163,7 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
     console.log('✅ Product created successfully:', product._id);
     res.status(201).json({
       success: true,
-      data: product,
+      data: productWithUrls,
       message: 'Product created successfully'
     });
   } catch (error) {
@@ -163,9 +176,9 @@ router.post('/products', upload.array('images', 5), watermarkImages, handleMulte
 });
 
 // @route   PUT /api/admin/products/:id
-// @desc    Update product (with automatic watermarking)
+// @desc    Update product - Cloudinary handles ALL image processing
 // @access  Private/Admin
-router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMulterError, async (req, res) => {
+router.put('/products/:id', upload.array('images', 5), processImages, handleMulterError, async (req, res) => {
   try {
     console.log('📝 Product update request received');
     console.log('User:', req.user?.email, 'Role:', req.user?.role);
@@ -196,15 +209,24 @@ router.put('/products/:id', upload.array('images', 5), watermarkImages, handleMu
 
     // Handle new image uploads
     if (req.files && req.files.length > 0) {
-      console.log(`📸 Uploading ${req.files.length} new images...`);
+      console.log(`📸 Uploading ${req.files.length} new raw images to Cloudinary...`);
       const newImages = [];
       for (const file of req.files) {
         try {
-          const result = await uploadToCloudinary(file.buffer, 'vybe-products');
-          newImages.push({
-            url: result.secure_url,
-            publicId: result.public_id
+          // Upload RAW image to private folder
+          const result = await uploadToCloudinary(file.buffer, {
+            folder: 'vybe/products',
+            type: 'private',
+            imageType: 'product'
           });
+          
+          // Store publicId - URLs generated on-demand
+          newImages.push({
+            publicId: result.public_id,
+            format: result.format,
+            urls: getProductImageUrls(result.public_id)
+          });
+          console.log(`✅ Image uploaded: ${result.public_id}`);
         } catch (uploadError) {
           console.error('❌ Image upload error:', uploadError);
           return res.status(500).json({
