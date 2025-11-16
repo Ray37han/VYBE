@@ -21,8 +21,8 @@ const categories = [
   { value: 'vintage', label: 'Vintage', icon: '📻' },
   { value: 'modern', label: 'Modern', icon: '🔮' },
   { value: 'sports', label: 'Sports', icon: '🏆' },
-  { value: 'cricket', label: 'Cricket', icon: '🏏' },
   { value: 'football', label: 'Football', icon: '⚽' },
+  { value: 'cricket', label: 'Cricket', icon: '🏏' },
   { value: 'nba', label: 'NBA', icon: '🏀' },
   { value: 'cars', label: 'Cars', icon: '🏎️' },
 ];
