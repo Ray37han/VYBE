@@ -67,8 +67,8 @@ export default function Products() {
     setLoading(true);
     try {
       const params = Object.fromEntries(searchParams);
-      // ALWAYS fetch all products (up to 100) - force the limit
-      params.limit = 100;
+      // ALWAYS fetch all products (up to 500) - force the limit
+      params.limit = 500;
       
       console.log('Fetching products with params:', params);
       console.log('API URL:', import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api');
