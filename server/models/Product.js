@@ -22,11 +22,16 @@ const productSchema = new mongoose.Schema({
     ]
   },
   images: [{
-    url: {
+    url: String, // Optional - for backward compatibility
+    publicId: {
       type: String,
       required: true
     },
-    publicId: String
+    format: String, // Image format (jpg, png, webp)
+    urls: {
+      type: mongoose.Schema.Types.Mixed, // Object with thumbnail, medium, large, full URLs
+      required: false
+    }
   }],
   sizes: [{
     name: {
