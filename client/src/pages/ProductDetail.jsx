@@ -130,7 +130,7 @@ export default function ProductDetail() {
               onMouseMove={handleMouseMove}
             >
               <img
-                src={product.images[selectedImage]?.url}
+                src={product.images[selectedImage]?.urls?.large || product.images[selectedImage]?.url}
                 alt={product.name}
                 loading="lazy"
                 className="w-full h-auto object-contain max-h-[600px]"
@@ -157,7 +157,7 @@ export default function ProductDetail() {
                       selectedImage === idx ? 'ring-2 ring-vybe-purple' : ''
                     }`}
                   >
-                    <img src={img.url} alt="" loading="lazy" className="w-full h-20 object-cover" />
+                    <img src={img.urls?.thumbnail || img.url} alt="" loading="lazy" className="w-full h-20 object-cover" />
                   </button>
                 ))}
               </div>
@@ -420,7 +420,7 @@ export default function ProductDetail() {
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={product.images[selectedImage]?.url}
+                src={product.images[selectedImage]?.urls?.full || product.images[selectedImage]?.url}
                 alt={product.name}
                 className="max-w-full max-h-full object-contain rounded-lg"
                 style={{
@@ -448,7 +448,7 @@ export default function ProductDetail() {
                         : 'opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img src={img.urls?.thumbnail || img.url} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

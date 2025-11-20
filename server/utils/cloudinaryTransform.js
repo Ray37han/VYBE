@@ -72,7 +72,7 @@ export const getWatermarkedUrl = (publicId, options = {}) => {
       },
     ],
     secure: true,
-    sign_url: true, // Signed URL for private images
+    sign_url: false, // Public URLs - no signing needed
   });
 };
 
@@ -124,7 +124,7 @@ export const getThumbnailUrl = (publicId, options = {}) => {
       },
     ],
     secure: true,
-    sign_url: true,
+    sign_url: false,
   });
 };
 
@@ -175,7 +175,7 @@ export const getHeroImageUrl = (publicId, options = {}) => {
       },
     ],
     secure: true,
-    sign_url: true,
+    sign_url: false,
   });
 };
 
@@ -208,7 +208,7 @@ export const getCustomImageUrl = (publicId, options = {}) => {
       },
     ],
     secure: true,
-    sign_url: true,
+    sign_url: false,
   });
 };
 
@@ -259,8 +259,8 @@ export const getProductImageUrls = (publicId) => {
 export const getRawImageUrl = (publicId) => {
   return cloudinary.url(publicId, {
     secure: true,
-    sign_url: true,
-    type: 'private', // Access private images
+    sign_url: false,
+    type: 'upload', // Public images
   });
 };
 

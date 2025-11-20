@@ -379,7 +379,7 @@ export default function AdminProducts() {
               >
                 {product.images?.[0] && (
                   <img 
-                    src={product.images[0].url} 
+                    src={product.images[0].urls?.thumbnail || product.images[0].url} 
                     alt={product.name}
                     className="w-full h-48 object-cover"
                   />

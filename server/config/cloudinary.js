@@ -21,7 +21,7 @@ export const uploadToCloudinary = async (fileBuffer, options = {}) => {
   try {
     const {
       folder = 'vybe/products',
-      type = 'private', // private upload - requires signed URLs
+      type = 'upload', // public upload - no signed URLs needed
       imageType = 'product' // product, custom, hero, featured
     } = options;
 
@@ -33,7 +33,7 @@ export const uploadToCloudinary = async (fileBuffer, options = {}) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: folder,
-          type: type, // private for products, upload for public
+          type: type, // upload for public access
           resource_type: 'auto',
           // Store RAW image - no transformations on upload
           // Transformations applied via URL when serving

@@ -121,7 +121,7 @@ node createAdmin.js
 ```
 
 Default admin credentials:
-- Email: `admin@vybe.com`
+- Email: `Rayhan@vybe.com`
 - Password: `admin123`
 
 ### 5. Run the application
