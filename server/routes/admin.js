@@ -122,10 +122,10 @@ router.post('/products', upload.array('images', 5), processImages, handleMulterE
         const file = req.files[i];
         console.log(`Uploading image ${i + 1}/${req.files.length}...`);
         try {
-          // Upload RAW image to private folder
+          // Upload RAW image to public folder
           const result = await uploadToCloudinary(file.buffer, {
             folder: 'vybe/products',
-            type: 'private',
+            type: 'upload',
             imageType: 'product'
           });
           
@@ -213,10 +213,10 @@ router.put('/products/:id', upload.array('images', 5), processImages, handleMult
       const newImages = [];
       for (const file of req.files) {
         try {
-          // Upload RAW image to private folder
+          // Upload RAW image to public folder
           const result = await uploadToCloudinary(file.buffer, {
             folder: 'vybe/products',
-            type: 'private',
+            type: 'upload',
             imageType: 'product'
           });
           
