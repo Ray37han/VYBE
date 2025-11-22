@@ -620,10 +620,10 @@ export default function Home() {
                         {poster.title}
                       </h3>
                       <Link 
-                        to={`/products?category=${encodeURIComponent(poster.category.toLowerCase().replace(/\s+/g, '-'))}`}
+                        to="/products"
                         className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full font-semibold hover:bg-white hover:text-moon-night transition-all duration-300 transform hover:scale-105"
                       >
-                        View Poster
+                        View Posters
                       </Link>
                     </motion.div>
                   </div>
