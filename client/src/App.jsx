@@ -19,7 +19,7 @@ import AdminUsers from './pages/admin/Users'
 import AdminFeaturedPosters from './pages/admin/FeaturedPosters'
 import AdminHeroItems from './pages/admin/HeroItems'
 import AdminCustomOrders from './pages/admin/AdminCustomOrders'
-import AdminCustomApprovals from './pages/Admin/CustomApprovals'
+import AdminCustomApprovals from './pages/admin/CustomApprovals'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
