@@ -875,16 +875,20 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              <div 
-                className="inline-block px-12 py-5 bg-gradient-to-r from-gray-400 to-gray-500 text-white font-bold text-xl rounded-full cursor-not-allowed opacity-60 relative overflow-hidden"
+              <Link 
+                to="/customize"
+                className={`inline-block px-12 py-5 font-bold text-xl rounded-full relative overflow-hidden transform hover:scale-110 transition-all duration-500 ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-2xl hover:shadow-moon-gold/50'
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-2xl hover:shadow-purple-500/50'
+                }`}
               >
                 <span className="relative z-10 flex items-center gap-3">
                   <FiZap />
                   Begin Your Legacy
-                  <span className="text-sm">(Coming Soon)</span>
                   <FiZap />
                 </span>
-              </div>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
