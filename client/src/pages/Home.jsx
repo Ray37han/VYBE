@@ -268,17 +268,15 @@ export default function Home() {
                   </span>
                 </Link>
                 <Link 
-                  to="/products" 
+                  to="/customize" 
                   className={`px-8 py-4 bg-transparent border-2 font-bold rounded-full transform hover:scale-110 transition-all duration-500 shadow-md group ${
                     darkMode 
-                      ? 'border-moon-silver/30 text-moon-silver/50 cursor-not-allowed'
-                      : 'border-gray-300 text-gray-400 cursor-not-allowed'
+                      ? 'border-moon-gold text-moon-gold hover:bg-moon-gold/10'
+                      : 'border-purple-600 text-purple-600 hover:bg-purple-50'
                   }`}
-                  onClick={(e) => e.preventDefault()}
                 >
                   <span className="flex items-center gap-2">
                     Custom Creations
-                    <span className={`text-xs ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>(Soon)</span>
                   </span>
                 </Link>
               </motion.div>
