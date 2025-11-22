@@ -12,6 +12,7 @@ import OrderSuccess from './pages/OrderSuccess'
 import MyOrders from './pages/MyOrders'
 import Login from './pages/Login'
 import Register from './pages/Register'
+// Admin components - all lowercase 'admin' folder
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminOrders from './pages/admin/Orders'
