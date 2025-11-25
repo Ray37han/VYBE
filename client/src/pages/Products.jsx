@@ -348,6 +348,7 @@ export default function Products() {
                         src={product.images[0]?.urls?.thumbnail || product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%230a0e27" width="400" height="500"/%3E%3Ctext fill="%23cbd5e1" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
                         alt={product.name}
                         loading="lazy"
+                        decoding="async"
                         className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 group-hover:brightness-125 group-hover:contrast-110 transition-all duration-700 ease-out relative z-20"
                       />
                       

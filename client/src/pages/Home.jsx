@@ -76,18 +76,18 @@ export default function Home() {
   });
   const heroRef = useRef(null);
   
+  // Scroll progress - but don't use it for every-frame transforms (causes jank)
   const { scrollYProgress } = useScroll();
   
-  // Smoother scroll animations with spring physics
+  // Only use spring for hero section fade (lighter than transforms)
   const smoothScrollProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: 50,  // Reduced from 100
+    damping: 40,     // Increased from 30 for less rebound
     restDelta: 0.001
   });
   
-  const yPosAnim = useTransform(smoothScrollProgress, [0, 1], [0, -100]);
-  const opacityAnim = useTransform(smoothScrollProgress, [0, 0.5], [1, 0]);
-  const scaleAnim = useTransform(smoothScrollProgress, [0, 0.5], [1, 0.8]);
+  // Simplified: Only opacity for hero fade (transform removed for performance)
+  const opacityAnim = useTransform(smoothScrollProgress, [0, 0.3], [1, 0]);
 
   // Listen for theme changes from Navbar
   useEffect(() => {
@@ -212,7 +212,7 @@ export default function Home() {
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, type: "spring" }}
-              style={{ y: yPosAnim, opacity: opacityAnim }}
+              style={{ opacity: opacityAnim }}
             >
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -220,7 +220,7 @@ export default function Home() {
                 transition={{ delay: 0.2 }}
                 className="mb-4"
               >
-                <span className={`inline-block px-6 py-2 rounded-full font-semibold text-sm tracking-wider animate-pulse-slow shadow-lg ${
+                <span className={`inline-block px-6 py-2 rounded-full font-semibold text-sm tracking-wider animate-pulse-slow-gpu shadow-lg gpu-accelerated ${
                   darkMode 
                     ? 'bg-moon-mystical/20 border border-moon-gold/30 text-moon-gold' 
                     : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border border-purple-600'
@@ -287,8 +287,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, type: "spring" }}
-              className="relative h-[600px] hidden md:block perspective-1000"
-              style={{ scale: scaleAnim }}
+              className="relative h-[600px] hidden md:block perspective-1000 gpu-accelerated"
             >
               {heroItems.length > 0 && heroItems.every(item => item.product && item.product.images && item.product.images.length > 0) ? (
                 heroItems.map((item) => {
@@ -357,6 +356,8 @@ export default function Home() {
                       <img
                         src={item.product.images[0].url}
                         alt={item.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                       <div className={`absolute inset-0 bg-gradient-to-t ${item.gradient} flex items-end p-4 ${item.position === 'center' ? 'p-6' : ''}`}>
@@ -521,12 +522,12 @@ export default function Home() {
       <section className={`py-20 relative overflow-hidden transition-colors duration-500 ${
         darkMode ? 'bg-gradient-to-b from-moon-night to-moon-midnight' : 'bg-gradient-to-b from-purple-50 to-blue-100'
       }`}>
-        {/* Animated Background */}
-        <div className="absolute inset-0 opacity-10">
-          <div className={`absolute w-96 h-96 rounded-full filter blur-3xl animate-pulse-slow top-10 left-10 ${
+        {/* Animated Background - Optimized blur */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className={`absolute w-96 h-96 rounded-full blur-optimized animate-pulse-slow-gpu top-10 left-10 ${
             darkMode ? 'bg-moon-mystical' : 'bg-purple-400'
           }`}></div>
-          <div className={`absolute w-96 h-96 rounded-full filter blur-3xl animate-pulse-slow bottom-10 right-10 ${
+          <div className={`absolute w-96 h-96 rounded-full blur-optimized animate-pulse-slow-gpu bottom-10 right-10 ${
             darkMode ? 'bg-moon-gold' : 'bg-yellow-400'
           }`} style={{ animationDelay: '1s' }}></div>
         </div>
@@ -589,6 +590,8 @@ export default function Home() {
                   <img 
                     src={poster.image} 
                     alt={poster.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   
@@ -600,6 +603,8 @@ export default function Home() {
                   <img 
                     src={poster.image} 
                     alt={poster.title}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover rounded-2xl group-hover:scale-110 transition-transform duration-700"
                   />
                   
@@ -766,6 +771,8 @@ export default function Home() {
                           <img
                             src={product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%231e293b" width="400" height="500"/%3E%3Ctext fill="%23cbd5e1" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
                             alt={product.name}
+                            loading="lazy"
+                            decoding="async"
                             className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-700 ease-out"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-moon-night/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end">

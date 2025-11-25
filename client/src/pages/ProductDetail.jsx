@@ -132,7 +132,9 @@ export default function ProductDetail() {
               <img
                 src={product.images[selectedImage]?.urls?.large || product.images[selectedImage]?.url}
                 alt={product.name}
-                loading="lazy"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
                 className="w-full h-auto object-contain max-h-[600px]"
                 style={{ 
                   aspectRatio: 'auto',
@@ -222,7 +224,7 @@ export default function ProductDetail() {
                     animate={{ opacity: [0.5, 1, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <span className="w-2 h-2 bg-vybe-purple rounded-full animate-pulse"></span>
+                    <span className="w-2 h-2 bg-vybe-purple rounded-full animate-pulse-gpu"></span>
                     Please choose a size
                   </motion.span>
                 )}
@@ -422,6 +424,7 @@ export default function ProductDetail() {
               <img
                 src={product.images[selectedImage]?.urls?.full || product.images[selectedImage]?.url}
                 alt={product.name}
+                decoding="async"
                 className="max-w-full max-h-full object-contain rounded-lg"
                 style={{
                   width: 'auto',
@@ -479,7 +482,7 @@ export default function ProductDetail() {
                 <p className="text-lg font-bold text-gray-400">
                   ৳{product.basePrice}+
                 </p>
-                <p className="text-xs text-vybe-purple dark:text-moon-gold font-semibold animate-pulse">
+                <p className="text-xs text-vybe-purple dark:text-moon-gold font-semibold animate-pulse-gpu">
                   ⚠️ Select a size first
                 </p>
               </>

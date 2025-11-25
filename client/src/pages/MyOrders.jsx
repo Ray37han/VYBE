@@ -85,7 +85,7 @@ export default function MyOrders() {
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           className="w-20 h-20 border-4 border-moon-gold/20 border-t-moon-gold rounded-full"
         />
-        <p className="mt-6 text-moon-silver/60 text-lg animate-pulse">Loading your orders...</p>
+        <p className="mt-6 text-moon-silver/60 text-lg animate-pulse-gpu">Loading your orders...</p>
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function MyOrders() {
     <div className="pt-28 pb-12 min-h-screen bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 hieroglyph-overlay opacity-10"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-moon-mystical/5 via-transparent to-moon-gold/5 animate-pulse-slow"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-moon-mystical/5 via-transparent to-moon-gold/5 animate-pulse-slow-gpu gpu-accelerated"></div>
       
       <div className="max-w-6xl mx-auto px-4 relative z-10">
         {/* Header */}
@@ -103,7 +103,7 @@ export default function MyOrders() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold mb-3 moon-gradient-text animate-glow">
+          <h1 className="text-5xl font-bold mb-3 moon-gradient-text animate-glow gpu-accelerated">
             My Mystical Orders
           </h1>
           <p className="text-moon-silver/70 text-lg">Track your essence journey</p>

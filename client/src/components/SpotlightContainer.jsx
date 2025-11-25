@@ -22,20 +22,29 @@ const SpotlightContainer = ({ children, className = '' }) => {
     const container = containerRef.current;
     if (!container) return;
 
+    let rafId = null;
+    
     const handleMouseMove = (e) => {
-      const rect = container.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      if (rafId) return;
+      
+      rafId = requestAnimationFrame(() => {
+        const rect = container.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-      // Update CSS custom properties for the spotlight position
-      container.style.setProperty('--mouse-x', `${x}%`);
-      container.style.setProperty('--mouse-y', `${y}%`);
+        // Update CSS custom properties for the spotlight position
+        container.style.setProperty('--mouse-x', `${x}%`);
+        container.style.setProperty('--mouse-y', `${y}%`);
+        
+        rafId = null;
+      });
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
