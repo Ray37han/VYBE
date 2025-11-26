@@ -184,7 +184,17 @@ router.put('/products/:id', upload.array('images', 5), processImages, handleMult
     console.log('User:', req.user?.email, 'Role:', req.user?.role);
     console.log('Product ID:', req.params.id);
     console.log('Files:', req.files?.length || 0);
+    console.log('Request body keys:', Object.keys(req.body));
     console.log('✅ Admin authenticated - can update from ANY device/IP');
+    
+    // Check Cloudinary config
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('❌ Cloudinary environment variables missing!');
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error: Cloudinary credentials not set'
+      });
+    }
     
     const product = await Product.findById(req.params.id);
     
@@ -199,11 +209,14 @@ router.put('/products/:id', upload.array('images', 5), processImages, handleMult
     try {
       updateData = JSON.parse(req.body.productData);
       console.log('✅ Update data parsed');
+      console.log('Update fields:', Object.keys(updateData));
     } catch (parseError) {
       console.error('❌ Parse error:', parseError);
+      console.error('Raw productData:', req.body.productData?.substring(0, 200));
       return res.status(400).json({
         success: false,
-        message: 'Invalid product data format'
+        message: 'Invalid product data format',
+        details: parseError.message
       });
     }
 
@@ -213,11 +226,19 @@ router.put('/products/:id', upload.array('images', 5), processImages, handleMult
       const newImages = [];
       for (const file of req.files) {
         try {
+          console.log(`⬆️  Uploading file: ${file.originalname}, size: ${file.size} bytes`);
+          
           // Upload RAW image to public folder
           const result = await uploadToCloudinary(file.buffer, {
             folder: 'vybe/products',
             type: 'upload',
             imageType: 'product'
+          });
+          
+          console.log(`✅ Upload result:`, {
+            publicId: result.public_id,
+            format: result.format,
+            bytes: result.bytes
           });
           
           // Store publicId - URLs generated on-demand
@@ -229,9 +250,11 @@ router.put('/products/:id', upload.array('images', 5), processImages, handleMult
           console.log(`✅ Image uploaded: ${result.public_id}`);
         } catch (uploadError) {
           console.error('❌ Image upload error:', uploadError);
+          console.error('Error stack:', uploadError.stack);
           return res.status(500).json({
             success: false,
-            message: `Image upload failed: ${uploadError.message}`
+            message: `Image upload failed: ${uploadError.message}`,
+            details: uploadError.toString()
           });
         }
       }
@@ -266,9 +289,14 @@ router.put('/products/:id', upload.array('images', 5), processImages, handleMult
     });
   } catch (error) {
     console.error('❌ Product update error:', error);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
+      errorType: error.name,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
