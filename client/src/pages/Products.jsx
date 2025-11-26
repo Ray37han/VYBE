@@ -322,24 +322,20 @@ export default function Products() {
               {products.map((product, index) => (
                 <StaggerItem key={product._id}>
                   <motion.div
-                    whileHover={{ 
-                      y: -10,
-                      transition: { duration: 0.3, ease: "easeOut" }
-                    }}
-                    className="product-card-spotlight"
+                    className="product-card-spotlight gpu-accelerated"
                   >
                     <Link to={`/products/${product._id}`} className="block group">
-                      <div className={`card-moon overflow-hidden h-full flex flex-col relative transition-all duration-500 ${
+                      <div className={`card-moon overflow-hidden h-full flex flex-col relative transition-all duration-300 ${
                         !darkMode && 'bg-white border-2 border-purple-100 hover:border-gray-900 hover:shadow-2xl hover:shadow-black/30'
                       } ${darkMode && 'hover:border-black hover:bg-black/40 hover:shadow-2xl hover:shadow-black/50'}`}>
                         {/* Sharp Black Overlay on Hover */}
-                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 ${
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 ${
                           darkMode
                             ? 'bg-gradient-to-br from-black/30 via-black/50 to-black/70'
                             : 'bg-gradient-to-br from-black/20 via-black/30 to-black/50'
                         }`}></div>
                     
-                    <div className={`relative aspect-[3/4] overflow-hidden border-b transition-all duration-500 ${
+                    <div className={`relative aspect-[3/4] overflow-hidden border-b transition-all duration-300 ${
                       darkMode
                         ? 'bg-moon-night/30 border-moon-gold/20 group-hover:bg-black/60 group-hover:border-black'
                         : 'bg-gray-50 border-purple-100 group-hover:bg-black/80 group-hover:border-black'
@@ -349,7 +345,7 @@ export default function Products() {
                         alt={product.name}
                         loading="lazy"
                         decoding="async"
-                        className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-110 group-hover:brightness-125 group-hover:contrast-110 transition-all duration-700 ease-out relative z-20"
+                        className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300 ease-out relative z-20"
                       />
                       
                       {/* Discount Badge */}
@@ -369,7 +365,7 @@ export default function Products() {
                         <motion.span
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className={`absolute top-4 right-4 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg animate-pulse-slow ${
+                          className={`absolute top-4 right-4 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg ${
                             darkMode
                               ? 'bg-gradient-to-r from-moon-mystical to-moon-gold'
                               : 'bg-gradient-to-r from-purple-600 to-pink-600'
@@ -380,7 +376,7 @@ export default function Products() {
                       )}
                       
                       {/* Hover Overlay - Sharp Black Background */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out flex items-end justify-center pb-4">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex items-end justify-center pb-4">
                         <motion.span
                           initial={{ y: 20, opacity: 0 }}
                           whileInView={{ y: 0, opacity: 1 }}
@@ -391,7 +387,7 @@ export default function Products() {
                       </div>
                     </div>
                     
-                    <div className={`${darkMode ? 'p-5 flex-1 flex flex-col bg-moon-midnight/30 group-hover:bg-black/60' : 'p-5 flex-1 flex flex-col bg-white group-hover:bg-black/90'} transition-all duration-500 relative z-20`}>
+                    <div className={`${darkMode ? 'p-5 flex-1 flex flex-col bg-moon-midnight/30 group-hover:bg-black/60' : 'p-5 flex-1 flex flex-col bg-white group-hover:bg-black/90'} transition-all duration-300 relative z-20`}>
                       <h3 className={`font-bold text-lg mb-2 line-clamp-2 transition-colors duration-300 ${
                         darkMode
                           ? 'text-moon-silver group-hover:text-white'
@@ -404,7 +400,7 @@ export default function Products() {
                       }`}>
                         {product.description}
                       </p>
-                      <div className={`flex items-center justify-between pt-3 border-t transition-colors duration-500 ${
+                      <div className={`flex items-center justify-between pt-3 border-t transition-colors duration-300 ${
                         darkMode ? 'border-moon-gold/20 group-hover:border-white/30' : 'border-purple-100 group-hover:border-white/30'
                       }`}>
                         <motion.div 
@@ -445,7 +441,7 @@ export default function Products() {
                         <div className={`flex items-center space-x-1 text-sm ${
                           darkMode ? 'text-moon-silver/80' : 'text-gray-600'
                         }`}>
-                          <FiStar className="w-4 h-4 text-yellow-400 fill-yellow-400 animate-pulse-slow" />
+                          <FiStar className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                           <span className="font-semibold">{product.rating.average.toFixed(1)}</span>
                           <span className={darkMode ? 'text-moon-silver/40' : 'text-gray-400'}>({product.rating.count})</span>
                         </div>
