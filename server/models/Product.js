@@ -15,9 +15,9 @@ const productSchema = new mongoose.Schema({
     required: true,
     enum: [
       'bikes', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars',
-      'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
+      'football', 'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
       'marvel', 'dc', 'movies', 'tv-series', 'music', 'games',
-      'motivational', 'best-selling',
+      'motivational', 'best-selling', 'sports', 'cars',
       'abstract', 'minimalist', 'nature', 'typography', 'custom', 'anime', 'vintage', 'modern', 'other'
     ]
   },
