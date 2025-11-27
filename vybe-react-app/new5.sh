@@ -1,0 +1,2 @@
+sh
+./gradlew assembleRelease --stacktrace
