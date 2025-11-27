@@ -26,15 +26,17 @@ jobs:
         
     - name: Install dependencies
       working-directory: ./vybe-react-app
-      run: npm install
+      run: npm install --legacy-peer-deps
       
     - name: Build web app
       working-directory: ./vybe-react-app
       run: npm run build
       
-    - name: Sync Capacitor
+    - name: Copy build to android
       working-directory: ./vybe-react-app
-      run: npx cap sync android
+      run: |
+        mkdir -p android/app/src/main/assets/public
+        cp -r dist/* android/app/src/main/assets/public/ || true
       
     - name: Grant execute permission for gradlew
       working-directory: ./vybe-react-app
