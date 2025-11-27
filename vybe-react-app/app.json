@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "VYBE",
+    "slug": "vybe-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./resources/icon.svg",
+    "splash": {
+      "image": "./resources/splash.svg",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "android": {
+      "package": "com.vybe.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./resources/icon.svg",
+        "backgroundColor": "#0f172a"
+      }
+    },
+    "web": {
+      "bundler": "vite"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4be69f9c-4d40-41b0-add2-a7d7e8e6f31a"
+      }
+    }
+  }
+}
