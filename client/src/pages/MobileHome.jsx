@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { productsAPI } from '../api';
+import { productsAPI, featuredPostersAPI } from '../api';
 import MobileHero from '../components/mobile/MobileHero';
 import SnapCarousel from '../components/mobile/SnapCarousel';
 import MarqueeBar from '../components/mobile/MarqueeBar';
@@ -9,9 +9,8 @@ import { FullPageLoader } from '../components/LoadingSpinner';
 
 export default function MobileHome() {
   const [darkMode, setDarkMode] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [trendingProducts, setTrendingProducts] = useState([]);
-  const [newArrivals, setNewArrivals] = useState([]);
+  const [heroItems, setHeroItems] = useState([]);
+  const [featuredPosters, setFeaturedPosters] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,21 +38,23 @@ export default function MobileHome() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await productsAPI.getAll({ limit: 20 });
-      const allProducts = response.data || response || [];
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
       
-      setProducts(allProducts);
+      const [heroResponse, postersResponse] = await Promise.all([
+        fetch(`${API_URL}/hero-items`).then(res => res.json()),
+        featuredPostersAPI.getAll()
+      ]);
       
-      // Split into trending (by rating) and new arrivals (by date)
-      const sorted = [...allProducts].sort((a, b) => 
-        (b.rating?.average || 0) - (a.rating?.average || 0)
-      );
-      setTrendingProducts(sorted.slice(0, 10));
+      // Hero items for Trending Now section
+      const heroData = heroResponse.data || [];
+      const heroProducts = heroData
+        .filter(item => item.product && item.product.images && item.product.images.length > 0)
+        .map(item => item.product);
+      setHeroItems(heroProducts);
       
-      const newSorted = [...allProducts].sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setNewArrivals(newSorted.slice(0, 10));
+      // Featured posters for Fresh Drops section
+      const postersData = postersResponse.data || postersResponse || [];
+      setFeaturedPosters(postersData);
     } catch (error) {
       console.error('Failed to fetch products:', error);
     } finally {
@@ -73,10 +74,10 @@ export default function MobileHome() {
       {/* Marquee Banner */}
       <MarqueeBar darkMode={darkMode} />
 
-      {/* Trending Products Carousel */}
+      {/* Trending Products Carousel - Hero Items */}
       <SnapCarousel 
         title="🔥 Trending Now" 
-        products={trendingProducts} 
+        products={heroItems} 
         darkMode={darkMode} 
       />
 
@@ -89,10 +90,10 @@ export default function MobileHome() {
       >
         <div className="grid grid-cols-2 gap-4">
           {[
-            { icon: '✨', title: 'Custom Design', desc: 'Your vision, our art' },
             { icon: '🚀', title: 'Fast Shipping', desc: 'Delivered in days' },
             { icon: '💎', title: 'Premium Quality', desc: 'Museum-grade prints' },
-            { icon: '💯', title: '100% Original', desc: 'Unique creations' },
+            { icon: '🎁', title: 'Flat 25% Discount', desc: 'Special offer' },
+            { icon: '✨', title: 'Custom Design', desc: 'Your vision, our art' },
           ].map((feature, i) => (
             <motion.div
               key={i}
@@ -128,10 +129,10 @@ export default function MobileHome() {
         </div>
       </motion.section>
 
-      {/* New Arrivals Carousel */}
+      {/* Featured Posters Carousel */}
       <SnapCarousel 
         title="✨ Fresh Drops" 
-        products={newArrivals} 
+        products={featuredPosters} 
         darkMode={darkMode} 
       />
 

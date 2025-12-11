@@ -50,7 +50,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
             <Link to={`/product/${product._id}`}>
               <motion.div
                 whileTap={{ scale: 0.95 }}
-                className={`relative w-[200px] sm:w-[240px] aspect-[3/4] rounded-3xl overflow-hidden ${
+                className={`relative w-[200px] sm:w-[240px] h-[320px] sm:h-[360px] rounded-3xl overflow-hidden ${
                   darkMode ? 'bg-gray-800' : 'bg-white'
                 }`}
                 style={{
@@ -68,7 +68,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                 }}
               >
                 {/* Image Container */}
-                <div className="relative w-full h-[70%] overflow-hidden">
+                <div className="relative w-full h-[200px] sm:h-[240px] overflow-hidden">
                   <img
                     src={product.images?.[0]?.url || product.image || '/placeholder.jpg'}
                     alt={product.name}
@@ -111,7 +111,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                 </div>
 
                 {/* Content */}
-                <div className="p-4 h-[30%] flex flex-col justify-between">
+                <div className="p-4 flex flex-col gap-2">
                   <div>
                     <h3 className={`font-bold text-sm mb-1 line-clamp-2 ${
                       darkMode ? 'text-white' : 'text-gray-900'
@@ -164,7 +164,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
           <Link to="/products">
             <motion.div
               whileTap={{ scale: 0.95 }}
-              className={`w-[200px] sm:w-[240px] aspect-[3/4] rounded-3xl flex items-center justify-center ${
+              className={`w-[200px] sm:w-[240px] h-[320px] sm:h-[360px] rounded-3xl flex items-center justify-center ${
                 darkMode
                   ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-500/30'
                   : 'bg-gradient-to-br from-purple-100 to-pink-100 border border-purple-200'

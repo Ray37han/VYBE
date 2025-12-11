@@ -20,8 +20,8 @@ export default function MobileHero({ darkMode }) {
       className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden"
       style={{
         background: darkMode
-          ? 'linear-gradient(135deg, #1a1625 0%, #2d1b4e 50%, #1a1625 100%)'
-          : 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #fbc2eb 100%)'
+          ? 'linear-gradient(135deg, #0f0a1e 0%, #1a1230 25%, #2d1b4e 50%, #1a1230 75%, #0f0a1e 100%)'
+          : 'linear-gradient(135deg, #fef3ff 0%, #f0e6ff 25%, #e0d4ff 50%, #d4c5ff 75%, #c9b3ff 100%)'
       }}
     >
       {/* Floating Cloud Shapes */}
@@ -153,7 +153,7 @@ export default function MobileHero({ darkMode }) {
           transition={{ delay: 1.2 }}
           className="mt-10 flex flex-wrap justify-center gap-4"
         >
-          {['Custom Posters', 'Premium Quality', 'Fast Shipping'].map((text, i) => (
+          {['Fast Shipping', 'Premium Quality', 'Flat 25% Discount'].map((text, i) => (
             <motion.div
               key={text}
               initial={{ scale: 0 }}
