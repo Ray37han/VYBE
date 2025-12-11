@@ -118,11 +118,6 @@ export default function Home() {
   // Simplified: Only opacity for hero fade (transform removed for performance)
   const opacityAnim = useTransform(smoothScrollProgress, [0, 0.3], [1, 0]);
 
-  // Render mobile version on small screens
-  if (isMobile) {
-    return <MobileHome />;
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -145,6 +140,11 @@ export default function Home() {
 
     fetchData();
   }, []);
+
+  // Render mobile version on small screens
+  if (isMobile) {
+    return <MobileHome />;
+  }
 
   return (
     <div className="pt-16 overflow-hidden">
