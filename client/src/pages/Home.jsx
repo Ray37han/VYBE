@@ -646,11 +646,11 @@ export default function Home() {
                           View Posters
                         </div>
                       </motion.div>
-                  </div>
+                    </div>
 
-                  {/* Glowing Border Effect */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-moon-gold transition-all duration-500 rounded-2xl"></div>
-                </motion.div>
+                    {/* Glowing Border Effect */}
+                    <div className="absolute inset-0 border-2 border-transparent group-hover:border-moon-gold transition-all duration-500 rounded-2xl"></div>
+                  </motion.div>
                 </Link>
               </SwiperSlide>
             ))}
