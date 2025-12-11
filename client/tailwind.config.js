@@ -31,6 +31,24 @@ export default {
           silver: '#cbd5e1',
           gold: '#f59e0b',
           mystical: '#8b5cf6',
+        },
+        // Claymorphism Base Colors
+        clay: {
+          // Light Mode Base
+          50: '#fafafa',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          // Dark Mode Base
+          700: '#3f3f46',
+          800: '#27272a',
+          900: '#18181b',
+          // Accent Colors (Soft Pastels)
+          purple: '#e9d5ff',
+          pink: '#fbcfe8',
+          blue: '#dbeafe',
+          green: '#d1fae5',
         }
       },
       fontFamily: {
@@ -147,6 +165,68 @@ export default {
         'purple-gradient': 'linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #8b5cf6 100%)',
         'dark-gradient': 'linear-gradient(135deg, #1f2937 0%, #111827 50%, #0f172a 100%)',
         'moon-gradient': 'linear-gradient(135deg, #0a0e27 0%, #151b36 50%, #1e293b 100%)',
+        // Clay Gradients
+        'clay-light': 'linear-gradient(145deg, #fafafa 0%, #f4f4f5 100%)',
+        'clay-dark': 'linear-gradient(145deg, #27272a 0%, #18181b 100%)',
+      },
+      boxShadow: {
+        // Claymorphism Shadows - Light Mode
+        'clay-sm': `
+          inset 2px 2px 5px rgba(255, 255, 255, 0.7),
+          inset -2px -2px 5px rgba(0, 0, 0, 0.05),
+          0 4px 8px rgba(0, 0, 0, 0.08)
+        `,
+        'clay-md': `
+          inset 3px 3px 8px rgba(255, 255, 255, 0.8),
+          inset -3px -3px 8px rgba(0, 0, 0, 0.08),
+          0 8px 16px rgba(0, 0, 0, 0.1)
+        `,
+        'clay-lg': `
+          inset 4px 4px 12px rgba(255, 255, 255, 0.9),
+          inset -4px -4px 12px rgba(0, 0, 0, 0.1),
+          0 12px 24px rgba(0, 0, 0, 0.12)
+        `,
+        
+        // Claymorphism Shadows - Dark Mode (Rim Lighting)
+        'clay-dark-sm': `
+          inset 2px 2px 5px rgba(255, 255, 255, 0.03),
+          inset -2px -2px 5px rgba(0, 0, 0, 0.4),
+          0 4px 8px rgba(0, 0, 0, 0.5)
+        `,
+        'clay-dark-md': `
+          inset 3px 3px 8px rgba(255, 255, 255, 0.05),
+          inset -3px -3px 8px rgba(0, 0, 0, 0.5),
+          0 8px 16px rgba(0, 0, 0, 0.6)
+        `,
+        'clay-dark-lg': `
+          inset 4px 4px 12px rgba(255, 255, 255, 0.06),
+          inset -4px -4px 12px rgba(0, 0, 0, 0.6),
+          0 12px 24px rgba(0, 0, 0, 0.7)
+        `,
+        
+        // Recessed (for inputs)
+        'clay-recessed': `
+          inset 3px 3px 8px rgba(0, 0, 0, 0.12),
+          inset -1px -1px 4px rgba(255, 255, 255, 0.5)
+        `,
+        'clay-recessed-dark': `
+          inset 3px 3px 8px rgba(0, 0, 0, 0.7),
+          inset -1px -1px 4px rgba(255, 255, 255, 0.02)
+        `,
+        
+        // Floating (for modals/elevated elements)
+        'clay-float': `
+          inset 2px 2px 6px rgba(255, 255, 255, 0.9),
+          inset -2px -2px 6px rgba(0, 0, 0, 0.1),
+          0 20px 40px rgba(0, 0, 0, 0.15),
+          0 0 0 1px rgba(0, 0, 0, 0.05)
+        `,
+        'clay-float-dark': `
+          inset 2px 2px 6px rgba(255, 255, 255, 0.04),
+          inset -2px -2px 6px rgba(0, 0, 0, 0.6),
+          0 20px 40px rgba(0, 0, 0, 0.8),
+          0 0 0 1px rgba(255, 255, 255, 0.05)
+        `,
       },
     },
   },

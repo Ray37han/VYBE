@@ -12,17 +12,28 @@
   }
   
   body {
-    @apply font-sans antialiased text-gray-900 bg-gradient-to-br from-slate-50 via-gray-100 to-slate-100;
+    @apply font-sans antialiased text-slate-700;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Performance optimizations */
     will-change: scroll-position;
+    
+    /* Claymorphism Background - Light Mode */
+    background: linear-gradient(135deg, #fafafa 0%, #f4f4f5 25%, #e4e4e7 75%, #d4d4d8 100%);
   }
 
-  /* Dark mode body styles */
+  /* Dark mode body styles with proper Clay background */
   .dark body {
-    @apply text-moon-silver bg-gradient-to-br from-moon-night via-moon-midnight to-moon-blue;
+    @apply text-slate-200;
+    /* Claymorphism Background - Dark Mode */
+    background: linear-gradient(135deg, #18181b 0%, #27272a 25%, #3f3f46 75%, #27272a 100%);
+  }
+  
+  /* GPU Acceleration for Scrollable Lists */
+  .clay-optimized {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
   }
 }
 

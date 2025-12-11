@@ -27,7 +27,8 @@ export default function Checkout() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const subtotal = getTotal();
-  const shippingCost = 130;
+  // Dynamic shipping cost based on district
+  const shippingCost = (formData.district === 'Dhaka' || formData.district === 'Rajshahi') ? 100 : 130;
   const total = subtotal + shippingCost;
 
   useEffect(() => {
@@ -526,13 +527,9 @@ export default function Checkout() {
                   />
                   <div className="ml-3 flex-1">
                     <p className={`font-semibold ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Pay Online (Credit/Debit Card/Nagad/Bkash/Rocket)
+                      Pay Online (Bkash/Nagad/Rocket)
                     </p>
-                    <img 
-                      src="https://www.sslcommerz.com/wp-content/uploads/2019/11/logo.png" 
-                      alt="SSLCommerz" 
-                      className="h-6 mt-2"
-                    />
+                    <p className="text-sm mt-1 opacity-80">Pay full amount via mobile banking</p>
                   </div>
                 </label>
 

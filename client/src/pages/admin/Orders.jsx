@@ -363,13 +363,15 @@ export default function AdminOrders() {
                 <div className="space-y-3">
                   {selectedOrder.items?.map((item) => (
                     <div key={item._id} className={`flex gap-4 p-3 rounded ${darkMode ? 'bg-moon-night/50 border border-moon-gold/20' : 'bg-gray-50'}`}>
-                      {item.product?.images?.[0] && (
-                        <img
-                          src={item.product.images[0].url}
-                          alt={item.product.name}
-                          className="w-20 h-20 object-cover rounded"
-                        />
-                      )}
+                      <img
+                        src={item.product?.images?.[0]?.url || item.product?.image || '/placeholder.jpg'}
+                        alt={item.product?.name || 'Product'}
+                        className="w-20 h-20 object-cover rounded"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/placeholder.jpg';
+                        }}
+                      />
                       <div className="flex-1">
                         <p className={`font-semibold ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>{item.product?.name}</p>
                         <p className={`text-sm ${darkMode ? 'text-moon-silver/60' : 'text-gray-600'}`}>Size: {item.size} | Qty: {item.quantity}</p>
