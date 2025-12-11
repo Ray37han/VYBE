@@ -10,12 +10,15 @@ export default function SearchBar({ products = [], darkMode = false }) {
   const searchRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fuse.js configuration
+  // Optimized Fuse.js configuration for flexible "sticky" search
   const fuseOptions = {
     keys: ['name', 'category'],
-    threshold: 0.4,
+    threshold: 0.3,              // Allows some fuzziness/typos while keeping results relevant
+    ignoreLocation: true,        // CRITICAL: Match letters anywhere in the string, not just at start
+    minMatchCharLength: 1,       // Start searching immediately from first character
     includeScore: true,
-    minMatchCharLength: 2,
+    distance: 100,               // How far to search for a pattern match
+    useExtendedSearch: false,
   };
 
   // Close dropdown when clicking outside
@@ -29,7 +32,7 @@ export default function SearchBar({ products = [], darkMode = false }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Hybrid Search Logic
+  // Optimized Search Logic - Always use Fuse.js for flexible matching
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
@@ -37,21 +40,11 @@ export default function SearchBar({ products = [], darkMode = false }) {
       return;
     }
 
-    let searchResults = [];
-
-    if (query.length === 1) {
-      // **Condition A: Single letter - Use startsWith for speed & precision**
-      searchResults = products.filter(
-        (product) =>
-          product.name.toLowerCase().startsWith(query.toLowerCase()) ||
-          product.category.toLowerCase().startsWith(query.toLowerCase())
-      );
-    } else {
-      // **Condition B: Multiple letters - Use Fuse.js for fuzzy matching**
-      const fuse = new Fuse(products, fuseOptions);
-      const fuseResults = fuse.search(query);
-      searchResults = fuseResults.map((result) => result.item);
-    }
+    // Use Fuse.js for all queries (even single character)
+    // This ensures "n" finds "Moon Knight" and "Golden Frame"
+    const fuse = new Fuse(products, fuseOptions);
+    const fuseResults = fuse.search(query);
+    const searchResults = fuseResults.map((result) => result.item);
 
     setResults(searchResults.slice(0, 8)); // Limit to 8 results
     setIsOpen(searchResults.length > 0);
@@ -171,7 +164,7 @@ export default function SearchBar({ products = [], darkMode = false }) {
       )}
 
       {/* No Results */}
-      {isOpen && query.length >= 2 && results.length === 0 && (
+      {isOpen && query.length >= 1 && results.length === 0 && (
         <div
           className={`absolute z-50 w-full mt-2 rounded-xl shadow-2xl p-8 text-center backdrop-blur-xl ${
             darkMode
