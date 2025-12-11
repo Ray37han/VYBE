@@ -47,9 +47,8 @@ export default function SnapCarousel({ title, products, darkMode }) {
             transition={{ delay: index * 0.1 }}
             className="flex-shrink-0 snap-center"
           >
-            <Link to={`/product/${product._id}`}>
-              <motion.div
-                whileTap={{ scale: 0.95 }}
+            <Link to={`/product/${product._id}`} className="block">
+              <div
                 className={`relative w-[200px] sm:w-[240px] h-[320px] sm:h-[360px] rounded-3xl overflow-hidden ${
                   darkMode ? 'bg-gray-800' : 'bg-white'
                 }`}
@@ -131,7 +130,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                         ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400'
                         : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600'
                     }`}>
-                      ৳{product.basePrice || product.price}
+                      ৳{product.basePrice || product.price || product.sizes?.[0]?.price || 'N/A'}
                     </span>
                     
                     {/* Rating */}
@@ -149,7 +148,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </Link>
           </motion.div>
         ))}

@@ -54,7 +54,7 @@ export default function BackToTop() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className={`fixed bottom-8 right-8 p-4 rounded-full shadow-2xl transition-all duration-300 z-50 group ${
+          className={`fixed bottom-8 right-8 md:bottom-8 md:right-8 bottom-[calc(6rem+env(safe-area-inset-bottom))] p-4 rounded-full shadow-2xl transition-all duration-300 z-40 group ${
             darkMode
               ? 'bg-gradient-to-r from-moon-mystical to-moon-gold hover:shadow-moon-gold/50'
               : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-purple-500/50'
