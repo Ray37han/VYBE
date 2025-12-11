@@ -596,63 +596,62 @@ export default function Home() {
           >
             {posterGallery.map((poster, index) => (
               <SwiperSlide key={poster._id} style={{ width: '350px', height: '500px' }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05, rotateY: 10 }}
-                  className="relative h-full rounded-2xl overflow-hidden shadow-2xl poster-card group"
-                >
-                  <img 
-                    src={poster.image} 
-                    alt={poster.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  
-                  {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-t ${poster.colorGradient} opacity-60 group-hover:opacity-40 transition-opacity duration-500`}></div>
-                  
-                  {/* Content */}
-                  {/* Image */}
-                  <img 
-                    src={poster.image} 
-                    alt={poster.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover rounded-2xl group-hover:scale-110 transition-transform duration-700"
-                  />
-                  
-                  {/* Gradient Overlay - Only bottom portion for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent group-hover:from-black/95 transition-all duration-500"></div>
-                  
-                  {/* Content */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      whileInView={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <div className="text-sm font-semibold text-moon-gold mb-2 tracking-wider">
-                        {poster.category}
-                      </div>
-                      <h3 className="text-3xl font-bold mb-4 group-hover:scale-110 transition-transform">
-                        {poster.title}
-                      </h3>
-                      <Link 
-                        to="/products"
-                        className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full font-semibold hover:bg-white hover:text-moon-night transition-all duration-300 transform hover:scale-105"
+                <Link to="/products" className="block h-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.05, rotateY: 10 }}
+                    className="relative h-full rounded-2xl overflow-hidden shadow-2xl poster-card group cursor-pointer"
+                  >
+                    <img 
+                      src={poster.image} 
+                      alt={poster.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    
+                    {/* Gradient Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-t ${poster.colorGradient} opacity-60 group-hover:opacity-40 transition-opacity duration-500`}></div>
+                    
+                    {/* Content */}
+                    {/* Image */}
+                    <img 
+                      src={poster.image} 
+                      alt={poster.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover rounded-2xl group-hover:scale-110 transition-transform duration-700"
+                    />
+                    
+                    {/* Gradient Overlay - Only bottom portion for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent group-hover:from-black/95 transition-all duration-500"></div>
+                    
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
                       >
-                        View Posters
-                      </Link>
-                    </motion.div>
+                        <div className="text-sm font-semibold text-moon-gold mb-2 tracking-wider">
+                          {poster.category}
+                        </div>
+                        <h3 className="text-3xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                          {poster.title}
+                        </h3>
+                        <div className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full font-semibold hover:bg-white hover:text-moon-night transition-all duration-300 transform hover:scale-105">
+                          View Posters
+                        </div>
+                      </motion.div>
                   </div>
 
                   {/* Glowing Border Effect */}
                   <div className="absolute inset-0 border-2 border-transparent group-hover:border-moon-gold transition-all duration-500 rounded-2xl"></div>
                 </motion.div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>
