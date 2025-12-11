@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiStar, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiHome, FiEdit, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useCartStore } from '../store';
 import { authAPI } from '../api';
@@ -135,8 +135,8 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 ${
       darkMode 
-        ? 'bg-moon-night border-moon-gold/20' 
-        : 'bg-white border-purple-200'
+        ? 'bg-moon-night/80 backdrop-blur-lg border-moon-gold/20' 
+        : 'bg-white/80 backdrop-blur-lg border-purple-200'
     }`}>
       {/* Glow Effect */}
       <div className={`absolute inset-0 animate-pulse-slow pointer-events-none ${
@@ -222,23 +222,9 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* Tagline - Hidden on mobile */}
-          <div className="hidden lg:block ml-4">
-            <p className={`text-xs tracking-widest uppercase ${
-              darkMode ? 'text-moon-silver/60' : 'text-gray-400'
-            }`}>
-              Visualize Your
-            </p>
-            <p className={`text-sm font-bold tracking-wider ${
-              darkMode ? 'text-moon-gold' : 'text-purple-600'
-            }`}>
-              Best Essence
-            </p>
-          </div>
-
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            <NavLink to="/" icon={FiStar} darkMode={darkMode}>Home</NavLink>
+            <NavLink to="/" icon={FiHome} darkMode={darkMode}>Home</NavLink>
             
             {/* Products Dropdown */}
             <div 
@@ -372,7 +358,7 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            <NavLink to="/customize" icon={FiStar} darkMode={darkMode}>Customize</NavLink>
+            <NavLink to="/customize" icon={FiEdit} darkMode={darkMode}>Customize</NavLink>
             {isAuthenticated && user?.role === 'admin' && (
               <NavLink to="/admin" icon={FiUser} darkMode={darkMode}>Admin</NavLink>
             )}

@@ -34,7 +34,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
+        sans: ['Outfit', 'sans-serif'],
+        heading: ['Space Grotesk', 'sans-serif'],
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',

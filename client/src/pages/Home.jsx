@@ -187,7 +187,7 @@ export default function Home() {
 
         {/* Moon/Sun Symbol */}
         <motion.div
-          className="absolute top-20 right-10 md:right-20"
+          className="absolute top-20 right-10 md:right-20 -z-10"
           animate={{ 
             rotate: 360,
             scale: [1, 1.2, 1],
@@ -200,7 +200,7 @@ export default function Home() {
           {darkMode ? (
             <FiMoon className="w-20 h-20 md:w-32 md:h-32 opacity-20 text-moon-gold" />
           ) : (
-            <FiSun className="w-20 h-20 md:w-32 md:h-32 opacity-30 text-yellow-500" />
+            <FiSun className="w-20 h-20 md:w-32 md:h-32 opacity-20 text-yellow-500" />
           )}
         </motion.div>
 
@@ -230,29 +230,28 @@ export default function Home() {
               </motion.div>
 
               <motion.h1 
-                className={`text-5xl md:text-7xl font-bold mb-6 leading-tight ${
+                className={`font-heading text-5xl md:text-7xl font-bold mb-6 leading-tight ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Rise of the{' '}
+                Walls That{' '}
                 <span className={`block mt-2 ${darkMode ? 'moon-gradient-text neon-text' : 'gradient-text'}`}>
-                  Knight Warriors
+                  Speak
                 </span>
               </motion.h1>
 
               <motion.p 
                 className={`text-xl mb-8 leading-relaxed font-medium ${
-                  darkMode ? 'text-moon-silver' : 'text-gray-800'
+                  darkMode ? 'text-moon-silver' : 'text-gray-700'
                 }`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                Unleash your inner champion with our exclusive collection of epic posters.
-                From football icons to supercar dreams - Transform your space into a shrine of greatness.
+                Icons & Legends. Transform your space with premium wall art that inspires greatness.
               </motion.p>
 
               <motion.div 
@@ -261,7 +260,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Link to="/products" className={darkMode ? "btn-moon group" : "btn-primary group"}>
+                <Link to="/products" className={darkMode ? "btn-moon btn-glow group" : "btn-primary btn-glow group"}>
                   <span className="flex items-center gap-2">
                     <FiZap className="group-hover:rotate-12 transition-transform" />
                     Explore Collection

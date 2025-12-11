@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaInstagram, FaTwitter, FaPinterest } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTwitter, FaPinterest, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
   const [darkMode, setDarkMode] = useState(true);
+  const [email, setEmail] = useState('');
+  const [subscribeStatus, setSubscribeStatus] = useState('');
+  const [showShippingInfo, setShowShippingInfo] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
 
   // Listen for theme changes from localStorage
   useEffect(() => {
@@ -46,7 +50,7 @@ export default function Footer() {
               }`}>
                 <FaFacebook className="w-6 h-6" />
               </a>
-              <a href="#" className={`transition ${
+              <a href="https://www.instagram.com/vybebd/" target="_blank" rel="noopener noreferrer" className={`transition ${
                 darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
               }`}>
                 <FaInstagram className="w-6 h-6" />
@@ -110,12 +114,24 @@ export default function Footer() {
                   FAQ
                 </a>
               </li>
-              <li>
-                <a href="#" className={`transition ${
-                  darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
-                }`}>
-                  Shipping Info
-                </a>
+              <li 
+                className="relative"
+                onMouseEnter={() => setShowShippingInfo(true)}
+                onMouseLeave={() => setShowShippingInfo(false)}
+              >
+                <button 
+                  onClick={() => setShowShippingInfo(!showShippingInfo)}
+                  className={`transition font-semibold ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'}`}
+                >
+                  Shipping Info ▼
+                </button>
+                {showShippingInfo && (
+                  <div className={`mt-2 p-3 rounded-lg ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'}`}>
+                    <p className="text-xs mb-1">Delivery all over Bangladesh</p>
+                    <p className="text-xs">Inside Dhaka: ৳100</p>
+                    <p className="text-xs">Outside Dhaka: ৳130</p>
+                  </div>
+                )}
               </li>
               <li>
                 <a href="#" className={`transition ${
@@ -124,12 +140,29 @@ export default function Footer() {
                   Returns & Exchange
                 </a>
               </li>
-              <li>
-                <a href="#" className={`transition ${
-                  darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
-                }`}>
-                  Contact Us
-                </a>
+              <li 
+                className="relative"
+                onMouseEnter={() => setShowContactInfo(true)}
+                onMouseLeave={() => setShowContactInfo(false)}
+              >
+                <button 
+                  onClick={() => setShowContactInfo(!showContactInfo)}
+                  className={`transition font-semibold ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'}`}
+                >
+                  Contact Us ▼
+                </button>
+                {showContactInfo && (
+                  <div className={`mt-2 p-3 rounded-lg space-y-2 ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                    <a href="https://www.facebook.com/profile.php?id=61580594942475" target="_blank" rel="noopener noreferrer" className={`transition flex items-center gap-2 ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'}`}>
+                      <FaFacebook className="w-4 h-4" />
+                      Facebook
+                    </a>
+                    <a href="https://wa.me/8801772634466" target="_blank" rel="noopener noreferrer" className={`transition flex items-center gap-2 ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'}`}>
+                      <FaWhatsapp className="w-4 h-4" />
+                      WhatsApp
+                    </a>
+                  </div>
+                )}
               </li>
             </ul>
           </div>
@@ -140,18 +173,39 @@ export default function Footer() {
             <p className={`mb-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Subscribe for exclusive offers and updates
             </p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email"
-                className={`flex-1 px-4 py-2 rounded-l-lg focus:outline-none ${
-                  darkMode ? 'text-gray-900 bg-white' : 'text-gray-900 bg-white border border-gray-300'
-                }`}
-              />
-              <button className="px-4 py-2 bg-gradient-to-r from-vybe-purple to-vybe-pink rounded-r-lg hover:opacity-90 transition text-white">
-                Subscribe
-              </button>
-            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (email && email.includes('@')) {
+                setSubscribeStatus('success');
+                setEmail('');
+                setTimeout(() => setSubscribeStatus(''), 3000);
+              } else {
+                setSubscribeStatus('error');
+                setTimeout(() => setSubscribeStatus(''), 3000);
+              }
+            }} className="space-y-2">
+              <div className="flex">
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className={`flex-1 px-4 py-2 rounded-l-lg focus:outline-none ${
+                    darkMode ? 'text-gray-900 bg-white' : 'text-gray-900 bg-white border border-gray-300'
+                  }`}
+                />
+                <button type="submit" className="px-4 py-2 bg-gradient-to-r from-vybe-purple to-vybe-pink rounded-r-lg hover:opacity-90 transition text-white">
+                  Subscribe
+                </button>
+              </div>
+              {subscribeStatus === 'success' && (
+                <p className="text-sm text-green-500">✓ Successfully subscribed!</p>
+              )}
+              {subscribeStatus === 'error' && (
+                <p className="text-sm text-red-500">✗ Please enter a valid email</p>
+              )}
+            </form>
           </div>
         </div>
 

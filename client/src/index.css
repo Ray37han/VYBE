@@ -274,11 +274,33 @@
   /* Removed heavy poster-card::after animation for better performance */
 
   .glass-moon {
-    @apply bg-moon-midnight border border-moon-silver/20;
+    @apply bg-moon-midnight/50 backdrop-blur-lg border border-moon-silver/20 shadow-xl;
+  }
+
+  /* Glassmorphism Styles */
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
+  }
+
+  .glass-card-dark {
+    @apply bg-gray-900/10 backdrop-blur-lg border border-white/10 shadow-lg;
   }
 
   .glow-border {
     @apply border-2 border-moon-mystical shadow-lg shadow-moon-mystical/50;
+  }
+
+  /* Enhanced button glow effect */
+  .btn-glow {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 
+                0 0 40px rgba(236, 72, 153, 0.3);
+  }
+
+  .btn-glow:hover {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.7), 
+                0 0 60px rgba(236, 72, 153, 0.5),
+                0 10px 30px rgba(139, 92, 246, 0.3);
+    transform: translateY(-2px);
   }
 }
 
