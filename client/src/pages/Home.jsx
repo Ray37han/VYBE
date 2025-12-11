@@ -7,6 +7,7 @@ import { FiShoppingCart, FiStar, FiTruck, FiAward, FiZap, FiMoon, FiSun } from '
 import { productsAPI, featuredPostersAPI } from '../api';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
 import SpotlightContainer from '../components/SpotlightContainer';
+import MobileHome from './MobileHome';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-creative';
@@ -64,6 +65,7 @@ const FloatingParticle = ({ delay, duration, left }) => {
 };
 
 export default function Home() {
+  const [isMobile, setIsMobile] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [posterGallery, setPosterGallery] = useState([]);
   const [heroItems, setHeroItems] = useState([]);
@@ -75,6 +77,17 @@ export default function Home() {
     return savedTheme ? savedTheme === 'dark' : false; // Default to light theme
   });
   const heroRef = useRef(null);
+  
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Scroll progress - but don't use it for every-frame transforms (causes jank)
   const { scrollYProgress } = useScroll();
@@ -88,6 +101,11 @@ export default function Home() {
   
   // Simplified: Only opacity for hero fade (transform removed for performance)
   const opacityAnim = useTransform(smoothScrollProgress, [0, 0.3], [1, 0]);
+
+  // Render mobile version on small screens
+  if (isMobile) {
+    return <MobileHome />;
+  }
 
   // Listen for theme changes from Navbar
   useEffect(() => {
