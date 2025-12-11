@@ -47,7 +47,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
             transition={{ delay: index * 0.1 }}
             className="flex-shrink-0 snap-center"
           >
-            <Link to={`/product/${product._id}`} className="block">
+            <Link to={`/products/${product._id}`} className="block">
               <div
                 className={`relative w-[200px] sm:w-[240px] h-[320px] sm:h-[360px] rounded-3xl overflow-hidden ${
                   darkMode ? 'bg-gray-800' : 'bg-white'

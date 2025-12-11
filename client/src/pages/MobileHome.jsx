@@ -40,9 +40,9 @@ export default function MobileHome() {
       setLoading(true);
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
       
-      const [heroResponse, postersResponse] = await Promise.all([
+      const [heroResponse, recentProductsResponse] = await Promise.all([
         fetch(`${API_URL}/hero-items`).then(res => res.json()),
-        featuredPostersAPI.getAll()
+        productsAPI.getAll({ limit: 10, sortBy: 'createdAt', order: 'desc' })
       ]);
       
       // Hero items for Trending Now section
@@ -52,9 +52,9 @@ export default function MobileHome() {
         .map(item => item.product);
       setHeroItems(heroProducts);
       
-      // Featured posters for Fresh Drops section
-      const postersData = postersResponse.data || postersResponse || [];
-      setFeaturedPosters(postersData);
+      // Most recently added products for Fresh Drops section
+      const recentProducts = recentProductsResponse.data || recentProductsResponse.products || [];
+      setFeaturedPosters(recentProducts);
     } catch (error) {
       console.error('Failed to fetch products:', error);
     } finally {

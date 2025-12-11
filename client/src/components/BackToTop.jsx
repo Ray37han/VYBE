@@ -54,14 +54,14 @@ export default function BackToTop() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className={`fixed bottom-8 right-8 md:bottom-8 md:right-8 bottom-[calc(6rem+env(safe-area-inset-bottom))] p-4 rounded-full shadow-2xl transition-all duration-300 z-40 group ${
+          className={`fixed right-4 md:bottom-8 md:right-8 bottom-[calc(6rem+env(safe-area-inset-bottom))] p-3 rounded-full shadow-2xl transition-all duration-300 z-40 group ${
             darkMode
               ? 'bg-gradient-to-r from-moon-mystical to-moon-gold hover:shadow-moon-gold/50'
               : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-purple-500/50'
           }`}
           aria-label="Back to top"
         >
-          <FiArrowUp className="w-6 h-6 text-white group-hover:animate-bounce" />
+          <FiArrowUp className="w-5 h-5 text-white group-hover:animate-bounce" />
           
           {/* Glow effect */}
           <div className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 blur transition-opacity duration-300 -z-10 ${

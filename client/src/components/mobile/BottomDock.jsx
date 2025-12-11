@@ -14,13 +14,13 @@ export default function BottomDock({ darkMode }) {
       path: '/', 
       icon: FiHome, 
       label: 'Home',
-      size: 'w-6 h-6'
+      size: 'w-5 h-5'
     },
     { 
       path: '/products', 
       icon: FiSearch, 
       label: 'Search',
-      size: 'w-6 h-6'
+      size: 'w-5 h-5'
     },
     { 
       path: '/customize', 
@@ -32,7 +32,7 @@ export default function BottomDock({ darkMode }) {
       path: '/cart', 
       icon: FiShoppingCart, 
       label: 'Cart',
-      size: 'w-6 h-6',
+      size: 'w-5 h-5',
       badge: items.length
     },
   ];
@@ -48,7 +48,7 @@ export default function BottomDock({ darkMode }) {
       }}
     >
       <div
-        className={`flex items-center gap-2 px-6 py-3 rounded-full backdrop-blur-xl border ${
+        className={`flex items-center gap-1 px-4 py-2.5 rounded-full backdrop-blur-xl border ${
           darkMode
             ? 'bg-gray-900/70 border-white/20'
             : 'bg-white/70 border-white/40'
@@ -88,7 +88,7 @@ export default function BottomDock({ darkMode }) {
                       ],
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 flex items-center justify-center"
+                    className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 flex items-center justify-center"
                     style={{
                       boxShadow: `
                         inset 2px 2px 6px rgba(255, 255, 255, 0.3),
@@ -103,7 +103,7 @@ export default function BottomDock({ darkMode }) {
                       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                     >
                       <svg 
-                        className="w-8 h-8 text-white" 
+                        className="w-7 h-7 text-white" 
                         fill="none" 
                         viewBox="0 0 24 24" 
                         stroke="currentColor"
@@ -155,7 +155,7 @@ export default function BottomDock({ darkMode }) {
                 className="relative"
               >
                 <div
-                  className={`p-3 rounded-full transition-all duration-300 ${
+                  className={`p-2.5 rounded-full transition-all duration-300 ${
                     isActive
                       ? darkMode
                         ? 'bg-purple-500/20'
