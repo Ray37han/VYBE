@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid } from 'react-icons/fi';
+import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid, FiX } from 'react-icons/fi';
+import Fuse from 'fuse.js';
 import { productsAPI } from '../api';
 import { ProductGridSkeleton } from '../components/LoadingSkeleton';
 import LoadingSpinner, { FullPageLoader } from '../components/LoadingSpinner';
@@ -30,6 +31,7 @@ const categories = [
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // Store all products for client-side search
   const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
@@ -66,6 +68,19 @@ export default function Products() {
     };
   }, []);
 
+  // Initialize Fuse.js for flexible fuzzy search
+  const fuse = useMemo(() => {
+    if (allProducts.length === 0) return null;
+    return new Fuse(allProducts, {
+      keys: ['name', 'category', 'description'],
+      threshold: 0.3,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+      distance: 100,
+      includeScore: true,
+    });
+  }, [allProducts]);
+
   useEffect(() => {
     fetchProducts();
   }, [searchParams]);
@@ -74,26 +89,58 @@ export default function Products() {
     setLoading(true);
     try {
       const params = Object.fromEntries(searchParams);
-      // Set pagination - 20 products per page
-      params.limit = 20;
-      params.page = params.page || 1;
       
-      console.log('Fetching products with params:', params);
-      console.log('API URL:', import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api');
-      const response = await productsAPI.getAll(params);
-      console.log('Products response:', response);
+      // Fetch all products initially for client-side search
+      if (allProducts.length === 0) {
+        const allResponse = await productsAPI.getAll({ limit: 1000 });
+        setAllProducts(allResponse.data || allResponse || []);
+      }
       
-      // Update products and pagination data
-      setProducts(response.data || response || []);
-      
-      // Update pagination state from response
-      if (response.pagination) {
-        setPagination({
-          currentPage: response.pagination.currentPage,
-          totalPages: response.pagination.totalPages,
-          totalItems: response.pagination.totalItems,
-          itemsPerPage: response.pagination.itemsPerPage
+      // If search query exists, use Fuse.js for fuzzy search
+      if (params.search && allProducts.length > 0) {
+        const fuseInstance = new Fuse(allProducts, {
+          keys: ['name', 'category', 'description'],
+          threshold: 0.3,
+          ignoreLocation: true,
+          minMatchCharLength: 1,
+          distance: 100,
+          includeScore: true,
         });
+        
+        const searchResults = fuseInstance.search(params.search).map(result => result.item);
+        
+        // Apply category filter if present
+        let filteredResults = searchResults;
+        if (params.category) {
+          filteredResults = searchResults.filter(p => p.category === params.category);
+        }
+        
+        setProducts(filteredResults);
+        setPagination({
+          currentPage: 1,
+          totalPages: 1,
+          totalItems: filteredResults.length,
+          itemsPerPage: filteredResults.length
+        });
+      } else {
+        // Regular API call with filters
+        params.limit = 20;
+        params.page = params.page || 1;
+        
+        const response = await productsAPI.getAll(params);
+        
+        // Update products and pagination data
+        setProducts(response.data || response || []);
+        
+        // Update pagination state from response
+        if (response.pagination) {
+          setPagination({
+            currentPage: response.pagination.currentPage,
+            totalPages: response.pagination.totalPages,
+            totalItems: response.pagination.totalItems,
+            itemsPerPage: response.pagination.itemsPerPage
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to load products:', error);
@@ -208,27 +255,46 @@ export default function Products() {
           }`}></div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
-            {/* Search */}
+            {/* Search - Optimized with Fuse.js */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
               className="relative group/search"
             >
-              <FiSearch className={`absolute left-4 top-1/2 transform -translate-y-1/2 group-hover/search:${
-                darkMode ? 'text-moon-gold' : 'text-purple-600'
-              } transition-colors animate-pulse-slow w-5 h-5 ${
-                darkMode ? 'text-moon-gold/60' : 'text-purple-400'
+              <FiSearch className={`absolute left-4 top-1/2 transform -translate-y-1/2 transition-all duration-300 w-5 h-5 ${
+                filters.search
+                  ? (darkMode ? 'text-moon-gold' : 'text-purple-600')
+                  : (darkMode ? 'text-moon-gold/60' : 'text-purple-400')
+              } ${
+                filters.search ? 'scale-110' : 'group-hover/search:scale-110'
               }`} />
               <input
                 type="text"
-                placeholder="Search mystical art..."
+                placeholder="🔍 Search anywhere in name, category, description..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 ${
+                className={`w-full pl-12 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 ${
                   darkMode
                     ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold focus:ring-moon-gold/20'
                     : 'bg-white border-purple-200 text-gray-900 placeholder-gray-400 focus:border-purple-600 focus:ring-purple-200'
                 }`}
               />
+              {filters.search && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleFilterChange('search', '')}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg transition-colors ${
+                    darkMode
+                      ? 'hover:bg-moon-gold/20 text-moon-gold'
+                      : 'hover:bg-purple-100 text-purple-600'
+                  }`}
+                >
+                  <FiX className="w-4 h-4" />
+                </motion.button>
+              )}
             </motion.div>
 
             {/* Category */}

@@ -3,9 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiHome, FiEdit, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useCartStore } from '../store';
-import { authAPI, productsAPI } from '../api';
+import { authAPI } from '../api';
 import { CartButton, MenuButton } from '../components/AnimatedIcon';
-import SearchBar from './SearchBar';
 import toast from 'react-hot-toast';
 
 // Categories with subcategories for dropdown
@@ -106,19 +105,6 @@ export default function Navbar() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('themeChange', handleStorageChange);
     };
-  }, []);
-
-  // Fetch products for search
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await productsAPI.getProducts({ limit: 100 });
-        setSearchProducts(response.products || []);
-      } catch (error) {
-        console.error('Error fetching products for search:', error);
-      }
-    };
-    fetchProducts();
   }, []);
 
   const toggleTheme = () => {
@@ -236,11 +222,6 @@ export default function Navbar() {
               ))}
             </motion.div>
           </Link>
-
-          {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <SearchBar products={searchProducts} darkMode={darkMode} />
-          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
@@ -488,11 +469,6 @@ export default function Navbar() {
           }`}
         >
           <div className="px-4 py-4 space-y-2">
-            {/* Mobile Search Bar */}
-            <div className="mb-4 lg:hidden">
-              <SearchBar products={searchProducts} darkMode={darkMode} />
-            </div>
-            
             <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)} darkMode={darkMode}>
               🏠 Home
             </MobileNavLink>
