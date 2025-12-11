@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiHome, FiEdit, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiStar, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useCartStore } from '../store';
-import { authAPI, productsAPI } from '../api';
+import { authAPI } from '../api';
 import { CartButton, MenuButton } from '../components/AnimatedIcon';
-import SearchBar from './SearchBar';
 import toast from 'react-hot-toast';
 
 // Categories with subcategories for dropdown
@@ -61,7 +60,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
-  const [searchProducts, setSearchProducts] = useState([]);
   const { isAuthenticated, user, logout } = useAuthStore();
   const itemCount = useCartStore((state) => state.getItemCount());
   const navigate = useNavigate();
@@ -108,19 +106,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // Fetch products for search
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await productsAPI.getProducts({ limit: 100 });
-        setSearchProducts(response.products || []);
-      } catch (error) {
-        console.error('Error fetching products for search:', error);
-      }
-    };
-    fetchProducts();
-  }, []);
-
   const toggleTheme = () => {
     const newTheme = !darkMode;
     setDarkMode(newTheme);
@@ -150,8 +135,8 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 ${
       darkMode 
-        ? 'bg-moon-night/80 backdrop-blur-lg border-moon-gold/20' 
-        : 'bg-white/80 backdrop-blur-lg border-purple-200'
+        ? 'bg-moon-night border-moon-gold/20' 
+        : 'bg-white border-purple-200'
     }`}>
       {/* Glow Effect */}
       <div className={`absolute inset-0 animate-pulse-slow pointer-events-none ${
@@ -237,14 +222,23 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <SearchBar products={searchProducts} darkMode={darkMode} />
+          {/* Tagline - Hidden on mobile */}
+          <div className="hidden lg:block ml-4">
+            <p className={`text-xs tracking-widest uppercase ${
+              darkMode ? 'text-moon-silver/60' : 'text-gray-400'
+            }`}>
+              Visualize Your
+            </p>
+            <p className={`text-sm font-bold tracking-wider ${
+              darkMode ? 'text-moon-gold' : 'text-purple-600'
+            }`}>
+              Best Essence
+            </p>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            <NavLink to="/" icon={FiHome} darkMode={darkMode}>Home</NavLink>
+            <NavLink to="/" icon={FiStar} darkMode={darkMode}>Home</NavLink>
             
             {/* Products Dropdown */}
             <div 
@@ -378,7 +372,7 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            <NavLink to="/customize" icon={FiEdit} darkMode={darkMode}>Customize</NavLink>
+            <NavLink to="/customize" icon={FiStar} darkMode={darkMode}>Customize</NavLink>
             {isAuthenticated && user?.role === 'admin' && (
               <NavLink to="/admin" icon={FiUser} darkMode={darkMode}>Admin</NavLink>
             )}
@@ -488,11 +482,6 @@ export default function Navbar() {
           }`}
         >
           <div className="px-4 py-4 space-y-2">
-            {/* Mobile Search Bar */}
-            <div className="mb-4 lg:hidden">
-              <SearchBar products={searchProducts} darkMode={darkMode} />
-            </div>
-            
             <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)} darkMode={darkMode}>
               🏠 Home
             </MobileNavLink>
