@@ -78,6 +78,22 @@ export default function Home() {
   });
   const heroRef = useRef(null);
   
+  // Listen for theme changes from Navbar
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const currentTheme = localStorage.getItem('theme');
+      setDarkMode(currentTheme === 'dark');
+    };
+
+    window.addEventListener('storage', handleThemeChange);
+    window.addEventListener('themeChange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('storage', handleThemeChange);
+      window.removeEventListener('themeChange', handleThemeChange);
+    };
+  }, []);
+  
   // Detect mobile viewport
   useEffect(() => {
     const checkMobile = () => {
@@ -106,22 +122,6 @@ export default function Home() {
   if (isMobile) {
     return <MobileHome />;
   }
-
-  // Listen for theme changes from Navbar
-  useEffect(() => {
-    const handleThemeChange = () => {
-      const currentTheme = localStorage.getItem('theme');
-      setDarkMode(currentTheme === 'dark');
-    };
-
-    window.addEventListener('storage', handleThemeChange);
-    window.addEventListener('themeChange', handleThemeChange);
-
-    return () => {
-      window.removeEventListener('storage', handleThemeChange);
-      window.removeEventListener('themeChange', handleThemeChange);
-    };
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
