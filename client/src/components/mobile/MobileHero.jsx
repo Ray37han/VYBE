@@ -153,7 +153,7 @@ export default function MobileHero({ darkMode }) {
           transition={{ delay: 1.2 }}
           className="mt-10 flex flex-wrap justify-center gap-4"
         >
-          {['Fast Shipping', 'Premium Quality', 'Flat 25% Discount'].map((text, i) => (
+          {['Fast Shipping', 'Premium Quality', 'Flat 33% Discount'].map((text, i) => (
             <motion.div
               key={text}
               initial={{ scale: 0 }}

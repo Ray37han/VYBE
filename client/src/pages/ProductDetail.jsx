@@ -173,7 +173,7 @@ export default function ProductDetail() {
               animate={{ opacity: 1, x: 0 }}
               className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-full shadow-lg"
             >
-              🎉 25% OFF - Limited Time!
+              🎉 33% OFF - Limited Time!
             </motion.div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
             <div className="flex items-center mb-4">
@@ -199,7 +199,7 @@ export default function ProductDetail() {
                   <div className="flex flex-col">
                     <span className="text-2xl text-gray-400 line-through">৳{Math.round(currentPrice / 0.75)}</span>
                     <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                      25% OFF
+                      33% OFF
                     </span>
                   </div>
                 </>

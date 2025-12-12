@@ -164,7 +164,7 @@ export default function Cart() {
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                         darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
                       }`}>
-                        25% OFF
+                        33% OFF
                       </span>
                     </div>
                   </div>
@@ -247,7 +247,7 @@ export default function Cart() {
                     🎉 You're saving ৳{savings.toFixed(2)}
                   </p>
                   <p className={`text-xs ${darkMode ? 'text-green-300/70' : 'text-green-600'}`}>
-                    with 25% off!
+                    with 33% off!
                   </p>
                 </div>
               </div>

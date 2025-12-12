@@ -424,7 +424,7 @@ export default function Products() {
                             : 'bg-gradient-to-r from-green-600 to-emerald-700'
                         }`}
                       >
-                        🎉 25% OFF
+                        🎉 33% OFF
                       </motion.span>
                       
                       {product.customizable && (
@@ -489,7 +489,7 @@ export default function Products() {
                             <span className={`text-xs font-semibold ${
                               darkMode ? 'text-green-400' : 'text-green-600'
                             }`}>
-                              25% OFF
+                              33% OFF
                             </span>
                           </div>
                           {/* Premium Minimal Accent Line */}

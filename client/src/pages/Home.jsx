@@ -809,7 +809,7 @@ export default function Home() {
                                   ৳{Math.round(product.basePrice / 0.75)}
                                 </span>
                               </div>
-                              <span className="text-xs font-bold text-green-400">25% OFF</span>
+                              <span className="text-xs font-bold text-green-400">33% OFF</span>
                             </div>
                             <div className="flex items-center text-sm text-moon-silver">
                               <FiStar className="w-4 h-4 fill-moon-gold text-moon-gold mr-1" />

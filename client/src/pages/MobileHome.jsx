@@ -92,7 +92,7 @@ export default function MobileHome() {
           {[
             { icon: '🚀', title: 'Fast Shipping', desc: 'Delivered in days' },
             { icon: '💎', title: 'Premium Quality', desc: 'Museum-grade prints' },
-            { icon: '🎁', title: 'Flat 25% Discount', desc: 'Special offer' },
+            { icon: '🎁', title: 'Flat 33% Discount', desc: 'Special offer' },
             { icon: '✨', title: 'Custom Design', desc: 'Your vision, our art' },
           ].map((feature, i) => (
             <motion.div
