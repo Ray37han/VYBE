@@ -253,7 +253,7 @@ export default function ProductDetail() {
                           ৳{size.price}
                         </span>
                         <span className="text-xs line-through opacity-60">
-                          ৳{product.originalPrice || Math.round(size.price / 0.67)}
+                          ৳{size.originalPrice || Math.round(size.price / 0.67)}
                         </span>
                       </div>
                     </div>
