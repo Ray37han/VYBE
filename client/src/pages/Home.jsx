@@ -806,7 +806,7 @@ export default function Home() {
                                   ৳{product.basePrice}
                                 </span>
                                 <span className="text-sm text-moon-silver/50 line-through">
-                                  ৳{Math.round(product.basePrice / 0.75)}
+                                  ৳{product.originalPrice || Math.round(product.basePrice / 0.67)}
                                 </span>
                               </div>
                               <span className="text-xs font-bold text-green-400">33% OFF</span>

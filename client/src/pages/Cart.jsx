@@ -92,7 +92,7 @@ export default function Cart() {
   }
 
   const subtotal = getTotal();
-  const originalPrice = Math.round(subtotal / 0.75);
+  const originalPrice = Math.round(subtotal / 0.67);
   const savings = originalPrice - subtotal;
   const shipping = subtotal > 1000 ? 0 : 60;
   const total = subtotal + shipping;
@@ -159,7 +159,7 @@ export default function Cart() {
                       <span className={`text-xs line-through ${
                         darkMode ? 'text-moon-silver/40' : 'text-gray-400'
                       }`}>
-                        ৳{Math.round(sizePrice / 0.75)}
+                        ৳{item.product?.originalPrice || Math.round(sizePrice / 0.67)}
                       </span>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                         darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'

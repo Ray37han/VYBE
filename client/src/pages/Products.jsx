@@ -483,7 +483,7 @@ export default function Products() {
                               <span className={`text-sm line-through ${
                                 darkMode ? 'text-moon-silver/40' : 'text-gray-400'
                               }`}>
-                                ৳{Math.round(product.basePrice / 0.75)}
+                                ৳{product.originalPrice || Math.round(product.basePrice / 0.67)}
                               </span>
                             </div>
                             <span className={`text-xs font-semibold ${

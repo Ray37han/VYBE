@@ -197,7 +197,7 @@ export default function ProductDetail() {
                 <>
                   <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
                   <div className="flex flex-col">
-                    <span className="text-2xl text-gray-400 line-through">৳{Math.round(currentPrice / 0.75)}</span>
+                    <span className="text-2xl text-gray-400 line-through">৳{product.originalPrice || Math.round(currentPrice / 0.67)}</span>
                     <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
                       33% OFF
                     </span>
@@ -253,7 +253,7 @@ export default function ProductDetail() {
                           ৳{size.price}
                         </span>
                         <span className="text-xs line-through opacity-60">
-                          ৳{Math.round(size.price / 0.75)}
+                          ৳{product.originalPrice || Math.round(size.price / 0.67)}
                         </span>
                       </div>
                     </div>
