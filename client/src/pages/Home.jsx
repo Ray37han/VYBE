@@ -304,7 +304,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, type: "spring" }}
-              className="relative h-[600px] hidden md:block perspective-1000 gpu-accelerated"
+              className="relative h-[600px] hidden md:block perspective-1000 gpu-accelerated transform-gpu will-change-transform"
             >
               {heroItems.length > 0 && heroItems.every(item => item.product && item.product.images && item.product.images.length > 0) ? (
                 heroItems.map((item) => {
@@ -600,10 +600,10 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ delay: index * 0.1, duration: 0.4, ease: 'easeOut' }}
                     whileHover={{ scale: 1.05, rotateY: 10 }}
-                    className="relative h-full rounded-2xl overflow-hidden shadow-2xl poster-card group cursor-pointer"
+                    className="relative h-full rounded-2xl overflow-hidden shadow-2xl poster-card group cursor-pointer transform-gpu will-change-transform"
                   >
                     <img 
                       src={poster.image} 
@@ -700,10 +700,10 @@ export default function Home() {
               <StaggerItem key={index}>
                 <motion.div
                   whileHover={{ y: -10, scale: 1.05 }}
-                  className={`text-center p-8 rounded-2xl transition-all duration-500 group ${
+                  className={`text-center p-8 rounded-2xl transition-all duration-500 group transform-gpu will-change-transform ${
                     darkMode 
                       ? 'glass-moon hover:shadow-2xl hover:shadow-moon-mystical/30'
-                      : 'bg-white/80 backdrop-blur-lg border border-gray-200 hover:shadow-2xl hover:shadow-purple-300/50'
+                      : 'bg-white/95 md:bg-white/80 md:backdrop-blur-lg border border-gray-200 hover:shadow-2xl hover:shadow-purple-300/50'
                   }`}
                 >
                   <motion.div 

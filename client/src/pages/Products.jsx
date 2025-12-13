@@ -384,11 +384,14 @@ export default function Products() {
           </motion.div>
         ) : (
           <SpotlightContainer>
-            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 transform-gpu will-change-transform">
               {products.map((product, index) => (
                 <StaggerItem key={product._id}>
                   <motion.div
-                    className="product-card-spotlight gpu-accelerated"
+                    className="product-card-spotlight gpu-accelerated transform-gpu will-change-transform"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
                   >
                     <Link to={`/products/${product._id}`} className="block group">
                       <div className={`card-moon overflow-hidden h-full flex flex-col relative transition-all duration-300 ${

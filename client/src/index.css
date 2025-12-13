@@ -34,6 +34,49 @@
     transform: translateZ(0);
     will-change: transform;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Mobile Performance Optimizations */
+  .transform-gpu {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+  
+  .gpu-accelerated {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+  }
+  
+  /* Optimized blur for mobile (only on desktop) */
+  .blur-optimized {
+    filter: blur(0px);
+  }
+  
+  @media (min-width: 768px) {
+    .blur-optimized {
+      filter: blur(80px);
+    }
+  }
+  
+  /* Pulse animation with GPU acceleration */
+  .animate-pulse-slow-gpu {
+    animation: pulse-gpu 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-gpu {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1) translateZ(0);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.05) translateZ(0);
+    }
   }
 }
 

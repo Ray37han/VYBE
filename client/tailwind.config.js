@@ -170,7 +170,21 @@ export default {
         'clay-dark': 'linear-gradient(145deg, #27272a 0%, #18181b 100%)',
       },
       boxShadow: {
-        // Claymorphism Shadows - Light Mode
+        // Mobile-Optimized Shadows (Simplified for Performance)
+        'clay-mobile': `
+          inset 1px 1px 3px rgba(255, 255, 255, 0.5),
+          0 2px 4px rgba(0, 0, 0, 0.06)
+        `,
+        'clay-mobile-lg': `
+          inset 2px 2px 4px rgba(255, 255, 255, 0.6),
+          0 4px 8px rgba(0, 0, 0, 0.08)
+        `,
+        'clay-mobile-dark': `
+          inset 1px 1px 3px rgba(255, 255, 255, 0.02),
+          0 2px 4px rgba(0, 0, 0, 0.3)
+        `,
+        
+        // Claymorphism Shadows - Light Mode (Desktop)
         'clay-sm': `
           inset 2px 2px 5px rgba(255, 255, 255, 0.7),
           inset -2px -2px 5px rgba(0, 0, 0, 0.05),

@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
 /**
- * ClayCard - The foundational Clay UI container
+ * ClayCard - The foundational Clay UI container (Mobile Optimized for 60FPS)
  * 
  * @param {object} props
  * @param {('sm'|'md'|'lg')} props.size - Shadow depth variant
@@ -20,32 +20,39 @@ const ClayCard = forwardRef(({
   ...props 
 }, ref) => {
   
-  // Shadow mapping
+  // Mobile-optimized shadow mapping (lighter shadows on mobile)
   const shadowClasses = {
-    sm: 'shadow-clay-sm dark:shadow-clay-dark-sm',
-    md: 'shadow-clay-md dark:shadow-clay-dark-md',
-    lg: 'shadow-clay-lg dark:shadow-clay-dark-lg',
+    sm: 'shadow-clay-mobile md:shadow-clay-sm dark:shadow-clay-mobile-dark md:dark:shadow-clay-dark-sm',
+    md: 'shadow-clay-mobile md:shadow-clay-md dark:shadow-clay-mobile-dark md:dark:shadow-clay-dark-md',
+    lg: 'shadow-clay-mobile-lg md:shadow-clay-lg dark:shadow-clay-mobile-dark md:dark:shadow-clay-dark-lg',
   };
 
-  // Base classes for Clay aesthetic
+  // Base classes for Clay aesthetic with GPU acceleration
   const baseClasses = `
     bg-clay-100 dark:bg-clay-800
     rounded-[32px]
     transition-all duration-300 ease-out
+    will-change-transform transform-gpu
     clay-optimized
     ${shadowClasses[size]}
     ${className}
   `.trim().replace(/\s+/g, ' ');
 
-  // Motion variants for interaction
+  // Motion variants for interaction (transform-only for performance)
   const motionProps = {};
   
   if (hoverable) {
-    motionProps.whileHover = { y: -4, transition: { duration: 0.2 } };
+    motionProps.whileHover = { 
+      y: -4, 
+      transition: { duration: 0.2, ease: 'easeOut' } 
+    };
   }
   
   if (clickable) {
-    motionProps.whileTap = { scale: 0.96, transition: { duration: 0.1 } };
+    motionProps.whileTap = { 
+      scale: 0.96, 
+      transition: { duration: 0.1, ease: 'easeOut' } 
+    };
   }
 
   return (

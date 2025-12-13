@@ -134,10 +134,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 will-change-transform transform-gpu ${
       darkMode 
-        ? 'bg-moon-night/80 backdrop-blur-lg border-moon-gold/20' 
-        : 'bg-white/80 backdrop-blur-lg border-purple-200'
+        ? 'bg-moon-night/95 md:bg-moon-night/80 md:backdrop-blur-lg border-moon-gold/20' 
+        : 'bg-white/95 md:bg-white/80 md:backdrop-blur-lg border-purple-200'
     }`}>
       {/* Glow Effect */}
       <div className={`absolute inset-0 animate-pulse-slow pointer-events-none ${
@@ -264,10 +264,10 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl border overflow-hidden z-50 ${
+                    className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl border overflow-hidden z-50 will-change-transform transform-gpu ${
                       darkMode
-                        ? 'bg-moon-midnight border-moon-gold/30'
-                        : 'bg-white border-purple-200'
+                        ? 'bg-moon-midnight/95 md:bg-moon-midnight/80 md:backdrop-blur-md border-moon-gold/30'
+                        : 'bg-white/95 md:bg-white/80 md:backdrop-blur-md border-purple-200'
                     }`}
                   >
                     {/* Dropdown Header */}
