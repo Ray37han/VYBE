@@ -29,6 +29,28 @@
     background: linear-gradient(135deg, #18181b 0%, #27272a 25%, #3f3f46 75%, #27272a 100%);
   }
   
+  /* ============================================
+     SAFARI SAFE MODE - CRITICAL GPU FORCING
+     ============================================ */
+  
+  /* Force ALL animated elements to use GPU (iOS Safari Fix) */
+  .gpu-safe,
+  .clay-optimized,
+  [class*="motion-"],
+  [class*="animate-"],
+  .swiper-slide,
+  nav,
+  header,
+  .card,
+  button {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+  }
+  
   /* GPU Acceleration for Scrollable Lists */
   .clay-optimized {
     transform: translateZ(0);
@@ -61,6 +83,116 @@
     .blur-optimized {
       filter: blur(80px);
     }
+  }
+  
+  /* ============================================
+     SAFARI BLUR KILLER - Feature Query Strategy
+     ============================================ */
+  
+  /* Default: Solid backgrounds for Safari/Mobile (60 FPS guaranteed) */
+  .blur-safe {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  .dark .blur-safe {
+    background: rgba(24, 24, 27, 0.95);
+  }
+  
+  /* Progressive Enhancement: Enable blur ONLY if browser supports it well */
+  @supports (backdrop-filter: blur(10px)) and (not (-webkit-backdrop-filter: blur(10px))) {
+    /* Non-WebKit browsers (Chrome, Firefox) - safe to use blur */
+    .blur-safe {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    
+    .dark .blur-safe {
+      background: rgba(24, 24, 27, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  }
+  
+  /* Desktop WebKit: Enable blur with caution (md breakpoint only) */
+  @media (min-width: 768px) {
+    @supports (-webkit-backdrop-filter: blur(10px)) {
+      .blur-safe-desktop {
+        background: rgba(255, 255, 255, 0.8) !important;
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+      
+      .dark .blur-safe-desktop {
+        background: rgba(24, 24, 27, 0.8) !important;
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+    }
+  }
+  
+  /* Mobile/Safari: NEVER use backdrop-filter (causes 10-15 FPS) */
+  @media (max-width: 767px) {
+    .blur-safe,
+    .blur-safe-desktop,
+    [class*="backdrop-blur"] {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
+  
+  /* ============================================
+     SHADOW OPTIMIZATION - Clay Lite for Safari
+     ============================================ */
+  
+  /* Light Clay Shadows - Single shadow instead of 3 (mobile/Safari) */
+  .shadow-clay-lite {
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark .shadow-clay-lite {
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Full Clay Shadows - Desktop only */
+  @media (min-width: 768px) {
+    .shadow-clay-full {
+      box-shadow: 
+        inset 2px 2px 5px rgba(255, 255, 255, 0.7),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.1),
+        0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .shadow-clay-full {
+      box-shadow: 
+        inset 2px 2px 5px rgba(255, 255, 255, 0.05),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.4),
+        0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+  }
+  
+  /* Fallback: Use lite version on mobile */
+  @media (max-width: 767px) {
+    .shadow-clay-full {
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .dark .shadow-clay-full {
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+  }
+  
+  /* Border alternative for claymorphism (even lighter for low-end devices) */
+  .clay-border {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark .clay-border {
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   /* Pulse animation with GPU acceleration */

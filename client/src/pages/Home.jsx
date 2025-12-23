@@ -424,6 +424,9 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=800&fit=crop" 
                   alt="Football Icon"
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-moon-night via-transparent to-transparent flex items-end p-6">
                   <div>
@@ -451,6 +454,8 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&h=800&fit=crop" 
                   alt="Lamborghini"
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-yellow-600/90 via-transparent to-transparent flex items-end p-4">
                   <div className="text-white font-bold text-lg">Lambo Dreams</div>
@@ -475,6 +480,8 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=600&h=800&fit=crop" 
                   alt="Messi"
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-600/90 via-transparent to-transparent flex items-end p-4">
                   <div className="text-white font-bold text-lg">The GOAT</div>
@@ -499,6 +506,8 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&h=800&fit=crop" 
                   alt="Ferrari"
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-red-600/90 via-transparent to-transparent flex items-end p-4">
                   <div className="text-white font-bold text-lg">Ferrari Pride</div>

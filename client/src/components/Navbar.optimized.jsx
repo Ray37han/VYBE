@@ -134,13 +134,14 @@ export default function NavbarOptimized() {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 border-b shadow-2xl transition-colors duration-500 gpu-safe ${
         darkMode 
-          ? 'bg-moon-night/95 md:bg-moon-night/80 md:backdrop-blur-lg border-moon-gold/20' 
-          : 'bg-white/95 md:bg-white/80 md:backdrop-blur-lg border-purple-200'
+          ? 'blur-safe dark blur-safe-desktop border-moon-gold/20' 
+          : 'blur-safe blur-safe-desktop border-purple-200'
       }`}
       style={{
-        transform: 'translateZ(0)',
+        transform: 'translate3d(0, 0, 0)',
+        WebkitTransform: 'translate3d(0, 0, 0)',
         willChange: 'transform',
       }}
     >
@@ -227,13 +228,14 @@ export default function NavbarOptimized() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
-                      className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl border overflow-hidden z-50 ${
+                      className={`absolute top-full left-0 mt-2 w-64 rounded-2xl shadow-2xl border overflow-hidden z-50 gpu-safe ${
                         darkMode
-                          ? 'bg-moon-midnight/95 md:bg-moon-midnight/80 md:backdrop-blur-md border-moon-gold/30'
-                          : 'bg-white/95 md:bg-white/80 md:backdrop-blur-md border-purple-200'
+                          ? 'blur-safe dark blur-safe-desktop border-moon-gold/30'
+                          : 'blur-safe blur-safe-desktop border-purple-200'
                       }`}
                       style={{
-                        transform: 'translateZ(0)',
+                        transform: 'translate3d(0, 0, 0)',
+                        WebkitTransform: 'translate3d(0, 0, 0)',
                         willChange: 'transform',
                       }}
                     >

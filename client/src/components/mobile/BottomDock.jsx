@@ -50,12 +50,14 @@ export default function BottomDock({ darkMode }) {
       }}
     >
       <div
-        className={`flex items-center gap-1 px-4 py-2.5 rounded-full backdrop-blur-xl border ${
+        className={`flex items-center gap-1 px-4 py-2.5 rounded-full border gpu-safe ${
           darkMode
-            ? 'bg-gray-900/70 border-white/20'
-            : 'bg-white/70 border-white/40'
+            ? 'bg-gray-900/95 border-white/20'
+            : 'bg-white/95 border-white/40'
         }`}
         style={{
+          transform: 'translate3d(0, 0, 0)',
+          WebkitTransform: 'translate3d(0, 0, 0)',
           boxShadow: darkMode
             ? `
               inset 1px 1px 2px rgba(255, 255, 255, 0.1),

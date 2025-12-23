@@ -77,6 +77,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                     alt={product.name}
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    decoding="async"
                   />
                   
                   {/* Gradient Overlay */}
@@ -88,14 +89,14 @@ export default function SnapCarousel({ title, products, darkMode }) {
 
                   {/* Like Button */}
                   <button
-                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-transform active:scale-90 ${
+                    className={`absolute top-3 right-3 p-2 rounded-full transition-transform active:scale-90 gpu-safe ${
                       darkMode
-                        ? 'bg-white/10 text-white'
-                        : 'bg-white/70 text-gray-700'
+                        ? 'bg-gray-800/95 text-white shadow-clay-lite'
+                        : 'bg-white/95 text-gray-700 shadow-clay-lite'
                     }`}
                     style={{
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                      transform: 'translateZ(0)',
+                      transform: 'translate3d(0, 0, 0)',
+                      WebkitTransform: 'translate3d(0, 0, 0)',
                       willChange: 'transform',
                     }}
                   >
