@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { productsAPI, featuredPostersAPI } from '../api';
-import MobileHero from '../components/mobile/MobileHero.optimized';
+import MobileHero from '../components/mobile/MobileHero.lcp';
 import SnapCarousel from '../components/mobile/SnapCarousel';
 import MarqueeBar from '../components/mobile/MarqueeBar';
 import MobileLayout from '../components/mobile/MobileLayout';

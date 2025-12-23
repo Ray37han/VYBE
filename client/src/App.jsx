@@ -1,6 +1,6 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import Navbar from './components/Navbar'
+import Navbar from './components/Navbar.optimized'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
 import Home from './pages/Home'
