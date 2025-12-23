@@ -23,18 +23,18 @@ export default function MobileHero({ darkMode }) {
     >
       {/* Static Background Shapes - CSS Only, No JS */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
+        {[...Array(3)].map((_, i) => (
           <div
             key={i}
             className={`hero-cloud absolute rounded-full blur-3xl ${
               darkMode ? 'bg-purple-500/20' : 'bg-white/40'
             }`}
             style={{
-              width: `${150 + i * 50}px`,
-              height: `${150 + i * 50}px`,
-              left: `${i * 20}%`,
-              top: `${i * 15}%`,
-              animationDelay: `${i * 0.5}s`,
+              width: `${200 + i * 80}px`,
+              height: `${200 + i * 80}px`,
+              left: `${i * 30}%`,
+              top: `${i * 20}%`,
+              animationDelay: `${i * 1}s`,
             }}
           />
         ))}
