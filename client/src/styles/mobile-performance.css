@@ -1,0 +1,328 @@
+/**
+ * Mobile Performance CSS - Optimized for Low-End Devices
+ * 
+ * Key Optimizations:
+ * 1. Pure CSS animations (no JS required)
+ * 2. GPU-accelerated transforms (translate3d, scale)
+ * 3. Will-change hints for browser optimization
+ * 4. Reduced animation complexity
+ * 5. No backdrop-filter on mobile
+ */
+
+/* ============================================
+   SKELETON LOADER ANIMATIONS
+   ============================================ */
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   HERO SECTION ANIMATIONS
+   ============================================ */
+
+/* Hero content fade-in (CSS only, instant render) */
+.hero-content {
+  animation: hero-fade-in 0.8s ease-out forwards;
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero logo scale-in */
+.hero-logo {
+  animation: hero-logo-scale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes hero-logo-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.8) rotate(-5deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Hero tagline slide-up */
+.hero-tagline {
+  animation: hero-slide-up 0.6s ease-out 0.3s backwards;
+}
+
+@keyframes hero-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero CTA button */
+.hero-cta {
+  animation: hero-cta-appear 0.6s ease-out 0.5s backwards;
+}
+
+@keyframes hero-cta-appear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Hero arrow bounce */
+.hero-arrow {
+  display: inline-block;
+  animation: hero-arrow-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes hero-arrow-bounce {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+/* Hero badges stagger appear */
+.hero-badges > * {
+  animation: hero-badge-pop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) backwards;
+}
+
+.hero-badges > *:nth-child(1) { animation-delay: 0.7s; }
+.hero-badges > *:nth-child(2) { animation-delay: 0.8s; }
+.hero-badges > *:nth-child(3) { animation-delay: 0.9s; }
+
+@keyframes hero-badge-pop {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Floating clouds (GPU-accelerated) */
+.hero-cloud {
+  animation: hero-cloud-float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-cloud:nth-child(1) { animation-duration: 8s; }
+.hero-cloud:nth-child(2) { animation-duration: 10s; }
+.hero-cloud:nth-child(3) { animation-duration: 12s; }
+.hero-cloud:nth-child(4) { animation-duration: 14s; }
+.hero-cloud:nth-child(5) { animation-duration: 16s; }
+.hero-cloud:nth-child(6) { animation-duration: 18s; }
+
+@keyframes hero-cloud-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  25% {
+    transform: translate3d(30px, -10px, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(0, -20px, 0) scale(1.1);
+  }
+  75% {
+    transform: translate3d(-30px, -10px, 0) scale(1.05);
+  }
+}
+
+/* Scroll indicator bounce */
+.hero-scroll-indicator {
+  animation: hero-scroll-bounce 2s ease-in-out infinite;
+}
+
+@keyframes hero-scroll-bounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+.scroll-dot {
+  animation: scroll-dot-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes scroll-dot-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(12px);
+  }
+}
+
+/* ============================================
+   FEATURE CARDS
+   ============================================ */
+
+.feature-card {
+  animation: feature-fade-in 0.5s ease-out backwards;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes feature-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   CTA SECTION
+   ============================================ */
+
+.cta-card {
+  animation: cta-fade-in 0.6s ease-out;
+}
+
+@keyframes cta-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Disable expensive effects on mobile */
+@media (max-width: 768px) {
+  /* Remove backdrop-filter (causes GPU overload on cheap devices) */
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Simplify complex shadows */
+  .shadow-2xl {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Reduce animation complexity */
+  .animate-pulse {
+    animation: simple-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes simple-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+}
+
+/* ============================================
+   LAYOUT SHIFT PREVENTION
+   ============================================ */
+
+/* Prevent layout shift for images */
+img {
+  height: auto;
+  max-width: 100%;
+}
+
+/* Aspect ratio boxes for images */
+.aspect-ratio-box {
+  position: relative;
+  width: 100%;
+}
+
+.aspect-ratio-box::before {
+  content: '';
+  display: block;
+  padding-top: var(--aspect-ratio, 100%);
+}
+
+.aspect-ratio-box > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================
+   FONT OPTIMIZATION
+   ============================================ */
+
+/* Font display swap for faster initial render */
+@font-face {
+  font-family: 'Fredoka';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-display: swap;
+}
+
+/* ============================================
+   HARDWARE ACCELERATION HINTS
+   ============================================ */
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+/* Cleanup will-change after animation */
+.animation-complete {
+  will-change: auto;
+}
