@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 export default function MarqueeBar({ darkMode }) {
   const marqueeText = [
     'CUSTOM POSTERS',
@@ -30,19 +28,10 @@ export default function MarqueeBar({ darkMode }) {
 
       {/* Animated Marquee Container */}
       <div className="relative overflow-hidden">
-        <motion.div
-          className="flex gap-8 whitespace-nowrap"
-          animate={{
-            x: [0, -1000],
-          }}
-          transition={{
-            x: {
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            },
-          }}
+        <div
+          className="flex gap-8 whitespace-nowrap marquee-animation"
           style={{
+            transform: 'translateZ(0)',
             willChange: 'transform',
           }}
         >
@@ -72,7 +61,7 @@ export default function MarqueeBar({ darkMode }) {
               </span>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Gradient Fade Edges */}
