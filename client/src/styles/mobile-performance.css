@@ -339,31 +339,63 @@
     -webkit-filter: none !important;
   }
   
-  /* Force GPU compositing for all animated elements */
-  .hero-content,
-  .hero-logo,
-  .hero-tagline,
-  .hero-cta,
-  .hero-arrow,
-  .hero-badges > *,
-  .hero-cloud,
-  .feature-card,
-  .cta-card {
-    -webkit-transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    -webkit-perspective: 1000;
-  }
-  
-  /* Reduce cloud animations on Safari */
+  /* DISABLE ALL CLOUD ANIMATIONS ON SAFARI */
   .hero-cloud {
-    animation-duration: 12s !important;
+    animation: none !important;
+    opacity: 0.3 !important;
   }
   
-  /* Disable complex transforms on Safari */
-  .hero-cloud:nth-child(n+4) {
-    animation: none !important;
-    opacity: 0.5;
+  /* Simplify all animations to fade-only on Safari */
+  .hero-logo {
+    animation: safari-simple-fade 0.4s ease-out forwards !important;
   }
+  
+  .hero-tagline {
+    animation: safari-simple-fade 0.4s ease-out 0.2s backwards !important;
+  }
+  
+  .hero-cta {
+    animation: safari-simple-fade 0.4s ease-out 0.3s backwards !important;
+  }
+  
+  .hero-badges > * {
+    animation: safari-simple-fade 0.3s ease-out backwards !important;
+  }
+  
+  .hero-badges > *:nth-child(1) { animation-delay: 0.4s !important; }
+  .hero-badges > *:nth-child(2) { animation-delay: 0.5s !important; }
+  .hero-badges > *:nth-child(3) { animation-delay: 0.6s !important; }
+  
+  /* Disable arrow animation on Safari */
+  .hero-arrow {
+    animation: none !important;
+  }
+  
+  /* Disable scroll indicator animation on Safari */
+  .hero-scroll-indicator,
+  .scroll-dot {
+    animation: none !important;
+  }
+  
+  /* Simple fade-only animation for Safari */
+  @keyframes safari-simple-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Disable feature card animations on Safari */
+  .feature-card {
+    animation: safari-simple-fade 0.3s ease-out backwards !important;
+  }
+  
+  .feature-card:nth-child(1) { animation-delay: 0s !important; }
+  .feature-card:nth-child(2) { animation-delay: 0.1s !important; }
+  .feature-card:nth-child(3) { animation-delay: 0.2s !important; }
+  .feature-card:nth-child(4) { animation-delay: 0.3s !important; }
 }
 
 /* ============================================

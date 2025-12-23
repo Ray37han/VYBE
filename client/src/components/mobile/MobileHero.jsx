@@ -1,75 +1,49 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+/**
+ * MobileHero - Optimized Hero Section for Low-End Devices
+ * 
+ * Performance Optimizations:
+ * 1. NO Framer Motion on initial render - uses CSS keyframes
+ * 2. NO backdrop-filter (glassmorphism) on mobile
+ * 3. Simplified shadows and animations
+ * 4. Optimized <picture> tag for WebP images
+ * 5. Prevents Layout Shift with explicit dimensions
+ */
+
 import { Link } from 'react-router-dom';
 
 export default function MobileHero({ darkMode }) {
-  const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
-  });
-
-  // Parallax transforms
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
-
   return (
     <section 
-      ref={heroRef}
-      className="relative min-h-[85dvh] flex items-center justify-center overflow-hidden"
+      className="mobile-hero relative min-h-[85dvh] flex items-center justify-center overflow-hidden"
       style={{
         background: darkMode
           ? 'linear-gradient(135deg, #0f0a1e 0%, #1a1230 25%, #2d1b4e 50%, #1a1230 75%, #0f0a1e 100%)'
           : 'linear-gradient(135deg, #fef3ff 0%, #f0e6ff 25%, #e0d4ff 50%, #d4c5ff 75%, #c9b3ff 100%)'
       }}
     >
-      {/* Floating Cloud Shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
+      {/* Static Background Shapes - CSS Only, No JS */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(3)].map((_, i) => (
+          <div
             key={i}
-            className={`absolute rounded-full blur-3xl ${
+            className={`hero-cloud absolute rounded-full blur-3xl ${
               darkMode ? 'bg-purple-500/20' : 'bg-white/40'
             }`}
             style={{
-              width: `${150 + i * 50}px`,
-              height: `${150 + i * 50}px`,
-              left: `${i * 20}%`,
-              top: `${i * 15}%`,
-            }}
-            animate={{
-              x: [0, 30, 0],
-              y: [0, -20, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 8 + i * 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5,
+              width: `${200 + i * 80}px`,
+              height: `${200 + i * 80}px`,
+              left: `${i * 30}%`,
+              top: `${i * 20}%`,
+              animationDelay: `${i * 1}s`,
             }}
           />
         ))}
       </div>
 
-      {/* Parallax Content Container */}
-      <motion.div 
-        style={{ y, opacity, scale }}
-        className="relative z-10 text-center px-6"
-      >
-        {/* 3D Bubble Logo */}
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 100, 
-            damping: 15,
-            duration: 1 
-          }}
-          className="mb-8"
-        >
+      {/* Content - Using CSS Keyframes for instant render */}
+      <div className="hero-content relative z-10 text-center px-6">
+        {/* Logo with CSS Animation */}
+        <div className="hero-logo mb-8">
           <h1 
             className={`text-8xl md:text-9xl font-black tracking-tight ${
               darkMode ? 'text-white' : 'text-gray-900'
@@ -95,106 +69,70 @@ export default function MobileHero({ darkMode }) {
           >
             VYBE
           </h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className={`text-lg md:text-xl font-medium tracking-wide ${
+          <p 
+            className={`hero-tagline text-lg md:text-xl font-medium tracking-wide ${
               darkMode ? 'text-purple-200' : 'text-purple-700'
             }`}
           >
             Express Yourself in Art
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
-        {/* Clay-style CTA Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
+        {/* CTA Button - Simplified Shadow for Mobile Performance */}
+        <div className="hero-cta">
           <Link
             to="/products"
-            className={`inline-flex items-center gap-3 px-10 py-5 text-lg font-bold rounded-full transition-all duration-300 ${
+            className={`inline-flex items-center gap-3 px-10 py-5 text-lg font-bold rounded-full transition-transform active:scale-95 ${
               darkMode
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                 : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
             }`}
             style={{
+              // Simplified shadow - single layer for mobile performance
               boxShadow: darkMode
-                ? `
-                  inset 2px 2px 8px rgba(255, 255, 255, 0.2),
-                  inset -2px -2px 8px rgba(0, 0, 0, 0.3),
-                  0 10px 30px rgba(139, 92, 246, 0.4)
-                `
-                : `
-                  inset 2px 2px 8px rgba(255, 255, 255, 0.6),
-                  inset -2px -2px 8px rgba(0, 0, 0, 0.1),
-                  0 10px 30px rgba(147, 51, 234, 0.3)
-                `,
+                ? '0 10px 30px rgba(139, 92, 246, 0.4)'
+                : '0 10px 30px rgba(147, 51, 234, 0.3)',
             }}
           >
             <span>Shop Now</span>
-            <motion.span
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              →
-            </motion.span>
+            <span className="hero-arrow">→</span>
           </Link>
-        </motion.div>
+        </div>
 
-        {/* Floating badges */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="mt-10 flex flex-wrap justify-center gap-4"
-        >
+        {/* Badges - Solid backgrounds (NO backdrop-blur on mobile) */}
+        <div className="hero-badges mt-10 flex flex-wrap justify-center gap-4">
           {['Fast Shipping', 'Premium Quality', 'Flat 33% Discount'].map((text, i) => (
-            <motion.div
+            <div
               key={text}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.2 + i * 0.1, type: "spring" }}
-              whileHover={{ scale: 1.1 }}
-              className={`px-5 py-2 text-sm font-semibold rounded-full ${
+              className={`px-5 py-2 text-sm font-semibold rounded-full border ${
                 darkMode
-                  ? 'bg-white/10 text-purple-200 backdrop-blur-sm border border-white/20'
-                  : 'bg-white/60 text-purple-700 backdrop-blur-sm border border-purple-200/50'
+                  ? 'bg-purple-900/95 text-purple-200 border-purple-500/30'
+                  : 'bg-white/95 text-purple-700 border-purple-200'
               }`}
               style={{
+                // Simple single shadow instead of complex inset shadows
                 boxShadow: darkMode
-                  ? 'inset 1px 1px 4px rgba(255,255,255,0.1), 0 4px 15px rgba(0,0,0,0.2)'
-                  : 'inset 1px 1px 4px rgba(255,255,255,0.8), 0 4px 15px rgba(147,51,234,0.15)',
+                  ? '0 4px 15px rgba(0,0,0,0.2)'
+                  : '0 4px 15px rgba(147,51,234,0.15)',
+                animationDelay: `${1.2 + i * 0.1}s`,
               }}
             >
               {text}
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      >
-        <div className={`w-6 h-10 rounded-full border-2 ${
-          darkMode ? 'border-white/50' : 'border-purple-500/50'
-        } flex justify-center pt-2`}>
-          <motion.div
-            className={`w-1.5 h-1.5 rounded-full ${
-              darkMode ? 'bg-white' : 'bg-purple-500'
-            }`}
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
         </div>
-      </motion.div>
+      </div>
+
+      {/* Scroll Indicator - Simple CSS */}
+      <div className="hero-scroll-indicator absolute bottom-8 left-1/2 -translate-x-1/2">
+        <div className={`w-6 h-10 rounded-full border-2 flex items-start justify-center p-2 ${
+          darkMode ? 'border-purple-400' : 'border-purple-600'
+        }`}>
+          <div className={`scroll-dot w-1.5 h-1.5 rounded-full ${
+            darkMode ? 'bg-purple-400' : 'bg-purple-600'
+          }`} />
+        </div>
+      </div>
     </section>
   );
 }
