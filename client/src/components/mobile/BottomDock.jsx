@@ -39,12 +39,14 @@ export default function BottomDock({ darkMode }) {
 
   return (
     <motion.nav
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom)',
+        transform: 'translateZ(0)',
+        willChange: 'transform',
       }}
     >
       <div
@@ -74,20 +76,14 @@ export default function BottomDock({ darkMode }) {
           if (item.isCenter) {
             return (
               <Link key={item.path} to={item.path}>
-                <motion.div
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.1 }}
-                  className="relative mx-2"
+                <div
+                  className="relative mx-2 active:scale-90 transition-transform"
+                  style={{
+                    transform: 'translateZ(0)',
+                    willChange: 'transform',
+                  }}
                 >
-                  <motion.div
-                    animate={{
-                      boxShadow: [
-                        '0 0 20px rgba(168, 85, 247, 0.4)',
-                        '0 0 30px rgba(236, 72, 153, 0.6)',
-                        '0 0 20px rgba(168, 85, 247, 0.4)',
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                  <div
                     className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 flex items-center justify-center"
                     style={{
                       boxShadow: `
@@ -95,13 +91,12 @@ export default function BottomDock({ darkMode }) {
                         inset -2px -2px 6px rgba(0, 0, 0, 0.2),
                         0 8px 25px rgba(168, 85, 247, 0.5)
                       `,
+                      transform: 'translateZ(0)',
+                      willChange: 'transform',
                     }}
                   >
                     {/* Custom Icon */}
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    >
+                    <div>
                       <svg 
                         className="w-7 h-7 text-white" 
                         fill="none" 
@@ -115,32 +110,23 @@ export default function BottomDock({ darkMode }) {
                           d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" 
                         />
                       </svg>
-                    </motion.div>
-
-                    {/* Pulsing Ring */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-white/30"
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.5, 0, 0.5],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  </motion.div>
+                    </div>
+                  </div>
 
                   {/* Label */}
                   <motion.span
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
                     className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-bold whitespace-nowrap bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent"
+                    style={{
+                      transform: 'translateZ(0)',
+                      willChange: 'transform',
+                    }}
                   >
                     {item.label}
                   </motion.span>
-                </motion.div>
+                </div>
               </Link>
             );
           }
@@ -149,10 +135,13 @@ export default function BottomDock({ darkMode }) {
           const Icon = item.icon;
           return (
             <Link key={item.path} to={item.path}>
-              <motion.div
-                whileTap={{ scale: 0.95 }}
+              <div
                 onClick={() => setActiveTab(item.path)}
-                className="relative"
+                className="relative active:scale-95 transition-transform"
+                style={{
+                  transform: 'translateZ(0)',
+                  willChange: 'transform',
+                }}
               >
                 <div
                   className={`p-2.5 rounded-full transition-all duration-300 ${
@@ -175,18 +164,18 @@ export default function BottomDock({ darkMode }) {
 
                   {/* Cart Badge */}
                   {item.badge > 0 && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                    <div
                       className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center"
                       style={{
                         boxShadow: '0 2px 10px rgba(239, 68, 68, 0.5)',
+                        transform: 'translateZ(0)',
+                        willChange: 'transform',
                       }}
                     >
                       <span className="text-white text-[10px] font-bold">
                         {item.badge > 9 ? '9+' : item.badge}
                       </span>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
 
@@ -194,14 +183,19 @@ export default function BottomDock({ darkMode }) {
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
                       className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-purple-500"
+                      style={{
+                        transform: 'translateZ(0)',
+                        willChange: 'transform',
+                      }}
                     />
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             </Link>
           );
         })}
