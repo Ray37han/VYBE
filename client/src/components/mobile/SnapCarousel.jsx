@@ -10,9 +10,10 @@ export default function SnapCarousel({ title, products, darkMode }) {
     <section className="py-8 px-4">
       {/* Section Header */}
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className="mb-6"
       >
         <h2 className={`text-3xl font-bold mb-2 ${
@@ -35,17 +36,20 @@ export default function SnapCarousel({ title, products, darkMode }) {
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
           WebkitOverflowScrolling: 'touch',
+          transform: 'translateZ(0)',
           willChange: 'transform',
         }}
       >
         {products?.map((product, index) => (
-          <motion.div
+          <div
             key={product._id || index}
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
             className="flex-shrink-0 snap-center"
+            style={{
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+              opacity: index < 4 ? 0 : 1,
+              animation: index < 4 ? `fadeInCard 0.4s ease-out ${index * 0.08}s forwards` : 'none',
+            }}
           >
             <Link to={`/products/${product._id}`} className="block">
               <div
@@ -83,19 +87,20 @@ export default function SnapCarousel({ title, products, darkMode }) {
                   }`} />
 
                   {/* Like Button */}
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md ${
+                  <button
+                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-transform active:scale-90 ${
                       darkMode
                         ? 'bg-white/10 text-white'
                         : 'bg-white/70 text-gray-700'
                     }`}
                     style={{
                       boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                      transform: 'translateZ(0)',
+                      willChange: 'transform',
                     }}
                   >
                     <FiHeart className="w-5 h-5" />
-                  </motion.button>
+                  </button>
 
                   {/* Badge */}
                   {product.stock < 10 && (
@@ -150,55 +155,58 @@ export default function SnapCarousel({ title, products, darkMode }) {
                 </div>
               </div>
             </Link>
-          </motion.div>
+          </div>
         ))}
 
         {/* View All Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="flex-shrink-0 snap-center"
-        >
+        <div className="flex-shrink-0 snap-center">
           <Link to="/products">
-            <motion.div
-              whileTap={{ scale: 0.95 }}
-              className={`w-[200px] sm:w-[240px] h-[320px] sm:h-[360px] rounded-3xl flex items-center justify-center ${
+            <div
+              className={`w-[200px] sm:w-[240px] h-[320px] sm:h-[360px] rounded-3xl flex items-center justify-center transition-transform active:scale-95 ${
                 darkMode
                   ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/50 border border-purple-500/30'
                   : 'bg-gradient-to-br from-purple-100 to-pink-100 border border-purple-200'
               }`}
               style={{
+                transform: 'translateZ(0)',
+                willChange: 'transform',
                 boxShadow: darkMode
                   ? 'inset 2px 2px 4px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.5)'
                   : 'inset 2px 2px 4px rgba(255,255,255,0.5), 0 10px 20px rgba(0,0,0,0.1)',
               }}
             >
               <div className="text-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                <div
                   className={`text-5xl mb-4 ${
                     darkMode ? 'text-purple-400' : 'text-purple-600'
                   }`}
                 >
                   →
-                </motion.div>
+                </div>
                 <p className={`text-lg font-bold ${
                   darkMode ? 'text-white' : 'text-gray-900'
                 }`}>
                   View All
                 </p>
               </div>
-            </motion.div>
+            </div>
           </Link>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Hide scrollbar styles */}
+      {/* Hide scrollbar styles + fade-in animation */}
       <style jsx>{`
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
+        }
+        
+        @keyframes fadeInCard {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
       `}</style>
     </section>

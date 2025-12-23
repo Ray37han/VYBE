@@ -462,3 +462,17 @@ img {
 .animation-complete {
   will-change: auto;
 }
+
+/* ============================================
+   UTILITY ANIMATIONS (GPU-OPTIMIZED)
+   ============================================ */
+
+/* Fade-in only animation for product cards */
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -83,31 +83,29 @@ export default function MobileHome() {
 
       {/* Feature Section */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         className="px-4 py-12"
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 will-change-transform">
           {[
             { icon: '🚀', title: 'Fast Shipping', desc: 'Delivered in days' },
             { icon: '💎', title: 'Premium Quality', desc: 'Museum-grade prints' },
             { icon: '🎁', title: 'Flat 33% Discount', desc: 'Special offer' },
             { icon: '✨', title: 'Custom Design', desc: 'Your vision, our art' },
           ].map((feature, i) => (
-            <motion.div
+            <div
               key={i}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-6 rounded-3xl text-center ${
+              className={`p-6 rounded-3xl text-center transition-transform active:scale-95 ${
                 darkMode
                   ? 'bg-gray-800/50 border border-purple-500/20'
                   : 'bg-white/60 border border-purple-200/50'
               }`}
               style={{
+                transform: 'translateZ(0)',
+                willChange: 'transform',
                 boxShadow: darkMode
                   ? 'inset 2px 2px 4px rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.3)'
                   : 'inset 2px 2px 4px rgba(255,255,255,0.5), 0 10px 20px rgba(0,0,0,0.08)',
@@ -124,7 +122,7 @@ export default function MobileHome() {
               }`}>
                 {feature.desc}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </motion.section>
@@ -138,10 +136,12 @@ export default function MobileHome() {
 
       {/* CTA Section */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="px-4 py-12 mb-20"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="px-4 py-12 mb-20 will-change-transform"
+        style={{ transform: 'translateZ(0)' }}
       >
         <div
           className={`p-8 rounded-3xl text-center ${
@@ -165,18 +165,18 @@ export default function MobileHome() {
           }`}>
             Design your custom poster in minutes
           </p>
-          <motion.a
+          <a
             href="/customize"
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full transition-transform active:scale-95"
             style={{
               boxShadow: '0 10px 30px rgba(168, 85, 247, 0.4)',
+              transform: 'translateZ(0)',
+              willChange: 'transform',
             }}
           >
             <span>Start Creating</span>
             <span>→</span>
-          </motion.a>
+          </a>
         </div>
       </motion.section>
     </MobileLayout>
