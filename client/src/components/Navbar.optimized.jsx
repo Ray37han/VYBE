@@ -154,37 +154,93 @@ export default function NavbarOptimized() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex justify-between items-center h-16">
-          {/* Logo - Pure CSS Animation (NO Framer Motion for entrance) */}
+          {/* Logo - Self-Drawing SVG Animation */}
           <Link to="/" className="flex items-center space-x-3">
             <div 
               className={`relative py-2 ${!isLoaded ? 'navbar-hidden' : 'navbar-logo-enter'}`}
             >
-              <h1 
-                className={`text-3xl sm:text-4xl font-bold tracking-wider ${
-                  darkMode ? 'text-moon-gold' : 'text-purple-600'
-                }`}
-                style={{
-                  transform: 'translateZ(0)',
-                  willChange: 'transform',
-                }}
+              {/* Snowfall effect container */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ width: '200px', height: '60px' }}>
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`absolute opacity-60 ${darkMode ? 'text-white' : 'text-purple-600'}`}
+                    style={{
+                      left: `${15 + i * 25}%`,
+                      fontSize: `${8 + Math.random() * 6}px`,
+                      animation: `snowfall ${3 + Math.random() * 2}s linear ${i * 0.3}s infinite`,
+                      animationDelay: `${i * 0.4}s`
+                    }}
+                  >
+                    ❄
+                  </div>
+                ))}
+              </div>
+              
+              <svg
+                width="200"
+                height="60"
+                viewBox="0 0 200 60"
+                className="overflow-visible relative z-10"
+                style={{ transform: 'translateZ(0)', willChange: 'transform' }}
               >
-                VYBE
-              </h1>
+                <defs>
+                  {/* Gradient for the text */}
+                  <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{ stopColor: darkMode ? '#8B5CF6' : '#9333EA', stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: darkMode ? '#A78BFA' : '#C084FC', stopOpacity: 1 }} />
+                  </linearGradient>
+                  
+                  {/* Glow filter */}
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
 
-              {/* Static Glow Background (no animation on entrance) */}
-              {isLoaded && (
-                <div 
-                  className={`absolute -inset-3 rounded-xl blur-xl -z-10 ${
-                    darkMode 
-                      ? 'bg-gradient-to-r from-moon-mystical/40 via-moon-gold/40 to-moon-mystical/40'
-                      : 'bg-gradient-to-r from-purple-400/30 via-pink-400/30 to-purple-400/30'
-                  }`}
+                {/* Self-drawing text paths */}
+                <text
+                  x="10"
+                  y="45"
+                  fontSize="48"
+                  fontWeight="900"
+                  fontFamily="'Fredoka', 'Nunito', 'Poppins', sans-serif"
+                  fill="none"
+                  stroke="url(#logoGradient)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#glow)"
+                  className={isLoaded ? 'logo-draw' : ''}
                   style={{
-                    transform: 'translateZ(0)',
-                    willChange: 'transform',
+                    strokeDasharray: 400,
+                    strokeDashoffset: isLoaded ? 0 : 400,
+                    animation: isLoaded ? 'drawLogo 2s ease-out forwards' : 'none',
+                    paintOrder: 'stroke fill'
                   }}
-                />
-              )}
+                >
+                  VYBE
+                </text>
+                
+                {/* Filled text (appears after stroke animation) */}
+                <text
+                  x="10"
+                  y="45"
+                  fontSize="48"
+                  fontWeight="900"
+                  fontFamily="'Fredoka', 'Nunito', 'Poppins', sans-serif"
+                  fill={darkMode ? '#FFFFFF' : '#111827'}
+                  style={{
+                    opacity: isLoaded ? 1 : 0,
+                    animation: isLoaded ? 'fadeInFill 0.5s ease-out 1.8s forwards' : 'none',
+                  }}
+                >
+                  VYBE
+                </text>
+              </svg>
             </div>
           </Link>
 
@@ -287,41 +343,28 @@ export default function NavbarOptimized() {
               <NavLink to="/customize" icon={FiEdit} darkMode={darkMode}>Customize</NavLink>
             </div>
 
-            {/* Theme Toggle */}
-            <div className={isLoaded ? 'navbar-item-enter' : ''}>
-              <button
-                onClick={toggleTheme}
-                className={`p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
-                  darkMode
-                    ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-gold border-moon-gold/20 hover:border-moon-gold/50'
-                    : 'bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 hover:border-purple-400'
-                }`}
-                style={{
-                  transform: 'translateZ(0)',
-                  willChange: 'transform',
-                }}
-              >
-                {darkMode ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
-              </button>
-            </div>
+            {/* Admin Link - Only for admins */}
+            {isAuthenticated && user?.role === 'admin' && (
+              <div className={isLoaded ? 'navbar-item-enter' : ''}>
+                <NavLink to="/admin" icon={FiUser} darkMode={darkMode}>Admin</NavLink>
+              </div>
+            )}
 
             {/* Cart Button */}
             <div className={isLoaded ? 'navbar-item-enter' : ''}>
               <Link 
                 to="/cart" 
-                className={`relative p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
+                aria-label="Cart"
+                title="Cart"
+                className={`relative h-10 w-10 inline-flex items-center justify-center leading-none p-2 rounded-xl transition-all duration-300 border active:scale-95 transform-gpu will-change-transform ${
                   darkMode
                     ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-silver border-moon-gold/20 hover:border-moon-gold/50'
                     : 'bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 hover:border-purple-400'
                 }`}
-                style={{
-                  transform: 'translateZ(0)',
-                  willChange: 'transform',
-                }}
               >
                 <FiShoppingCart className="w-4 h-4" />
                 {itemCount > 0 && isLoaded && (
-                  <span className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold navbar-cart-badge ${
+                  <span className={`pointer-events-none absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold navbar-cart-badge ${
                     darkMode
                       ? 'bg-moon-gold text-moon-night'
                       : 'bg-purple-600 text-white'
@@ -336,7 +379,7 @@ export default function NavbarOptimized() {
             <div className={isLoaded ? 'navbar-item-enter' : ''}>
               {isAuthenticated ? (
                 <div className="relative group">
-                  <button className={`p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
+                  <button className={`h-10 w-10 inline-flex items-center justify-center leading-none p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
                     darkMode
                       ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-silver border-moon-gold/20 hover:border-moon-gold/50'
                       : 'bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 hover:border-purple-400'
@@ -414,8 +457,25 @@ export default function NavbarOptimized() {
             </div>
           </div>
 
-          {/* Mobile Menu Button - CSS Animation */}
-          <div className={`md:hidden ${!isLoaded ? 'navbar-hidden' : 'navbar-menu-button'}`}>
+          {/* Mobile Menu Button & Theme Toggle - CSS Animation */}
+          <div className={`md:hidden flex items-center gap-2 ${!isLoaded ? 'navbar-hidden' : 'navbar-menu-button'}`}>
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
+                darkMode
+                  ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-gold border-moon-gold/20 hover:border-moon-gold/50'
+                  : 'bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 hover:border-purple-400'
+              }`}
+              style={{
+                transform: 'translateZ(0)',
+                willChange: 'transform',
+              }}
+            >
+              {darkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
+            </button>
+
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
@@ -467,6 +527,11 @@ export default function NavbarOptimized() {
                       <MobileNavLink to="/my-orders" icon={FiPackage} darkMode={darkMode} onClick={() => setMobileMenuOpen(false)}>
                         My Orders
                       </MobileNavLink>
+                      {user?.role === 'admin' && (
+                        <MobileNavLink to="/admin" icon={FiUser} darkMode={darkMode} onClick={() => setMobileMenuOpen(false)}>
+                          👑 Admin Panel
+                        </MobileNavLink>
+                      )}
                       <button
                         onClick={() => {
                           handleLogout();

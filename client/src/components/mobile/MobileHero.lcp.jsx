@@ -91,17 +91,41 @@ export default function MobileHeroLCP({ darkMode }) {
         <div className="mb-6">
           <Link
             to="/products"
-            className={`inline-flex items-center gap-3 px-10 py-5 text-lg font-bold rounded-full transition-transform active:scale-95 ${
+            className={`hero-cta-button inline-flex items-center gap-3 px-10 py-5 text-lg font-bold rounded-full transition-all duration-300 transform-gpu active:scale-95 ${
               darkMode
-                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl hover:shadow-2xl active:shadow-lg'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-xl hover:shadow-2xl active:shadow-lg'
             }`}
             style={{
               boxShadow: darkMode
-                ? '0 10px 30px rgba(139, 92, 246, 0.4)'
-                : '0 10px 30px rgba(147, 51, 234, 0.3)',
+                ? '0 10px 40px rgba(139, 92, 246, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.2)'
+                : '0 10px 40px rgba(147, 51, 234, 0.4), 0 0 0 1px rgba(147, 51, 234, 0.2)',
               transform: 'translateZ(0)',
-              willChange: 'transform',
+              willChange: 'transform, box-shadow',
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.transform = 'scale(0.95) translateZ(0)';
+              e.currentTarget.style.boxShadow = darkMode
+                ? '0 5px 20px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.3)'
+                : '0 5px 20px rgba(147, 51, 234, 0.3), 0 0 0 1px rgba(147, 51, 234, 0.3)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'scale(1) translateZ(0)';
+              e.currentTarget.style.boxShadow = darkMode
+                ? '0 10px 40px rgba(139, 92, 246, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.2)'
+                : '0 10px 40px rgba(147, 51, 234, 0.4), 0 0 0 1px rgba(147, 51, 234, 0.2)';
+            }}
+            onTouchStart={(e) => {
+              e.currentTarget.style.transform = 'scale(0.95) translateZ(0)';
+              e.currentTarget.style.boxShadow = darkMode
+                ? '0 5px 20px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(139, 92, 246, 0.3)'
+                : '0 5px 20px rgba(147, 51, 234, 0.3), 0 0 0 1px rgba(147, 51, 234, 0.3)';
+            }}
+            onTouchEnd={(e) => {
+              e.currentTarget.style.transform = 'scale(1) translateZ(0)';
+              e.currentTarget.style.boxShadow = darkMode
+                ? '0 10px 40px rgba(139, 92, 246, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.2)'
+                : '0 10px 40px rgba(147, 51, 234, 0.4), 0 0 0 1px rgba(147, 51, 234, 0.2)';
             }}
           >
             <span>Shop Now</span>

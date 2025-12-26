@@ -117,7 +117,7 @@ export default function Cart() {
     0
   );
   const savings = originalPrice - subtotal;
-  const shipping = subtotal > 1000 ? 0 : 60;
+  const shipping = subtotal > 1000 ? 0 : 130;
   const total = subtotal + shipping;
 
   return (
