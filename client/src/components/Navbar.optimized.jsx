@@ -455,6 +455,26 @@ export default function NavbarOptimized() {
                 </Link>
               )}
             </div>
+
+            {/* Theme Toggle - Desktop */}
+            <div className={isLoaded ? 'navbar-item-enter' : ''}>
+              <button
+                onClick={toggleTheme}
+                className={`h-10 w-10 inline-flex items-center justify-center leading-none p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
+                  darkMode
+                    ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-gold border-moon-gold/20 hover:border-moon-gold/50'
+                    : 'bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 hover:border-purple-400'
+                }`}
+                style={{
+                  transform: 'translateZ(0)',
+                  willChange: 'transform',
+                }}
+                aria-label="Toggle theme"
+                title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {darkMode ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu Button & Theme Toggle - CSS Animation */}
