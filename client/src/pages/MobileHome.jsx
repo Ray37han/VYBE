@@ -60,7 +60,7 @@ export default function MobileHome() {
   };
 
   return (
-    <MobileLayout>
+    <MobileLayout showBottomDock={false}>
       <MobileHero darkMode={darkMode} />
 
       <Suspense fallback={<div className="h-12 w-full" />}>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import BottomDock from './BottomDock';
 
-export default function MobileLayout({ children }) {
+export default function MobileLayout({ children, showBottomDock = true }) {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,9 @@ export default function MobileLayout({ children }) {
           : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
       }`}
       style={{
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 100px)',
+        paddingBottom: showBottomDock
+          ? 'calc(env(safe-area-inset-bottom) + 100px)'
+          : 'env(safe-area-inset-bottom)',
         WebkitOverflowScrolling: 'touch',
       }}
     >
@@ -41,7 +43,7 @@ export default function MobileLayout({ children }) {
       </main>
 
       {/* Bottom Navigation Dock */}
-      <BottomDock darkMode={darkMode} />
+      {showBottomDock && <BottomDock darkMode={darkMode} />}
 
       {/* Global Tap Effect Styles */}
       <style jsx global>{`
