@@ -39,6 +39,11 @@ const productSchema = new mongoose.Schema({
       required: true,
       enum: ['A5', 'A4', 'A3', 'A2', 'A1', '12x18', '16x20', '18x24', '24x36']
     },
+    tier: {
+      type: String,
+      enum: ['Standard', 'Premium'],
+      default: 'Standard'
+    },
     dimensions: {
       type: String  // Changed to String to accept "8.3 x 11.7 inches" format
     },
@@ -56,6 +61,15 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  originalPrice: {
+    type: Number,
+    min: 0
+  },
+  discount: {
+    type: Number,
+    min: 0,
+    max: 100
   },
   customizable: {
     type: Boolean,

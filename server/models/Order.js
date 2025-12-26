@@ -19,6 +19,10 @@ const orderSchema = new mongoose.Schema({
     name: String,
     image: String,
     size: String,
+    tier: {
+      type: String,
+      enum: ['Standard', 'Premium']
+    },
     quantity: {
       type: Number,
       required: true,

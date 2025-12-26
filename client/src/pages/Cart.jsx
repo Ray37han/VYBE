@@ -91,8 +91,31 @@ export default function Cart() {
     );
   }
 
+  const getVariantForCartItem = (item) => {
+    const tier = item.tier || 'Standard';
+    return (
+      item.product.sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier) ||
+      item.product.sizes.find((s) => s.name === item.size && !s.tier) ||
+      null
+    );
+  };
+
+  const getItemPrice = (item) => {
+    const variant = getVariantForCartItem(item);
+    return variant?.price || item.product.basePrice;
+  };
+
+  const getItemOriginalPrice = (item) => {
+    const variant = getVariantForCartItem(item);
+    const price = getItemPrice(item);
+    return variant?.originalPrice || item.product?.originalPrice || Math.round(price / 0.67);
+  };
+
   const subtotal = getTotal();
-  const originalPrice = Math.round(subtotal / 0.67);
+  const originalPrice = items.reduce(
+    (sum, item) => sum + getItemOriginalPrice(item) * item.quantity,
+    0
+  );
   const savings = originalPrice - subtotal;
   const shipping = subtotal > 1000 ? 0 : 60;
   const total = subtotal + shipping;
@@ -114,7 +137,8 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => {
-              const sizePrice = item.product.sizes.find(s => s.name === item.size)?.price || item.product.basePrice;
+              const sizePrice = getItemPrice(item);
+              const strikePrice = getItemOriginalPrice(item);
               return (
                 <div 
                   key={item._id} 
@@ -135,7 +159,7 @@ export default function Cart() {
                     }`}>{item.product.name}</h3>
                     <p className={`text-sm mb-2 ${
                       darkMode ? 'text-moon-silver/60' : 'text-gray-600'
-                    }`}>Size: {item.size}</p>
+                    }`}>Option: {item.tier || 'Standard'} • Size: {item.size}</p>
                     {item.customization && (
                       <div className={`text-xs mb-2 space-y-1 ${
                         darkMode ? 'text-moon-gold/80' : 'text-purple-600'
@@ -159,7 +183,7 @@ export default function Cart() {
                       <span className={`text-xs line-through ${
                         darkMode ? 'text-moon-silver/40' : 'text-gray-400'
                       }`}>
-                        ৳{item.product?.originalPrice || Math.round(sizePrice / 0.67)}
+                        ৳{strikePrice}
                       </span>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                         darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'

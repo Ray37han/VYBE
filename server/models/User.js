@@ -46,6 +46,11 @@ const userSchema = new mongoose.Schema({
       min: 1
     },
     size: String,
+    tier: {
+      type: String,
+      enum: ['Standard', 'Premium'],
+      default: 'Standard'
+    },
     customization: {
       uploadedImageUrl: String,
       uploadedImagePublicId: String,

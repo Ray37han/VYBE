@@ -32,12 +32,13 @@ router.get('/', async (req, res) => {
 // @access  Private
 router.post('/', async (req, res) => {
   try {
-    const { productId, quantity = 1, size, customization } = req.body;
+    const { productId, quantity = 1, size, tier = 'Standard', customization } = req.body;
 
     console.log('=== ADD TO CART DEBUG ===');
     console.log('Request body:', JSON.stringify(req.body, null, 2));
     console.log('Product ID:', productId);
     console.log('Size:', size);
+    console.log('Tier:', tier);
     console.log('Quantity:', quantity);
     console.log('Customization object:', JSON.stringify(customization, null, 2));
     console.log('Customization.uploadedImageUrl:', customization?.uploadedImageUrl);
@@ -52,13 +53,15 @@ router.post('/', async (req, res) => {
         product: productId,
         quantity,
         size,
+        tier,
         customization
       });
     } else {
       // For regular items, check if already in cart and merge
       const existingItem = user.cart.find(
         item => item.product.toString() === productId && 
-                item.size === size && 
+                item.size === size &&
+                (item.tier || 'Standard') === tier &&
                 !item.customization
       );
 
@@ -71,6 +74,7 @@ router.post('/', async (req, res) => {
           product: productId,
           quantity,
           size,
+          tier,
           customization
         });
       }

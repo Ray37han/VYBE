@@ -106,7 +106,13 @@ export default function Checkout() {
           product: item.product._id,
           quantity: item.quantity,
           size: item.size,
-          price: item.product.sizes.find(s => s.name === item.size)?.price || item.product.basePrice
+          tier: item.tier || 'Standard',
+          price:
+            item.product.sizes.find(
+              (s) => s.name === item.size && (s.tier || 'Standard') === (item.tier || 'Standard')
+            )?.price ||
+            item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
+            item.product.basePrice
         })),
         shippingAddress: {
           fullName: `${formData.firstName} ${formData.lastName}`,
@@ -420,7 +426,13 @@ export default function Checkout() {
                       <p className="font-medium">{item.product.name} - {item.size} × {item.quantity}</p>
                     </div>
                     <div className="font-semibold ml-4">
-                      ৳{(item.product.sizes.find(s => s.name === item.size)?.price || item.product.basePrice) * item.quantity}
+                      ৳{(
+                        item.product.sizes.find(
+                          (s) => s.name === item.size && (s.tier || 'Standard') === (item.tier || 'Standard')
+                        )?.price ||
+                        item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
+                        item.product.basePrice
+                      ) * item.quantity}
                     </div>
                   </div>
                 ))}

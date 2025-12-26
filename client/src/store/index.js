@@ -53,14 +53,21 @@ export const useCartStore = create(
         }
         
         const existing = state.items.find(
-          (i) => i.product._id === item.product._id && i.size === item.size && !i.customization
+          (i) =>
+            i.product._id === item.product._id &&
+            i.size === item.size &&
+            (i.tier || 'Standard') === (item.tier || 'Standard') &&
+            !i.customization
         );
         
         if (existing) {
           console.log('Found existing non-custom item - updating quantity');
           return {
             items: state.items.map((i) =>
-              i.product._id === item.product._id && i.size === item.size && !i.customization
+              i.product._id === item.product._id &&
+              i.size === item.size &&
+              (i.tier || 'Standard') === (item.tier || 'Standard') &&
+              !i.customization
                 ? { ...i, quantity: i.quantity + item.quantity }
                 : i
             ),
@@ -88,8 +95,11 @@ export const useCartStore = create(
       getTotal: () => {
         const { items } = get();
         return items.reduce((total, item) => {
-          const sizePrice = item.product.sizes.find((s) => s.name === item.size)?.price || 
-                           item.product.basePrice;
+          const tier = item.tier || 'Standard';
+          const sizePrice =
+            item.product.sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier)?.price ||
+            item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
+            item.product.basePrice;
           return total + sizePrice * item.quantity;
         }, 0);
       },

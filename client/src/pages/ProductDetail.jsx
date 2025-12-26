@@ -15,6 +15,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTier, setSelectedTier] = useState('Standard');
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -71,6 +72,7 @@ export default function ProductDetail() {
         productId: product._id,
         quantity,
         size: selectedSize,
+        tier: selectedTier,
       };
 
       if (isAuthenticated) {
@@ -81,6 +83,7 @@ export default function ProductDetail() {
         product,
         quantity,
         size: selectedSize,
+        tier: selectedTier,
         _id: Date.now().toString(),
       });
       
@@ -114,7 +117,17 @@ export default function ProductDetail() {
 
   if (!product) return null;
 
-  const currentPrice = product.sizes.find(s => s.name === selectedSize)?.price || product.basePrice;
+  const currentVariant = product.sizes.find(
+    (s) => s.name === selectedSize && (s.tier || 'Standard') === selectedTier
+  );
+  const currentPrice = currentVariant?.price || product.basePrice;
+  const currentOriginalPrice =
+    currentVariant?.originalPrice || product.originalPrice || Math.round(currentPrice / 0.67);
+
+  const availableSizes = product.sizes
+    .filter((s) => (s.tier || 'Standard') === selectedTier)
+    .map((s) => s.name);
+  const uniqueAvailableSizes = Array.from(new Set(availableSizes));
 
   return (
     <div className="pt-24 pb-12 md:pb-12 pb-32 min-h-screen">
@@ -197,7 +210,7 @@ export default function ProductDetail() {
                 <>
                   <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
                   <div className="flex flex-col">
-                    <span className="text-2xl text-gray-400 line-through">৳{product.originalPrice || Math.round(currentPrice / 0.67)}</span>
+                    <span className="text-2xl text-gray-400 line-through">৳{currentOriginalPrice}</span>
                     <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
                       33% OFF
                     </span>
@@ -213,6 +226,31 @@ export default function ProductDetail() {
               )}
             </div>
             <p className="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
+
+            {/* Tier Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-3">Select Option:</label>
+              <div className="flex gap-3">
+                {['Standard', 'Premium'].map((tier) => (
+                  <motion.button
+                    key={tier}
+                    onClick={() => {
+                      setSelectedTier(tier);
+                      setSelectedSize('');
+                    }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    className={`flex-1 px-5 py-3 rounded-xl border-2 font-bold transition-all ${
+                      selectedTier === tier
+                        ? 'border-vybe-purple bg-vybe-purple text-white shadow-lg'
+                        : 'border-gray-300 hover:border-vybe-purple'
+                    }`}
+                  >
+                    {tier}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
 
             {/* Size Selection */}
             <div className="mb-6">
@@ -234,31 +272,38 @@ export default function ProductDetail() {
                   ? 'border-vybe-purple/30 bg-vybe-purple/5 shadow-lg shadow-vybe-purple/10' 
                   : 'border-transparent bg-transparent'
               }`}>
-                {product.sizes.map((size) => (
+                {uniqueAvailableSizes.map((sizeName) => {
+                  const sizeVariant = product.sizes.find(
+                    (s) => s.name === sizeName && (s.tier || 'Standard') === selectedTier
+                  );
+                  if (!sizeVariant) return null;
+
+                  return (
                   <motion.button
-                    key={size.name}
-                    onClick={() => setSelectedSize(size.name)}
+                    key={`${selectedTier}-${sizeName}`}
+                    onClick={() => setSelectedSize(sizeName)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className={`px-6 py-3 rounded-full border-2 transition-all ${
-                      selectedSize === size.name
+                      selectedSize === sizeName
                         ? 'border-vybe-purple bg-vybe-purple text-white shadow-lg'
                         : 'border-gray-300 hover:border-vybe-purple hover:shadow-md'
                     }`}
                   >
                     <div className="flex flex-col items-start">
-                      <span className="font-semibold">{size.name}</span>
+                      <span className="font-semibold">{sizeVariant.name}</span>
                       <div className="flex items-center gap-2 text-sm">
-                        <span className={selectedSize === size.name ? 'text-white font-bold' : 'text-vybe-purple font-bold'}>
-                          ৳{size.price}
+                        <span className={selectedSize === sizeName ? 'text-white font-bold' : 'text-vybe-purple font-bold'}>
+                          ৳{sizeVariant.price}
                         </span>
                         <span className="text-xs line-through opacity-60">
-                          ৳{size.originalPrice || Math.round(size.price / 0.67)}
+                          ৳{sizeVariant.originalPrice || Math.round(sizeVariant.price / 0.67)}
                         </span>
                       </div>
                     </div>
                   </motion.button>
-                ))}
+                  );
+                })}
               </div>
               {!selectedSize && (
                 <motion.p 
