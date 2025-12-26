@@ -195,8 +195,8 @@ export default function Login() {
   };
 
   return (
-    <div className="pt-24 pb-12 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="card max-w-md w-full p-8 bg-white dark:bg-gray-800">
+    <div className="pt-24 pb-12 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gradient-to-br dark:from-moon-night dark:via-moon-midnight dark:to-moon-night">
+      <div className="card max-w-md w-full p-8">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
@@ -206,32 +206,32 @@ export default function Login() {
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.3 }}
             >
-              <h1 className="text-3xl font-bold text-center mb-2">Welcome Back</h1>
-              <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
+              <h1 className="text-3xl font-bold text-center mb-2 dark:text-moon-silver">Welcome Back</h1>
+              <p className="text-gray-600 dark:text-moon-silver/70 text-center mb-8">
                 Login to your VYBE account
               </p>
 
               <form onSubmit={handleLoginRequest} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Email</label>
+                  <label className="block text-sm font-semibold mb-2 dark:text-moon-silver">Email</label>
                   <input
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="input-field w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="input-field w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="your@email.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Password</label>
+                  <label className="block text-sm font-semibold mb-2 dark:text-moon-silver">Password</label>
                   <input
                     type="password"
                     required
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="input-field w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="input-field w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="••••••••"
                   />
                 </div>
@@ -280,7 +280,7 @@ export default function Login() {
 
               <form onSubmit={handleVerifyCode} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-center">
+                  <label className="block text-sm font-semibold mb-2 text-center dark:text-moon-silver">
                     Enter Verification Code
                   </label>
                   <input
@@ -290,7 +290,7 @@ export default function Login() {
                     pattern="\d{6}"
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                    className="input-field w-full px-4 py-4 border rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="input-field w-full px-4 py-4 border rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="000000"
                     autoFocus
                   />
@@ -381,7 +381,7 @@ export default function Login() {
 
               <form onSubmit={handleBackupCodeLogin} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-center">
+                  <label className="block text-sm font-semibold mb-2 text-center dark:text-moon-silver">
                     Enter Backup Code
                   </label>
                   <input
@@ -390,7 +390,7 @@ export default function Login() {
                     maxLength={9}
                     value={backupCode}
                     onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
-                    className="input-field w-full px-4 py-4 border rounded-lg text-center text-xl font-mono tracking-wider focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:border-gray-600"
+                    className="input-field w-full px-4 py-4 border rounded-lg text-center text-xl font-mono tracking-wider focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="ABCD-1234"
                     autoFocus
                   />
