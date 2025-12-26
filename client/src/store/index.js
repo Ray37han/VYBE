@@ -100,13 +100,17 @@ export const useCartStore = create(
             item.product.sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier)?.price ||
             item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
             item.product.basePrice;
-          return total + sizePrice * item.quantity;
+          const quantity = Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 1;
+          return total + sizePrice * quantity;
         }, 0);
       },
       
       getItemCount: () => {
         const { items } = get();
-        return items.reduce((count, item) => count + item.quantity, 0);
+        return items.reduce((count, item) => {
+          const quantity = Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 1;
+          return count + quantity;
+        }, 0);
       },
     }),
     {
