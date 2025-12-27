@@ -70,8 +70,8 @@ const isOriginAllowed = (origin) => {
   return allowedOrigins.includes(origin);
 };
 
-app.use(cors({
-  origin: function(origin, callback) {
+const corsOptions = {
+  origin: function (origin, callback) {
     if (isOriginAllowed(origin)) {
       callback(null, true);
     } else {
@@ -82,9 +82,9 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'Cookie', 
+    'Content-Type',
+    'Authorization',
+    'Cookie',
     'X-Requested-With',
     'Accept',
     'Origin',
@@ -93,7 +93,6 @@ app.use(cors({
     'Cache-Control',
     'X-Mx-ReqToken',
     'Keep-Alive',
-    'X-Requested-With',
     'If-Modified-Since',
     'X-Device-Type', // Custom header for device detection
     'X-App-Version' // Custom header for app version tracking
@@ -102,10 +101,12 @@ app.use(cors({
   maxAge: 86400, // 24 hours
   preflightContinue: false,
   optionsSuccessStatus: 204
-}));
+};
 
-// Handle preflight requests
-app.options('*', cors());
+app.use(cors(corsOptions));
+
+// Handle preflight requests with the SAME config (important for credentials)
+app.options('*', cors(corsOptions));
 
 // Compression middleware - must come before routes
 app.use(compression({
