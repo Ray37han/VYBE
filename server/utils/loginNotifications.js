@@ -190,8 +190,7 @@ export const sendLoginNotification = async (user, req, loginMethod = 'otp') => {
           </table>
         </body>
         </html>
-      `
-    };
+      `;
 
     const result = await sendEmail({
       from: process.env.RESEND_FROM || 'VYBE Security <security@vybebd.store>',
@@ -363,8 +362,7 @@ export const sendSuspiciousLoginAlert = async (user, req, reason) => {
           </table>
         </body>
         </html>
-      `
-    };
+      `;
 
     const result = await sendEmail({
       from: process.env.RESEND_FROM || 'VYBE Security <security@vybebd.store>',
