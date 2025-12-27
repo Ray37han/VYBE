@@ -1,5 +1,5 @@
 // Login Notification Email Service
-import { createTransporter } from './emailVerification.js';
+import { sendEmail } from './emailVerification.js';
 import { parseUserAgent } from './deviceFingerprint.js';
 
 /**
@@ -15,19 +15,13 @@ export const sendLoginNotification = async (user, req, loginMethod = 'otp') => {
       timeZone: 'Asia/Dhaka'
     });
 
-    const transporter = await createTransporter();
-
     const loginMethodText = {
       'otp': 'Email Verification Code',
       'backup-code': 'Backup Code',
       'trusted-device': 'Trusted Device'
     };
 
-    const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'VYBE'}" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: '🔐 New Login to Your VYBE Account',
-      html: `
+    const htmlTemplate = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -199,12 +193,14 @@ export const sendLoginNotification = async (user, req, loginMethod = 'otp') => {
       `
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const result = await sendEmail({
+      from: process.env.RESEND_FROM || 'VYBE Security <security@vybebd.store>',
+      to: user.email,
+      subject: '🔐 New Login to Your VYBE Account',
+      html: htmlTemplate
+    });
     
-    return {
-      success: true,
-      messageId: info.messageId
-    };
+    return result;
   } catch (error) {
     console.error('Error sending login notification:', error);
     // Don't fail login if notification email fails
@@ -228,13 +224,7 @@ export const sendSuspiciousLoginAlert = async (user, req, reason) => {
       timeZone: 'Asia/Dhaka'
     });
 
-    const transporter = await createTransporter();
-
-    const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'VYBE'} Security" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: '🚨 Suspicious Login Attempt Detected',
-      html: `
+    const htmlTemplate = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -376,12 +366,14 @@ export const sendSuspiciousLoginAlert = async (user, req, reason) => {
       `
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const result = await sendEmail({
+      from: process.env.RESEND_FROM || 'VYBE Security <security@vybebd.store>',
+      to: user.email,
+      subject: '🚨 Suspicious Login Attempt Detected',
+      html: htmlTemplate
+    });
     
-    return {
-      success: true,
-      messageId: info.messageId
-    };
+    return result;
   } catch (error) {
     console.error('Error sending suspicious login alert:', error);
     return {

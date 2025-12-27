@@ -1,94 +1,52 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import crypto from 'crypto';
 import User from '../models/User.js';
+
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * Generate a secure 6-digit verification code
  */
 export const generateVerificationCode = () => {
-  // Generate a cryptographically secure random number
   const buffer = crypto.randomBytes(3);
   const code = parseInt(buffer.toString('hex'), 16) % 1000000;
-  // Pad with zeros if necessary to ensure 6 digits
   return code.toString().padStart(6, '0');
 };
 
 /**
- * Create Nodemailer transporter
- * Supports Gmail, SendGrid, or custom SMTP
+ * Send any email via Resend (generic helper)
+ * @param {Object} options - Email options { to, subject, html, from }
+ * @returns {Object} { success, data/error }
  */
-export const createTransporter = () => {
-  // Check if using Gmail
-  if (process.env.EMAIL_SERVICE === 'gmail') {
-    const gmailPort = Number(process.env.EMAIL_PORT) || 587; // default to STARTTLS
-    const useSsl = gmailPort === 465;
-    return nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: gmailPort,
-      secure: useSsl, // false for 587 (STARTTLS), true for 465 (SSL)
-      requireTLS: !useSsl, // force STARTTLS when using 587
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS // Use App Password for Gmail
-      },
-      pool: false,
-      connectionTimeout: 15000,
-      greetingTimeout: 10000,
-      socketTimeout: 20000,
-      // Force IPv4 (Render sometimes struggles with IPv6 SMTP endpoints)
-      family: 4,
-      tls: {
-        minVersion: 'TLSv1.2'
-      }
-    });
-  }
-  
-  // Brevo / Sendinblue SMTP
-  if (process.env.EMAIL_SERVICE === 'brevo') {
-    const brevoPort = Number(process.env.EMAIL_PORT) || 587;
-    const useSsl = brevoPort === 465;
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-      port: brevoPort,
-      secure: useSsl,
-      requireTLS: !useSsl,
-      auth: {
-        user: process.env.EMAIL_USER, // usually your Brevo login email
-        pass: process.env.EMAIL_PASS  // Brevo SMTP key
-      },
-      pool: false,
-      connectionTimeout: 15000,
-      greetingTimeout: 10000,
-      socketTimeout: 20000,
-      family: 4,
-      tls: {
-        minVersion: 'TLSv1.2'
-      }
-    });
-  }
-
-  // Check if using SendGrid
-  if (process.env.EMAIL_SERVICE === 'sendgrid') {
-    return nodemailer.createTransport({
-      host: 'smtp.sendgrid.net',
-      port: 587,
-      auth: {
-        user: 'apikey',
-        pass: process.env.SENDGRID_API_KEY
-      }
-    });
-  }
-
-  // Default: Custom SMTP
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: process.env.EMAIL_PORT || 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
+export const sendEmail = async ({ to, subject, html, from }) => {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.error('❌ RESEND_API_KEY is not configured');
+      return { success: false, error: 'Email service not configured' };
     }
-  });
+
+    const sender = from || process.env.RESEND_FROM || 'VYBE Security <security@vybebd.store>';
+    const recipients = Array.isArray(to) ? to : [to];
+
+    const { data, error } = await resend.emails.send({
+      from: sender,
+      to: recipients,
+      subject,
+      html
+    });
+
+    if (error) {
+      console.error('❌ Resend API Error:', error);
+      return { success: false, error: error.message || 'Failed to send email' };
+    }
+
+    console.log('✅ Email sent successfully via Resend:', data?.id);
+    return { success: true, data, messageId: data?.id };
+  } catch (err) {
+    console.error('❌ Unexpected email error:', err);
+    return { success: false, error: err.message || 'Email send failed' };
+  }
 };
 
 /**
@@ -96,14 +54,15 @@ export const createTransporter = () => {
  * @param {string} userId - MongoDB User ID
  * @param {string} email - User's email address
  * @param {string} name - User's name
+ * @returns {Object} { success, data/error, expiresAt }
  */
 export const sendVerificationEmail = async (userId, email, name, preGeneratedCode = null, preGeneratedExpires = null) => {
   try {
-    // Generate or reuse pre-generated code
+    // Generate or use pre-generated code
     const verificationCode = preGeneratedCode || generateVerificationCode();
-    const codeExpires = preGeneratedExpires || new Date(Date.now() + 5 * 60 * 1000);
+    const codeExpires = preGeneratedExpires || new Date(Date.now() + 10 * 60 * 1000);
 
-    // Only update DB if we generated the code here
+    // Update user with verification code (only if we generated it)
     if (!preGeneratedCode) {
       await User.findByIdAndUpdate(userId, {
         verificationCode,
@@ -111,173 +70,151 @@ export const sendVerificationEmail = async (userId, email, name, preGeneratedCod
       });
     }
 
-    // Create transporter
-    const transporter = createTransporter();
-
-    // Email content
-    const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'VYBE'}" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: '🔐 Your VYBE Login Verification Code',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              line-height: 1.6;
-              color: #333;
-              background-color: #f4f4f4;
-              margin: 0;
-              padding: 0;
-            }
-            .container {
-              max-width: 600px;
-              margin: 40px auto;
-              background: white;
-              border-radius: 12px;
-              overflow: hidden;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            .header {
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              padding: 30px;
-              text-align: center;
-            }
-            .header h1 {
-              margin: 0;
-              font-size: 28px;
-              font-weight: 700;
-            }
-            .content {
-              padding: 40px 30px;
-            }
-            .code-box {
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              font-size: 36px;
-              font-weight: bold;
-              letter-spacing: 8px;
-              text-align: center;
-              padding: 20px;
-              margin: 30px 0;
-              border-radius: 8px;
-              font-family: 'Courier New', monospace;
-            }
-            .warning {
-              background: #fff3cd;
-              border-left: 4px solid #ffc107;
-              padding: 15px;
-              margin: 20px 0;
-              border-radius: 4px;
-            }
-            .warning strong {
-              color: #856404;
-            }
-            .info {
-              background: #e7f3ff;
-              border-left: 4px solid #2196F3;
-              padding: 15px;
-              margin: 20px 0;
-              border-radius: 4px;
-            }
-            .footer {
-              background: #f8f9fa;
-              padding: 20px 30px;
-              text-align: center;
-              color: #6c757d;
-              font-size: 14px;
-            }
-            .button {
-              display: inline-block;
-              padding: 12px 30px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              text-decoration: none;
-              border-radius: 6px;
-              font-weight: 600;
-              margin: 10px 0;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🎨 VYBE</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">Visualize Your Best Essence</p>
-            </div>
-            
-            <div class="content">
-              <h2 style="color: #333; margin-top: 0;">Hello, ${name}! 👋</h2>
-              <p style="font-size: 16px;">You're one step away from accessing your VYBE account.</p>
-              
-              <p style="font-size: 16px;">Your verification code is:</p>
-              
-              <div class="code-box">
-                ${verificationCode}
-              </div>
-              
-              <div class="warning">
-                <strong>⏰ Important:</strong> This code will expire in <strong>5 minutes</strong>. Please enter it soon!
-              </div>
-              
-              <div class="info">
-                <strong>🔒 Security Tips:</strong>
-                <ul style="margin: 10px 0; padding-left: 20px;">
-                  <li>Never share this code with anyone</li>
-                  <li>VYBE staff will never ask for this code</li>
-                  <li>If you didn't request this, please ignore this email</li>
-                </ul>
-              </div>
-              
-              <p style="margin-top: 30px; color: #6c757d; font-size: 14px;">
-                Having trouble? Contact us at support@vybe.com
-              </p>
-            </div>
-            
-            <div class="footer">
-              <p style="margin: 5px 0;">© ${new Date().getFullYear()} VYBE. All rights reserved.</p>
-              <p style="margin: 5px 0;">This is an automated email. Please do not reply.</p>
-            </div>
+    // Professional HTML email template
+    const htmlTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+          }
+          .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+          }
+          .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .code-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            text-align: center;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+          }
+          .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+          .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎨 VYBE</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Visualize Your Best Essence</p>
           </div>
-        </body>
-        </html>
-      `,
-      text: `
-Hello ${name},
+          
+          <div class="content">
+            <h2 style="color: #333; margin-top: 0;">Hello, ${name}! 👋</h2>
+            <p style="font-size: 16px;">You're one step away from accessing your VYBE account.</p>
+            
+            <p style="font-size: 16px;">Your verification code is:</p>
+            
+            <div class="code-box">
+              ${verificationCode}
+            </div>
+            
+            <div class="warning">
+              <strong>⏰ Important:</strong> This code will expire in <strong>10 minutes</strong>. Please enter it soon!
+            </div>
+            
+            <div class="info">
+              <strong>🔒 Security Tips:</strong>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Never share this code with anyone</li>
+                <li>VYBE staff will never ask for this code</li>
+                <li>If you didn't request this, please ignore this email</li>
+              </ul>
+            </div>
+            
+            <p style="margin-top: 30px; color: #6c757d; font-size: 14px;">
+              Having trouble? Contact us at support@vybebd.store
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p style="margin: 5px 0;">© ${new Date().getFullYear()} VYBE. All rights reserved.</p>
+            <p style="margin: 5px 0;">This is an automated email. Please do not reply.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
 
-Your VYBE login verification code is: ${verificationCode}
+    // Send email using Resend
+    const sender = process.env.RESEND_FROM || 'VYBE Security <security@vybebd.store>';
+    const result = await sendEmail({
+      from: sender,
+      to: email,
+      subject: 'Verify your VYBE Account',
+      html: htmlTemplate
+    });
 
-This code will expire in 5 minutes.
+    if (!result.success) {
+      console.error('❌ Failed to send verification email to:', email);
+      return { success: false, error: result.error };
+    }
 
-If you didn't request this code, please ignore this email.
-
-Security Tips:
-- Never share this code with anyone
-- VYBE staff will never ask for this code
-
-© ${new Date().getFullYear()} VYBE
-      `.trim()
+    console.log(`✅ Verification email sent to ${email}`);
+    return { 
+      success: true, 
+      data: result.data,
+      messageId: result.messageId,
+      expiresAt: codeExpires 
     };
 
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
-    
-    console.log(`✅ Verification email sent to ${email} (Message ID: ${info.messageId})`);
-    
-    return {
-      success: true,
-      messageId: info.messageId,
-      expiresAt: codeExpires
+  } catch (err) {
+    console.error('❌ sendVerificationEmail error:', err);
+    return { 
+      success: false, 
+      error: err.message || 'Failed to send verification email' 
     };
-
-  } catch (error) {
-    console.error('❌ Email sending error:', error);
-    throw new Error(`Failed to send verification email: ${error.message}`);
   }
 };
 

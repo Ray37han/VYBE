@@ -1,19 +1,4 @@
-import nodemailer from 'nodemailer';
-
-// Create transporter
-const transporter = nodemailer.default ? nodemailer.default.createTransport({
-  service: 'gmail', // or use another email service
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Use App Password for Gmail
-  },
-}) : nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+import { sendEmail } from './emailVerification.js';
 
 // Email templates
 const getOrderConfirmationEmail = (order) => {
@@ -222,17 +207,23 @@ const getOrderStatusUpdateEmail = (order, statusUpdate) => {
   `;
 };
 
-// Send email function
-const sendEmail = async (to, subject, html) => {
+// Send email wrapper function
+const sendEmailWrapper = async (to, subject, html) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"VYBE Posters" <${process.env.EMAIL_USER}>`,
+    const result = await sendEmail({
+      from: process.env.RESEND_FROM || 'VYBE Posters <no-reply@vybebd.store>',
       to,
       subject,
       html,
     });
-    console.log('✅ Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    
+    if (result.success) {
+      console.log('✅ Email sent:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } else {
+      console.error('❌ Email sending failed:', result.error);
+      return { success: false, error: result.error };
+    }
   } catch (error) {
     console.error('❌ Email sending failed:', error);
     return { success: false, error: error.message };
@@ -243,13 +234,13 @@ const sendEmail = async (to, subject, html) => {
 const sendOrderConfirmation = async (order, userEmail) => {
   const subject = `Order Confirmation - ${order.orderNumber}`;
   const html = getOrderConfirmationEmail(order);
-  return sendEmail(userEmail, subject, html);
+  return sendEmailWrapper(userEmail, subject, html);
 };
 
 const sendOrderStatusUpdate = async (order, userEmail, statusUpdate) => {
   const subject = `Order Update - ${order.orderNumber}`;
   const html = getOrderStatusUpdateEmail(order, statusUpdate);
-  return sendEmail(userEmail, subject, html);
+  return sendEmailWrapper(userEmail, subject, html);
 };
 
 const getCustomOrderRejectionEmail = (user, order, rejectionReason) => {
@@ -344,12 +335,12 @@ const getCustomOrderRejectionEmail = (user, order, rejectionReason) => {
 const sendCustomOrderRejectionEmail = async (user, order, rejectionReason) => {
   const subject = `Custom Order Revision Required - ${order.orderNumber}`;
   const html = getCustomOrderRejectionEmail(user, order, rejectionReason);
-  return sendEmail(user.email, subject, html);
+  return sendEmailWrapper(user.email, subject, html);
 };
 
 export {
   sendOrderConfirmation,
   sendOrderStatusUpdate,
-  sendEmail,
+  sendEmailWrapper as sendEmail,
   sendCustomOrderRejectionEmail,
 };
