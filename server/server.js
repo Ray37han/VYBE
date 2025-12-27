@@ -169,7 +169,12 @@ app.get('/', (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'VYBE API is running' });
+  res.json({ 
+    status: 'ok', 
+    message: 'VYBE API is running',
+    emailConfigured: !!process.env.EMAIL_USER && !!process.env.EMAIL_PASS,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // API Routes
