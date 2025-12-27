@@ -20,7 +20,7 @@ export const generateVerificationCode = () => {
 export const createTransporter = () => {
   // Check if using Gmail
   if (process.env.EMAIL_SERVICE === 'gmail') {
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -31,7 +31,7 @@ export const createTransporter = () => {
   
   // Check if using SendGrid
   if (process.env.EMAIL_SERVICE === 'sendgrid') {
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
       host: 'smtp.sendgrid.net',
       port: 587,
       auth: {
@@ -42,7 +42,7 @@ export const createTransporter = () => {
   }
 
   // Default: Custom SMTP
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: process.env.EMAIL_PORT || 587,
     secure: false, // true for 465, false for other ports

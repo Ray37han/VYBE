@@ -36,6 +36,8 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:5173',
   'https://vybe-nu.vercel.app',
+  'https://vybebd.store',
+  'https://www.vybebd.store',
   process.env.CLIENT_URL
 ];
 
