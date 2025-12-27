@@ -30,19 +30,11 @@ const generateToken = (id) => {
 };
 
 // @route   POST /api/auth/register
-// @desc    Register new user (sends OTP, does NOT log in)
+// @desc    Register new user
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
-
-    // Validation
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide name, email, and password'
-      });
-    }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -53,48 +45,35 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Generate verification code
-    const verificationCode = generateVerificationCode();
-    const codeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Create user (NOT verified yet)
+    // Create user
     const user = await User.create({
       name,
       email,
       password,
-      phone,
-      isVerified: false,
-      verificationCode,
-      codeExpires
+      phone
     });
 
-    // Send verification email (async, non-blocking)
-    (async () => {
-      try {
-        console.log('📧 Sending registration verification email...');
-        const emailResult = await sendVerificationEmail(
-          user._id,
-          user.email,
-          user.name,
-          verificationCode,
-          codeExpires
-        );
-        console.log('✅ Registration email sent:', emailResult);
-      } catch (emailError) {
-        console.error('❌ Registration email failed:', emailError);
-      }
-    })();
+    // Generate token
+    const token = generateToken(user._id);
 
-    // Return success WITHOUT token (user must verify first)
+    // Set cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Please check your email for verification code.',
-      email: user.email,
-      requiresVerification: true,
-      expiresAt: codeExpires
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      },
+      token
     });
   } catch (error) {
-    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -132,41 +111,6 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
-      });
-    }
-
-    // Check if email is verified
-    if (!user.isVerified) {
-      // Generate new OTP and send
-      const verificationCode = generateVerificationCode();
-      const codeExpires = new Date(Date.now() + 10 * 60 * 1000);
-      
-      user.verificationCode = verificationCode;
-      user.codeExpires = codeExpires;
-      await user.save();
-
-      // Send verification email (async)
-      (async () => {
-        try {
-          await sendVerificationEmail(
-            user._id,
-            user.email,
-            user.name,
-            verificationCode,
-            codeExpires
-          );
-          console.log('✅ Verification email resent for unverified user');
-        } catch (err) {
-          console.error('❌ Failed to resend verification email:', err);
-        }
-      })();
-
-      return res.status(403).json({
-        success: false,
-        message: 'Please verify your email first. A new verification code has been sent.',
-        requiresVerification: true,
-        email: user.email,
-        expiresAt: codeExpires
       });
     }
 
@@ -331,104 +275,8 @@ router.post('/login', loginRateLimiter, async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/verify-email
-// @desc    Verify email after registration
-// @access  Public
-router.post('/verify-email', async (req, res) => {
-  try {
-    const { email, code } = req.body;
-
-    // Validation
-    if (!email || !code) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide email and verification code'
-      });
-    }
-
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    // Check if already verified
-    if (user.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already verified. Please login.'
-      });
-    }
-
-    // Verify code
-    if (user.verificationCode !== code) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid verification code'
-      });
-    }
-
-    // Check expiration
-    if (new Date() > user.codeExpires) {
-      return res.status(401).json({
-        success: false,
-        message: 'Verification code has expired. Please request a new one.'
-      });
-    }
-
-    // Mark as verified and clear verification code
-    user.isVerified = true;
-    user.verificationCode = null;
-    user.codeExpires = null;
-    await user.save();
-
-    // Generate JWT token and log them in
-    const token = generateToken(user._id);
-
-    // Set cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60 * 1000
-    });
-
-    // Log login history
-    user.loginHistory.push({
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.headers['user-agent'],
-      deviceInfo: parseUserAgent(req.headers['user-agent']).deviceName,
-      timestamp: new Date(),
-      success: true,
-      method: 'email-verification'
-    });
-    await user.save();
-
-    res.json({
-      success: true,
-      message: 'Email verified successfully! You are now logged in.',
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isVerified: user.isVerified
-      },
-      token
-    });
-  } catch (error) {
-    console.error('Email verification error:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
-
 // @route   POST /api/auth/verify-code
-// @desc    Step 2: Verify code and complete login (for 2FA)
+// @desc    Step 2: Verify code and complete login
 // @access  Public
 router.post('/verify-code', async (req, res) => {
   try {
@@ -519,70 +367,8 @@ router.post('/verify-code', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/resend-verification
-// @desc    Resend verification code for registration
-// @access  Public
-router.post('/resend-verification', otpRateLimiter, async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide email'
-      });
-    }
-
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    // Check if already verified
-    if (user.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already verified. Please login.'
-      });
-    }
-
-    // Generate new verification code
-    const verificationCode = generateVerificationCode();
-    const codeExpires = new Date(Date.now() + 10 * 60 * 1000);
-
-    user.verificationCode = verificationCode;
-    user.codeExpires = codeExpires;
-    await user.save();
-
-    // Send new verification code
-    const emailResult = await sendVerificationEmail(
-      user._id,
-      user.email,
-      user.name,
-      verificationCode,
-      codeExpires
-    );
-
-    res.json({
-      success: true,
-      message: 'New verification code sent to your email',
-      expiresAt: codeExpires
-    });
-  } catch (error) {
-    console.error('Resend verification error:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
-
 // @route   POST /api/auth/resend-code
-// @desc    Resend verification code (for 2FA login)
+// @desc    Resend verification code
 // @access  Public
 router.post('/resend-code', otpRateLimiter, async (req, res) => {
   try {
