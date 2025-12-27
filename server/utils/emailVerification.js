@@ -20,22 +20,24 @@ export const generateVerificationCode = () => {
 export const createTransporter = () => {
   // Check if using Gmail
   if (process.env.EMAIL_SERVICE === 'gmail') {
+    const gmailPort = Number(process.env.EMAIL_PORT) || 587; // default to STARTTLS
+    const useSsl = gmailPort === 465;
     return nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // Use SSL
+      port: gmailPort,
+      secure: useSsl, // false for 587 (STARTTLS), true for 465 (SSL)
+      requireTLS: !useSsl, // force STARTTLS when using 587
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS // Use App Password for Gmail
       },
       pool: false,
-      connectionTimeout: 10000,
-      greetingTimeout: 8000,
-      socketTimeout: 15000,
+      connectionTimeout: 15000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
       // Force IPv4 (Render sometimes struggles with IPv6 SMTP endpoints)
       family: 4,
       tls: {
-        // Keep strict TLS but allow modern defaults
         minVersion: 'TLSv1.2'
       }
     });
