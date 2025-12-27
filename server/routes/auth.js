@@ -197,7 +197,16 @@ router.post('/login', loginRateLimiter, async (req, res) => {
 
     // Send verification code via email
     try {
+      console.log('🔄 Attempting to send verification email...');
+      console.log('📧 Email config:', {
+        service: process.env.EMAIL_SERVICE,
+        user: process.env.EMAIL_USER,
+        hasPass: !!process.env.EMAIL_PASS
+      });
+      
       const emailResult = await sendVerificationEmail(user._id, user.email, user.name);
+      
+      console.log('✅ Email sent successfully:', emailResult);
       
       res.json({
         success: true,
@@ -208,7 +217,13 @@ router.post('/login', loginRateLimiter, async (req, res) => {
         canRememberDevice: true
       });
     } catch (emailError) {
-      console.error('Email sending failed:', emailError);
+      console.error('❌ Email sending failed:', {
+        error: emailError.message,
+        code: emailError.code,
+        command: emailError.command,
+        response: emailError.response,
+        responseCode: emailError.responseCode
+      });
       
       // If email fails, still allow direct login (fallback)
       const token = generateToken(user._id);
