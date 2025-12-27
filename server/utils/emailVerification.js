@@ -43,6 +43,30 @@ export const createTransporter = () => {
     });
   }
   
+  // Brevo / Sendinblue SMTP
+  if (process.env.EMAIL_SERVICE === 'brevo') {
+    const brevoPort = Number(process.env.EMAIL_PORT) || 587;
+    const useSsl = brevoPort === 465;
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+      port: brevoPort,
+      secure: useSsl,
+      requireTLS: !useSsl,
+      auth: {
+        user: process.env.EMAIL_USER, // usually your Brevo login email
+        pass: process.env.EMAIL_PASS  // Brevo SMTP key
+      },
+      pool: false,
+      connectionTimeout: 15000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
+      family: 4,
+      tls: {
+        minVersion: 'TLSv1.2'
+      }
+    });
+  }
+
   // Check if using SendGrid
   if (process.env.EMAIL_SERVICE === 'sendgrid') {
     return nodemailer.createTransport({
