@@ -59,19 +59,19 @@ export const createTransporter = () => {
  * @param {string} email - User's email address
  * @param {string} name - User's name
  */
-export const sendVerificationEmail = async (userId, email, name) => {
+export const sendVerificationEmail = async (userId, email, name, preGeneratedCode = null, preGeneratedExpires = null) => {
   try {
-    // Generate 6-digit verification code
-    const verificationCode = generateVerificationCode();
-    
-    // Set expiration time (5 minutes from now)
-    const codeExpires = new Date(Date.now() + 5 * 60 * 1000);
+    // Generate or reuse pre-generated code
+    const verificationCode = preGeneratedCode || generateVerificationCode();
+    const codeExpires = preGeneratedExpires || new Date(Date.now() + 5 * 60 * 1000);
 
-    // Update user in database
-    await User.findByIdAndUpdate(userId, {
-      verificationCode,
-      codeExpires
-    });
+    // Only update DB if we generated the code here
+    if (!preGeneratedCode) {
+      await User.findByIdAndUpdate(userId, {
+        verificationCode,
+        codeExpires
+      });
+    }
 
     // Create transporter
     const transporter = createTransporter();

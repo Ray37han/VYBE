@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
-import { sendVerificationEmail, verifyCode } from '../utils/emailVerification.js';
+import { sendVerificationEmail, verifyCode, generateVerificationCode } from '../utils/emailVerification.js';
 import { otpRateLimiter, loginRateLimiter, resetOtpRateLimit, resetLoginRateLimit } from '../middleware/rateLimiter.js';
 import { 
   generateDeviceFingerprint, 
@@ -195,29 +195,49 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       });
     }
 
-    // Send verification code via email
+    // Send verification code via email (non-blocking send to reduce wait time)
     try {
-      console.log('🔄 Attempting to send verification email...');
-      console.log('📧 Email config:', {
-        service: process.env.EMAIL_SERVICE,
-        user: process.env.EMAIL_USER,
-        hasPass: !!process.env.EMAIL_PASS
+      // 1) Generate and store code fast
+      const verificationCode = generateVerificationCode();
+      const codeExpires = new Date(Date.now() + 5 * 60 * 1000);
+      await User.findByIdAndUpdate(user._id, {
+        verificationCode,
+        codeExpires
       });
-      
-      const emailResult = await sendVerificationEmail(user._id, user.email, user.name);
-      
-      console.log('✅ Email sent successfully:', emailResult);
-      
+
+      // 2) Fire-and-forget email send (don't block response)
+      (async () => {
+        try {
+          console.log('🔄 Attempting to send verification email...');
+          console.log('📧 Email config:', {
+            service: process.env.EMAIL_SERVICE,
+            user: process.env.EMAIL_USER,
+            hasPass: !!process.env.EMAIL_PASS
+          });
+          const emailResult = await sendVerificationEmail(user._id, user.email, user.name, verificationCode, codeExpires);
+          console.log('✅ Email sent successfully:', emailResult);
+        } catch (emailError) {
+          console.error('❌ Email sending failed (async):', {
+            error: emailError.message,
+            code: emailError.code,
+            command: emailError.command,
+            response: emailError.response,
+            responseCode: emailError.responseCode
+          });
+        }
+      })();
+
+      // 3) Respond immediately
       res.json({
         success: true,
         message: 'Verification code sent to your email',
         email: user.email,
-        expiresAt: emailResult.expiresAt,
+        expiresAt: codeExpires,
         requiresVerification: true,
         canRememberDevice: true
       });
     } catch (emailError) {
-      console.error('❌ Email sending failed:', {
+      console.error('❌ Email flow failed before send:', {
         error: emailError.message,
         code: emailError.code,
         command: emailError.command,
