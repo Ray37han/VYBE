@@ -21,10 +21,22 @@ export const createTransporter = () => {
   // Check if using Gmail
   if (process.env.EMAIL_SERVICE === 'gmail') {
     return nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // Use SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS // Use App Password for Gmail
+      },
+      pool: false,
+      connectionTimeout: 10000,
+      greetingTimeout: 8000,
+      socketTimeout: 15000,
+      // Force IPv4 (Render sometimes struggles with IPv6 SMTP endpoints)
+      family: 4,
+      tls: {
+        // Keep strict TLS but allow modern defaults
+        minVersion: 'TLSv1.2'
       }
     });
   }
