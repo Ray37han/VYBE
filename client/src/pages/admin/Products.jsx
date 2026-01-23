@@ -83,7 +83,33 @@ export default function AdminProducts() {
       setLoading(false);
     }
   };
+  const handleExport = async (format) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/admin/products/export?format=${format}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `products-export-${Date.now()}.${format === 'csv' ? 'csv' : 'json'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(`Products exported as ${format.toUpperCase()}!`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export products');
+    }
+  };
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -333,21 +359,50 @@ export default function AdminProducts() {
           >
             Product Management
           </motion.h1>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              resetForm();
-              setShowModal(true);
-            }} 
-            className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl ${
-              darkMode
-                ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-moon-gold/50'
-                : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-purple-500/50'
-            }`}
-          >
-            Add New Product
-          </motion.button>
+          <div className="flex gap-3">
+            {/* Export Buttons */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleExport('json')}
+              className={`px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
+                darkMode
+                  ? 'bg-moon-midnight border-2 border-moon-gold/30 text-moon-gold hover:bg-moon-gold/20'
+                  : 'bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50'
+              }`}
+              title="Export as JSON"
+            >
+              📥 JSON
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleExport('csv')}
+              className={`px-4 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${
+                darkMode
+                  ? 'bg-moon-midnight border-2 border-moon-gold/30 text-moon-gold hover:bg-moon-gold/20'
+                  : 'bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50'
+              }`}
+              title="Export as CSV"
+            >
+              📊 CSV
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                resetForm();
+                setShowModal(true);
+              }} 
+              className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl ${
+                darkMode
+                  ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-moon-gold/50'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-purple-500/50'
+              }`}
+            >
+              Add New Product
+            </motion.button>
+          </div>
         </div>
 
         {/* Products List */}

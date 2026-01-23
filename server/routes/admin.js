@@ -12,12 +12,79 @@ import { sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
 import { invalidateCache } from '../middleware/cache.js';
 import { cacheMiddleware } from '../middleware/cache.js';
 import { paginate, parsePaginationParams } from '../utils/pagination.js';
+import { Parser } from 'json2csv';
 
 const router = express.Router();
 
 // All admin routes require authentication and admin role
 // Device detection helps optimize responses for mobile devices
 router.use(protect, authorize('admin'), detectMobileDevice);
+
+// @route   GET /api/admin/products/export
+// @desc    Export all products as CSV or JSON
+// @access  Private/Admin
+router.get('/products/export', async (req, res) => {
+  try {
+    const { format = 'json' } = req.query;
+    
+    const products = await Product.find({})
+      .select('-reviews -__v')
+      .lean();
+
+    if (format === 'csv') {
+      // Flatten data for CSV
+      const flattenedProducts = products.map(product => ({
+        id: product._id.toString(),
+        name: product.name,
+        description: product.description,
+        category: product.category,
+        basePrice: product.basePrice,
+        stock: product.stock,
+        sold: product.sold || 0,
+        featured: product.featured || false,
+        customizable: product.customizable || false,
+        isActive: product.isActive !== false,
+        // Images as comma-separated publicIds
+        images: product.images?.map(img => img.publicId || img.url).join(';') || '',
+        // Sizes as JSON string
+        sizes: JSON.stringify(product.sizes || []),
+        tags: product.tags?.join(';') || '',
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt
+      }));
+
+      const fields = [
+        'id', 'name', 'description', 'category', 'basePrice', 
+        'stock', 'sold', 'featured', 'customizable', 'isActive',
+        'images', 'sizes', 'tags', 'createdAt', 'updatedAt'
+      ];
+
+      const parser = new Parser({ fields });
+      const csv = parser.parse(flattenedProducts);
+
+      res.header('Content-Type', 'text/csv');
+      res.attachment(`vybe-products-${Date.now()}.csv`);
+      return res.send(csv);
+    } else {
+      // JSON format
+      res.header('Content-Type', 'application/json');
+      res.attachment(`vybe-products-${Date.now()}.json`);
+      return res.json({
+        exportDate: new Date().toISOString(),
+        totalProducts: products.length,
+        platform: 'VYBE',
+        products: products
+      });
+    }
+  } catch (error) {
+    console.error('Export error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to export products',
+      error: error.message
+    });
+  }
+});
 
 // @route   GET /api/admin/dashboard
 // @desc    Get dashboard statistics
