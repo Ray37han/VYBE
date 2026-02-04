@@ -99,7 +99,7 @@
 **Deployment**
 
 ![Vercel](https://img.shields.io/badge/-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
-![Railway](https://img.shields.io/badge/-Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)
+![Render](https://img.shields.io/badge/-Render-46E3B7?style=flat-square&logo=render&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 </td>
@@ -122,7 +122,14 @@
 
 </div>
 
-> 📝 *Replace placeholder images with actual screenshots of your application*
+> 📝 *Replace placeholder images with actual screenshots from [vybebd.store](https://vybebd.store)*
+
+### 🖼️ Product Categories
+- **Football Icons** - Ronaldo, Messi, Neymar, Sergio Ramos
+- **Cars & Supercars** - Porsche GT3 RS, BMW M4, Bugatti, Ford Mustang, Dodge Challenger, Supra
+- **Anime** - One Piece and more
+- **F1 Racing** - Singapore Grand Prix
+- **Music Artists** - The Weeknd
 
 ---
 
@@ -296,9 +303,14 @@ VYBE/
 | Service | Purpose | Status |
 |---------|---------|--------|
 | **Vercel** | Frontend hosting | ✅ Active |
-| **Railway** | Backend hosting | ✅ Active |
+| **Render** | Backend hosting | ✅ Active |
 | **MongoDB Atlas** | Database | ✅ Active |
 | **Cloudinary** | Image storage | ✅ Active |
+
+### 🌐 Live URLs
+- **Website:** [vybebd.store](https://vybebd.store)
+- **Frontend (Vercel):** [vybe-nu.vercel.app](https://vybe-nu.vercel.app)
+- **Backend API:** [vybe-backend-93eu.onrender.com](https://vybe-backend-93eu.onrender.com)
 
 ---
 
