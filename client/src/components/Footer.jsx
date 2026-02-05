@@ -44,57 +44,69 @@ export default function Footer() {
             <p className={`mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Transform your space with personalized art that reflects your unique style.
             </p>
-            <div className="flex space-x-4">
-              <a href="https://www.facebook.com/profile.php?id=61580594942475" target="_blank" rel="noopener noreferrer" className={`transition ${
-                darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
-              }`}>
+            <div className="flex space-x-2">
+              <a href="https://www.facebook.com/profile.php?id=61580594942475" target="_blank" rel="noopener noreferrer" 
+                className={`inline-flex items-center justify-center w-11 h-11 rounded-lg transition ${
+                  darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-purple-600 hover:bg-gray-200'
+                }`}
+                aria-label="Facebook"
+              >
                 <FaFacebook className="w-6 h-6" />
               </a>
-              <a href="https://www.instagram.com/vybebd/" target="_blank" rel="noopener noreferrer" className={`transition ${
-                darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
-              }`}>
+              <a href="https://www.instagram.com/vybebd/" target="_blank" rel="noopener noreferrer" 
+                className={`inline-flex items-center justify-center w-11 h-11 rounded-lg transition ${
+                  darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-purple-600 hover:bg-gray-200'
+                }`}
+                aria-label="Instagram"
+              >
                 <FaInstagram className="w-6 h-6" />
               </a>
-              <a href="#" className={`transition ${
-                darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
-              }`}>
+              <a href="#" 
+                className={`inline-flex items-center justify-center w-11 h-11 rounded-lg transition ${
+                  darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-purple-600 hover:bg-gray-200'
+                }`}
+                aria-label="Twitter"
+              >
                 <FaTwitter className="w-6 h-6" />
               </a>
-              <a href="#" className={`transition ${
-                darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
-              }`}>
+              <a href="#" 
+                className={`inline-flex items-center justify-center w-11 h-11 rounded-lg transition ${
+                  darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-purple-600 hover:bg-gray-200'
+                }`}
+                aria-label="Pinterest"
+              >
                 <FaPinterest className="w-6 h-6" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - Mobile-friendly touch targets */}
           <div>
             <h4 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Quick Links</h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               <li>
-                <Link to="/" className={`transition ${
+                <Link to="/" className={`inline-block py-2 min-h-[44px] transition ${
                   darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
                 }`}>
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/products" className={`transition ${
+                <Link to="/products" className={`inline-block py-2 min-h-[44px] transition ${
                   darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
                 }`}>
                   Shop
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=custom" className={`transition ${
+                <Link to="/products?category=custom" className={`inline-block py-2 min-h-[44px] transition ${
                   darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
                 }`}>
                   Customize
                 </Link>
               </li>
               <li>
-                <Link to="/my-orders" className={`transition ${
+                <Link to="/my-orders" className={`inline-block py-2 min-h-[44px] transition ${
                   darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'
                 }`}>
                   Track Order

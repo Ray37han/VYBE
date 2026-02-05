@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restored Products Gallery - VYBE</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 30px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #333;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: #ff6b6b;
+    }
+    .card img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    .card-info {
+      padding: 15px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #ff6b6b;
+    }
+    .card-date {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .card-id {
+      font-size: 10px;
+      color: #444;
+      word-break: break-all;
+    }
+    .instructions {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto 30px;
+    }
+    .instructions h2 {
+      color: #feca57;
+      margin-bottom: 15px;
+    }
+    .instructions ol {
+      margin-left: 20px;
+      line-height: 1.8;
+    }
+    .instructions code {
+      background: #333;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #48dbfb;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active { display: flex; }
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 40px;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Restored Products Gallery</h1>
+  <p class="subtitle">34 products restored from orphaned Cloudinary images</p>
+  
+  <div class="instructions">
+    <h2>📝 How to Rename These Products</h2>
+    <ol>
+      <li>Look at each image below to identify what poster it is</li>
+      <li>Go to your admin panel at <code>vybebd.store/admin</code></li>
+      <li>Find the product named <code>Restored Poster X</code></li>
+      <li>Edit it with the correct name, description, and category</li>
+      <li>Click the image to view it in full size</li>
+    </ol>
+  </div>
+  
+  <div class="gallery">
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763131857/vybe-products/b3f6pcj0t9kfaxznarn2.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 1</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: b3f6pcj0t9kfaxznarn2</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763133538/vybe-products/c0ejuge4qxe2bnwoqagp.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 2</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: c0ejuge4qxe2bnwoqagp</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763208750/vybe-products/c0rsahsv6mthj612ik0q.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 3</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: c0rsahsv6mthj612ik0q</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763210108/vybe-products/dnkj2xgeeirmfea3ekk5.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 4</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: dnkj2xgeeirmfea3ekk5</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763057480/vybe-products/ecr9uxdlzsh5lqgzn8xe.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 5</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: ecr9uxdlzsh5lqgzn8xe</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763187855/vybe-products/efufrr615j8an5t1f8yl.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 6</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: efufrr615j8an5t1f8yl</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763131161/vybe-products/ehuv2jivithp1uqefqyl.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 7</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: ehuv2jivithp1uqefqyl</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763126870/vybe-products/gfnmy2teuazgzozft6yb.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 8</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: gfnmy2teuazgzozft6yb</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763057919/vybe-products/gocqvoemecrbmmcyzwuh.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 9</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: gocqvoemecrbmmcyzwuh</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763132232/vybe-products/hagigjbjfbfkddykhbh1.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 10</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: hagigjbjfbfkddykhbh1</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763129362/vybe-products/hbpxkaabiiitg4nf20jm.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 11</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: hbpxkaabiiitg4nf20jm</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763208521/vybe-products/igyj4b9soostyhzgnaku.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 12</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: igyj4b9soostyhzgnaku</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763057670/vybe-products/k6mv7yev3nogd3asuhxk.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 13</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: k6mv7yev3nogd3asuhxk</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763059543/vybe-products/ltk85rtw4jiaojttquxo.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 14</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: ltk85rtw4jiaojttquxo</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763126966/vybe-products/m6dwabbnbtxtf4bikzyi.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 15</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: m6dwabbnbtxtf4bikzyi</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763026794/vybe-products/n4pg7skilwqtioofkd5u.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 16</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: n4pg7skilwqtioofkd5u</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763129002/vybe-products/paz6nhvnwgalylq6e6cp.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 17</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: paz6nhvnwgalylq6e6cp</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763129535/vybe-products/q2yqetowvdabykjbqztf.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 18</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: q2yqetowvdabykjbqztf</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763130346/vybe-products/qeaqfdkwir4xnua0fhjo.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 19</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: qeaqfdkwir4xnua0fhjo</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763209806/vybe-products/qpbih96y471tsqzjktqz.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 20</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: qpbih96y471tsqzjktqz</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763209776/vybe-products/r3aegkwqknacpyrace99.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 21</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: r3aegkwqknacpyrace99</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763210175/vybe-products/srnhcijjshqlwrhfmcne.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 22</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: srnhcijjshqlwrhfmcne</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763027608/vybe-products/upqmnxdbnq3cv8lahery.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 23</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: upqmnxdbnq3cv8lahery</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763185896/vybe-products/vpn2l6vtgivqlkuckwof.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 24</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: vpn2l6vtgivqlkuckwof</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763100134/vybe-products/w3gpnnq7grcxvsl6o2ml.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 25</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: w3gpnnq7grcxvsl6o2ml</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763188019/vybe-products/w5e3jut3ijdbla0akmmn.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 26</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: w5e3jut3ijdbla0akmmn</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763132935/vybe-products/wibk2njlmlwvakglsace.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 27</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: wibk2njlmlwvakglsace</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763209193/vybe-products/x6gkukflv0m3lglei8s1.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 28</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: x6gkukflv0m3lglei8s1</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763025933/vybe-products/xiko8cqhbu0dgqmunlgm.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 29</div>
+        <div class="card-date">Created: Nov 13, 2025</div>
+        <div class="card-id">ID: xiko8cqhbu0dgqmunlgm</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763210013/vybe-products/y0vccuwr4z1wcdgrqzhj.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 30</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: y0vccuwr4z1wcdgrqzhj</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763131745/vybe-products/zdnuxzpxuzz2cvgvvbtg.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 31</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: zdnuxzpxuzz2cvgvvbtg</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763209613/vybe-products/zptrnsuudr96qctja0e1.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 32</div>
+        <div class="card-date">Created: Nov 15, 2025</div>
+        <div class="card-id">ID: zptrnsuudr96qctja0e1</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763133779/vybe-products/zwjbhpnm3uhhfmoihxqu.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 33</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: zwjbhpnm3uhhfmoihxqu</div>
+      </div>
+    </div>
+    <div class="card">
+      <img src="https://res.cloudinary.com/dyonj35w3/image/upload/v1763125619/vybe-products/zwsxzgxomergr3kvhnch.jpg" onclick="openModal(this.src)">
+      <div class="card-info">
+        <div class="card-title">Restored Poster 34</div>
+        <div class="card-date">Created: Nov 14, 2025</div>
+        <div class="card-id">ID: zwsxzgxomergr3kvhnch</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal" id="modal">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img id="modal-img" src="">
+  </div>
+  
+  <script>
+    function openModal(src) {
+      document.getElementById('modal-img').src = src;
+      document.getElementById('modal').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>

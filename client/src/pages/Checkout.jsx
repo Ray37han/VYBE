@@ -188,6 +188,10 @@ export default function Checkout() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
+                      autoComplete="given-name"
+                      autoCorrect="off"
+                      spellCheck="false"
+                      autoCapitalize="words"
                       className={`w-full px-4 py-3 rounded-lg border transition-all ${
                         darkMode
                           ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
@@ -207,6 +211,10 @@ export default function Checkout() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
+                      autoComplete="family-name"
+                      autoCorrect="off"
+                      spellCheck="false"
+                      autoCapitalize="words"
                       className={`w-full px-4 py-3 rounded-lg border transition-all ${
                         darkMode
                           ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
@@ -230,6 +238,9 @@ export default function Checkout() {
                     value={formData.streetAddress}
                     onChange={handleInputChange}
                     placeholder="House number and street name"
+                    autoComplete="street-address"
+                    autoCorrect="off"
+                    spellCheck="false"
                     className={`w-full px-4 py-3 rounded-lg border transition-all ${
                       darkMode
                         ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold'
@@ -338,6 +349,9 @@ export default function Checkout() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="01XXXXXXXXX"
+                    autoComplete="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     className={`w-full px-4 py-3 rounded-lg border transition-all ${
                       darkMode
                         ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold'
@@ -359,6 +373,7 @@ export default function Checkout() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    autoComplete="email"
                     className={`w-full px-4 py-3 rounded-lg border transition-all ${
                       darkMode
                         ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'

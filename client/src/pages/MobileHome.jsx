@@ -89,7 +89,7 @@ export default function MobileHome() {
   );
 }
 
-// ✨ The Attractive, Lag-Free Feature Grid
+// ✨ The Attractive, Lag-Free Feature Grid - 44px+ touch targets
 const FeatureSection = ({ darkMode }) => {
   const features = [
     { icon: '🚀', title: 'Fast Shipping', desc: 'In 3-5 days', link: '/shipping-policy' },
@@ -100,35 +100,35 @@ const FeatureSection = ({ darkMode }) => {
 
   return (
     <section className="px-4 py-8">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {features.map((feature, i) => (
           <Link 
             to={feature.link}
             key={i}
-            className="group relative"
+            className="group relative min-h-[100px]"
           >
             <div 
               className={`
-                h-full p-5 rounded-[24px] border transition-all duration-300
+                h-full p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] border transition-all duration-300
                 active:scale-95 active:shadow-none
                 ${darkMode 
-                  ? 'bg-[#1a1a2e] border-white/10 shadow-[4px_4px_0px_#4c1d95]' 
-                  : 'bg-white border-slate-200 shadow-[4px_4px_0px_#e2e8f0]'
+                  ? 'bg-[#1a1a2e] border-white/10 shadow-[3px_3px_0px_#4c1d95]' 
+                  : 'bg-white border-slate-200 shadow-[3px_3px_0px_#e2e8f0]'
                 }
               `}
             >
-              <div className="text-3xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
+              <div className="text-2xl sm:text-3xl mb-2 sm:mb-3 transform group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
-              <h3 className={`font-bold text-sm mb-1 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+              <h3 className={`font-bold text-xs sm:text-sm mb-0.5 sm:mb-1 ${darkMode ? 'text-white' : 'text-slate-800'}`}>
                 {feature.title}
               </h3>
-              <p className={`text-[10px] font-medium uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p className={`text-[9px] sm:text-[10px] font-medium uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                 {feature.desc}
               </p>
               
               {/* Subtle visual indicator arrow */}
-              <div className={`absolute top-4 right-4 text-xs opacity-0 group-hover:opacity-100 transition-opacity ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+              <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 text-xs opacity-0 group-hover:opacity-100 transition-opacity ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
                 ↗
               </div>
             </div>
@@ -167,11 +167,13 @@ const CTASection = ({ darkMode }) => (
         <Link
           to="/customize"
           className={`
-            inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-white
+            inline-flex items-center justify-center gap-2 sm:gap-3 
+            px-6 sm:px-8 min-h-[48px] py-3 sm:py-4 
+            rounded-full font-bold text-white text-sm sm:text-base
             transform transition-all duration-200 
             active:scale-90 hover:shadow-xl hover:-translate-y-1
             ${darkMode 
-              ? 'bg-gradient-to-r from-purple-600 to-pink-600 shadow-[0_10px_20px_-10px_rgba(168,85,247,0.5)]' 
+              ? 'bg-gradient-to-r from-purple-600 to-pink-600 shadow-[0_10px_20px_-10px_rgba(168,85,247,0.5)]'
               : 'bg-slate-900 shadow-[0_10px_20px_-10px_rgba(0,0,0,0.3)]'
             }
           `}

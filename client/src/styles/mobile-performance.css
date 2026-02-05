@@ -573,6 +573,11 @@ img {
   animation: marquee-scroll 20s linear infinite;
 }
 
+/* Slower marquee for mobile - prevents page wiggling */
+.marquee-animation-slow {
+  animation: marquee-scroll-slow 30s linear infinite;
+}
+
 @keyframes marquee-scroll {
   from {
     transform: translate3d(0, 0, 0);
@@ -581,6 +586,18 @@ img {
   to {
     transform: translate3d(-1000px, 0, 0);
     -webkit-transform: translate3d(-1000px, 0, 0);
+  }
+}
+
+/* Slower animation for mobile - shorter distance, slower speed */
+@keyframes marquee-scroll-slow {
+  from {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-800px, 0, 0);
+    -webkit-transform: translate3d(-800px, 0, 0);
   }
 }
 

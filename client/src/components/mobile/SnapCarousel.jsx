@@ -140,7 +140,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                     </span>
                     
                     {/* Rating */}
-                    {product.rating?.average && (
+                    {product.rating?.average > 0 && (
                       <div className="flex items-center gap-1">
                         <FiStar className={`w-3 h-3 fill-current ${
                           darkMode ? 'text-yellow-400' : 'text-yellow-500'
@@ -148,7 +148,7 @@ export default function SnapCarousel({ title, products, darkMode }) {
                         <span className={`text-xs ${
                           darkMode ? 'text-gray-400' : 'text-gray-600'
                         }`}>
-                          {product.rating.average.toFixed(1)}
+                          {(product.rating?.average || 0).toFixed(1)}
                         </span>
                       </div>
                     )}

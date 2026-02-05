@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn, FiImage } from 'react-icons/fi';
@@ -8,6 +8,8 @@ import { ProductDetailSkeleton } from '../components/LoadingSkeleton';
 import { ScrollReveal } from '../components/PageTransition';
 import { HeartButton } from '../components/AnimatedIcon';
 import MagneticButton from '../components/MagneticButton';
+import { TrustBanner } from '../components/TrustBadges';
+import StickyAddToCart from '../components/StickyAddToCart';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
@@ -24,6 +26,9 @@ export default function ProductDetail() {
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
   const { isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
+  
+  // Ref for sticky cart intersection observer
+  const priceAreaRef = useRef(null);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -195,17 +200,17 @@ export default function ProductDetail() {
                   <FiStar
                     key={i}
                     className={`w-5 h-5 ${
-                      i < Math.floor(product.rating.average) ? 'fill-current' : ''
+                      i < Math.floor(product.rating?.average || 0) ? 'fill-current' : ''
                     }`}
                   />
                 ))}
               </div>
               <span className="ml-2 text-gray-600">
-                {product.rating.average.toFixed(1)} ({product.rating.count} reviews)
+                {(product.rating?.average || 0).toFixed(1)} ({product.rating?.count || 0} reviews)
               </span>
             </div>
             
-            <div className="flex items-center gap-4 mb-6">
+            <div ref={priceAreaRef} className="flex items-center gap-4 mb-6">
               {selectedSize ? (
                 <>
                   <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
@@ -385,6 +390,9 @@ export default function ProductDetail() {
               </motion.button>
             </div>
             
+            {/* Trust Banner - Critical for BD market conversion */}
+            <TrustBanner darkMode={darkMode} />
+            
             {!selectedSize && (
               <motion.div 
                 className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800"
@@ -405,6 +413,17 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+      
+      {/* Sticky Add to Cart - Mobile Only */}
+      <StickyAddToCart
+        product={product}
+        selectedSize={selectedSize}
+        currentPrice={currentPrice}
+        onAddToCart={handleAddToCart}
+        disabled={!selectedSize}
+        darkMode={darkMode}
+        targetRef={priceAreaRef}
+      />
 
       {/* Zoom Modal */}
       <AnimatePresence>

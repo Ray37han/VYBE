@@ -479,10 +479,10 @@ export default function NavbarOptimized() {
 
           {/* Mobile Menu Button & Theme Toggle - CSS Animation */}
           <div className={`md:hidden flex items-center gap-2 ${!isLoaded ? 'navbar-hidden' : 'navbar-menu-button'}`}>
-            {/* Theme Toggle */}
+            {/* Theme Toggle - 44px min touch target */}
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
+              className={`min-w-[44px] min-h-[44px] p-2.5 rounded-xl transition-all duration-300 border active:scale-95 ${
                 darkMode
                   ? 'bg-moon-midnight/50 hover:bg-moon-blue/50 text-moon-gold border-moon-gold/20 hover:border-moon-gold/50'
                   : 'bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 hover:border-purple-400'
@@ -491,14 +491,15 @@ export default function NavbarOptimized() {
                 transform: 'translateZ(0)',
                 willChange: 'transform',
               }}
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {darkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
             </button>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - 44px min touch target with clear hamburger lines */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 rounded-xl transition-all duration-300 border active:scale-95 ${
+              className={`min-w-[44px] min-h-[44px] p-2.5 rounded-xl transition-all duration-300 border active:scale-95 ${
                 darkMode
                   ? 'bg-moon-midnight/50 text-moon-silver border-moon-gold/20'
                   : 'bg-purple-50 text-purple-600 border-purple-200'
@@ -507,8 +508,10 @@ export default function NavbarOptimized() {
                 transform: 'translateZ(0)',
                 willChange: 'transform',
               }}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
+              {mobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -615,21 +618,21 @@ function NavLink({ to, icon: Icon, children, darkMode }) {
   );
 }
 
-// Mobile NavLink Component
+// Mobile NavLink Component - 44px min touch target for accessibility
 function MobileNavLink({ to, icon: Icon, children, darkMode, onClick, badge }) {
   return (
     <Link
       to={to}
       onClick={onClick}
-      className={`flex items-center justify-between px-4 py-3 rounded-xl transition-colors ${
+      className={`flex items-center justify-between px-4 py-3 min-h-[48px] rounded-xl transition-colors ${
         darkMode
-          ? 'text-moon-silver hover:bg-moon-blue/30 hover:text-moon-gold'
-          : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+          ? 'text-moon-silver hover:bg-moon-blue/30 hover:text-moon-gold active:bg-moon-blue/50'
+          : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700 active:bg-purple-100'
       }`}
     >
       <div className="flex items-center space-x-3">
         <Icon className="w-5 h-5" />
-        <span className="font-medium">{children}</span>
+        <span className="font-medium text-base">{children}</span>
       </div>
       {badge > 0 && (
         <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
