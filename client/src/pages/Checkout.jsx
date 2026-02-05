@@ -89,10 +89,6 @@ export default function Checkout() {
       toast.error('Please enter your Bkash transaction ID');
       return false;
     }
-    if (paymentMethod === 'cod' && !transactionId) {
-      toast.error('Please enter your Bkash transaction ID for delivery charge payment');
-      return false;
-    }
     return true;
   };
 
@@ -504,41 +500,12 @@ export default function Checkout() {
                       Cash On Delivery
                     </p>
                     <p className="text-sm mt-1 opacity-80">Pay delivery charge (৳{shippingCost}) now, rest at delivery</p>
+                    <p className="text-sm mt-1 opacity-80">Pay full amount when you receive your order</p>
                   </div>
                 </label>
 
-                {/* COD Advance Payment Form */}
-                {paymentMethod === 'cod' && (
-                  <div className={`ml-8 p-4 rounded-lg ${
-                    darkMode ? 'bg-moon-night/50' : 'bg-gray-50'
-                  }`}>
-                    <p className={`text-sm mb-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>
-                      <strong>Bkash Number:</strong> 01747809138<br/>
-                      Send ৳{shippingCost} (delivery charge) and enter your Transaction ID below:
-                    </p>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      darkMode ? 'text-moon-silver' : 'text-gray-700'
-                    }`}>
-                      Bkash Transaction ID <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={transactionId}
-                      onChange={(e) => setTransactionId(e.target.value)}
-                      placeholder="Enter transaction ID"
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        darkMode
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver'
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                    />
-                  </div>
-                )}
-
                 <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-all ${
                   paymentMethod === 'online'
-                    ? darkMode
-                      ? 'border-moon-gold bg-moon-gold/10'
                       : 'border-blue-500 bg-blue-50'
                     : darkMode
                       ? 'border-moon-gold/30 hover:border-moon-gold/50'
