@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
+// Import images
+import footballImg from './images/FOOTBALL.png';
+import gamesImg from './images/GAMES.png';
+import geminiImg from './images/gemini.jpg';
+
 /**
  * HeroCarousel - Main hero section with rotating slides
  * 
@@ -20,7 +25,7 @@ const slides = [
     subtitle: 'Premium posters that speak your language. Made in Bangladesh, made for you.',
     cta: 'Shop Now',
     ctaLink: '/products',
-    image: '/src/components/images/FOOTBALL.png',
+    image: footballImg,
     gradient: 'from-purple-900/90 via-purple-900/70 to-transparent',
   },
   {
@@ -30,7 +35,7 @@ const slides = [
     subtitle: 'From Anime to Football — find art that defines you.',
     cta: 'Explore Collections',
     ctaLink: '/products',
-    image: '/src/components/images/GAMES.png',
+    image: gamesImg,
     gradient: 'from-indigo-900/90 via-indigo-900/70 to-transparent',
   },
   {
@@ -40,7 +45,7 @@ const slides = [
     subtitle: 'Upload any image. We\'ll turn it into premium wall art.',
     cta: 'Start Creating',
     ctaLink: '/customize',
-    image: '/src/components/images/gemini.jpg',
+    image: geminiImg,
     gradient: 'from-pink-900/90 via-pink-900/70 to-transparent',
   },
 ];

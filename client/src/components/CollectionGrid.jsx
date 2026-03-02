@@ -1,6 +1,16 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+// Import images
+import footballImg from './images/FOOTBALL.png';
+import carsImg from './images/CARS.png';
+import bikesImg from './images/BIKES.png';
+import f1Img from './images/F1.png';
+import seriesImg from './images/SERIES.png';
+import moviesImg from './images/MOVIES.png';
+import musicImg from './images/MUSIC.png';
+import gamesImg from './images/GAMES.png';
+
 /**
  * CollectionGrid Component - "Shop by Passion" Category Grid
  * 
@@ -17,7 +27,7 @@ const collections = [
     id: 'football',
     name: 'Football',
     tagline: 'Icons of the Beautiful Game',
-    image: '/src/components/images/FOOTBALL.png',
+    image: footballImg,
     category: 'football',
     color: 'from-green-500 to-emerald-700',
     emoji: '⚽',
@@ -26,7 +36,7 @@ const collections = [
     id: 'cars',
     name: 'Cars',
     tagline: 'Dream Machines on Walls',
-    image: '/src/components/images/CARS.png',
+    image: carsImg,
     category: 'cars',
     color: 'from-red-600 to-orange-600',
     emoji: '🚗',
@@ -35,7 +45,7 @@ const collections = [
     id: 'bikes',
     name: 'Bikes',
     tagline: 'Ride the Wall Art',
-    image: '/src/components/images/BIKES.png',
+    image: bikesImg,
     category: 'bikes',
     color: 'from-gray-700 to-gray-900',
     emoji: '🏍️',
@@ -44,7 +54,7 @@ const collections = [
     id: 'f1',
     name: 'F1',
     tagline: 'Speed Legends & Racing Icons',
-    image: '/src/components/images/F1.png',
+    image: f1Img,
     category: 'f1',
     color: 'from-red-500 to-red-800',
     emoji: '🏁',
@@ -53,7 +63,7 @@ const collections = [
     id: 'series',
     name: 'Series',
     tagline: 'Your Favourite Shows',
-    image: '/src/components/images/SERIES.png',
+    image: seriesImg,
     category: 'tv-series',
     color: 'from-blue-600 to-indigo-800',
     emoji: '📺',
@@ -62,7 +72,7 @@ const collections = [
     id: 'movies',
     name: 'Movies',
     tagline: 'Cinema on Your Wall',
-    image: '/src/components/images/MOVIES.png',
+    image: moviesImg,
     category: 'movies',
     color: 'from-yellow-600 to-red-700',
     emoji: '🎬',
@@ -71,7 +81,7 @@ const collections = [
     id: 'music',
     name: 'Music',
     tagline: 'Feel the Beat Every Day',
-    image: '/src/components/images/MUSIC.png',
+    image: musicImg,
     category: 'music',
     color: 'from-purple-600 to-pink-600',
     emoji: '🎵',
@@ -80,7 +90,7 @@ const collections = [
     id: 'games',
     name: 'Games',
     tagline: 'Level Up Your Room',
-    image: '/src/components/images/GAMES.png',
+    image: gamesImg,
     category: 'games',
     color: 'from-cyan-500 to-blue-700',
     emoji: '🎮',
