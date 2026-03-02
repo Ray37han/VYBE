@@ -334,6 +334,11 @@ export default function MyOrders() {
                                 📦 Qty: <span className={`font-semibold ${
                                   darkMode ? 'text-moon-silver' : 'text-gray-900'
                                 }`}>{item.quantity}</span>
+                                {item.frame && item.frame !== 'No Frame' && (
+                                  <> | 🖼️ Frame: <span className={`font-semibold ${
+                                    darkMode ? 'text-moon-silver' : 'text-gray-900'
+                                  }`}>{item.frame}</span></>
+                                )}
                               </p>
                               {/* Premium Minimal Price Tag for Items */}
                               <motion.div

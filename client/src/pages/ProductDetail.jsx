@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn, FiImage } from 'react-icons/fi';
 import { productsAPI, cartAPI } from '../api';
 import { useAuthStore, useCartStore } from '../store';
-import { ProductDetailSkeleton } from '../components/LoadingSkeleton';
 import { ScrollReveal } from '../components/PageTransition';
+import LoadingStore from '../components/LoadingStore';
 import { HeartButton } from '../components/AnimatedIcon';
 import MagneticButton from '../components/MagneticButton';
 import { TrustBanner } from '../components/TrustBadges';
@@ -19,6 +19,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedTier, setSelectedTier] = useState('Standard');
   const [selectedSize, setSelectedSize] = useState('');
+  const [selectedFrame, setSelectedFrame] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -78,6 +79,7 @@ export default function ProductDetail() {
         quantity,
         size: selectedSize,
         tier: selectedTier,
+        frame: selectedFrame || 'No Frame',
       };
 
       if (isAuthenticated) {
@@ -89,6 +91,7 @@ export default function ProductDetail() {
         quantity,
         size: selectedSize,
         tier: selectedTier,
+        frame: selectedFrame || 'No Frame',
         _id: Date.now().toString(),
       });
       
@@ -107,17 +110,7 @@ export default function ProductDetail() {
   };
 
   if (loading) {
-    return (
-      <div className={`pt-24 pb-12 min-h-screen ${
-        darkMode
-          ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
-          : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4">
-          <ProductDetailSkeleton darkMode={darkMode} />
-        </div>
-      </div>
-    );
+    return <LoadingStore text="Loading product details" />;
   }
 
   if (!product) return null;
@@ -127,7 +120,7 @@ export default function ProductDetail() {
   );
   const currentPrice = currentVariant?.price || product.basePrice;
   const currentOriginalPrice =
-    currentVariant?.originalPrice || product.originalPrice || Math.round(currentPrice / 0.67);
+    currentVariant?.originalPrice || product.originalPrice || Math.round(currentPrice / 0.80);
 
   const availableSizes = product.sizes
     .filter((s) => (s.tier || 'Standard') === selectedTier)
@@ -191,7 +184,7 @@ export default function ProductDetail() {
               animate={{ opacity: 1, x: 0 }}
               className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-full shadow-lg"
             >
-              🎉 33% OFF - Limited Time!
+              🎉 20% OFF - Limited Time!
             </motion.div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
             <div className="flex items-center mb-4">
@@ -217,7 +210,7 @@ export default function ProductDetail() {
                   <div className="flex flex-col">
                     <span className="text-2xl text-gray-400 line-through">৳{currentOriginalPrice}</span>
                     <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                      33% OFF
+                      20% OFF
                     </span>
                   </div>
                 </>
@@ -302,7 +295,7 @@ export default function ProductDetail() {
                           ৳{sizeVariant.price}
                         </span>
                         <span className="text-xs line-through opacity-60">
-                          ৳{sizeVariant.originalPrice || Math.round(sizeVariant.price / 0.67)}
+                          ৳{sizeVariant.originalPrice || Math.round(sizeVariant.price / 0.80)}
                         </span>
                       </div>
                     </div>
@@ -320,6 +313,55 @@ export default function ProductDetail() {
                   Tip: Select your preferred poster size to see the price
                 </motion.p>
               )}
+            </div>
+
+            {/* Frame Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-3">
+                Choose Frame: <span className="text-xs text-gray-500">(Optional)</span>
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: '', label: 'No Frame', color: 'bg-gray-100 border-2 border-dashed border-gray-300', textColor: 'text-gray-700' },
+                  { value: 'black', label: 'Black', color: 'bg-black', textColor: 'text-white', ring: 'ring-gray-800' },
+                  { value: 'white', label: 'White', color: 'bg-white border-2 border-gray-300', textColor: 'text-gray-900', ring: 'ring-gray-300' },
+                  { value: 'woody', label: 'Woody', color: 'bg-gradient-to-br from-amber-700 to-amber-900', textColor: 'text-white', ring: 'ring-amber-700' }
+                ].map((frame) => (
+                  <motion.button
+                    key={frame.value}
+                    onClick={() => setSelectedFrame(frame.value)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`relative p-4 rounded-xl transition-all ${frame.color} ${
+                      selectedFrame === frame.value
+                        ? `ring-4 ${frame.ring || 'ring-vybe-purple'} shadow-lg`
+                        : 'hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div className={`w-12 h-12 rounded-lg ${frame.color} flex items-center justify-center`}>
+                        {selectedFrame === frame.value && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"
+                          >
+                            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </motion.div>
+                        )}
+                      </div>
+                      <span className={`text-sm font-semibold ${frame.textColor}`}>
+                        {frame.label}
+                      </span>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {selectedFrame ? `✓ ${selectedFrame.charAt(0).toUpperCase() + selectedFrame.slice(1)} frame selected` : 'Poster only (no frame)'}
+              </p>
             </div>
 
             {/* Quantity */}

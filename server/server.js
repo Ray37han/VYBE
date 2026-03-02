@@ -1,7 +1,7 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import os from 'os';
@@ -21,8 +21,6 @@ import customApprovalsRoutes from './routes/customApprovals.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
-
-dotenv.config();
 
 // Set Node environment
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';

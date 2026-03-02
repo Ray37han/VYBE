@@ -53,7 +53,7 @@ export default function Footer() {
               >
                 <FaFacebook className="w-6 h-6" />
               </a>
-              <a href="https://www.instagram.com/vybebd/" target="_blank" rel="noopener noreferrer" 
+              <a href="https://www.instagram.com/vybe.bd/" target="_blank" rel="noopener noreferrer" 
                 className={`inline-flex items-center justify-center w-11 h-11 rounded-lg transition ${
                   darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-800' : 'text-gray-600 hover:text-purple-600 hover:bg-gray-200'
                 }`}

@@ -57,6 +57,7 @@ export const useCartStore = create(
             i.product._id === item.product._id &&
             i.size === item.size &&
             (i.tier || 'Standard') === (item.tier || 'Standard') &&
+            (i.frame || 'No Frame') === (item.frame || 'No Frame') &&
             !i.customization
         );
         
@@ -67,6 +68,7 @@ export const useCartStore = create(
               i.product._id === item.product._id &&
               i.size === item.size &&
               (i.tier || 'Standard') === (item.tier || 'Standard') &&
+              (i.frame || 'No Frame') === (item.frame || 'No Frame') &&
               !i.customization
                 ? { ...i, quantity: i.quantity + item.quantity }
                 : i

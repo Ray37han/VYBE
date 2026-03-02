@@ -9,10 +9,10 @@ import { FiX, FiGift } from 'react-icons/fi';
  */
 
 const announcements = [
-  { id: 1, text: '🔥 MEGA SALE: 33% OFF Everything!', highlight: true },
-  { id: 2, text: '🚚 Cash on Delivery Available Nationwide', highlight: false },
-  { id: 3, text: '💳 Pay with bKash/Nagad - Instant Confirmation', highlight: false },
-  { id: 4, text: '✨ Free Delivery on Orders Over ৳999', highlight: true },
+  { id: 1, text: '🔥 MEGA SALE: 20% OFF Everything!', highlight: true },
+  { id: 2, text: '🚚 Cash on Delivery Available Nationwide', highlight: true },
+  { id: 3, text: '💳 Pay with bKash/Nagad - Instant Confirmation', highlight: true },
+  
 ];
 
 export default function AnnouncementBar() {

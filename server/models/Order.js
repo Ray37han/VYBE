@@ -23,6 +23,11 @@ const orderSchema = new mongoose.Schema({
       type: String,
       enum: ['Standard', 'Premium']
     },
+    frame: {
+      type: String,
+      enum: ['No Frame', 'Black', 'White', 'Woody'],
+      default: 'No Frame'
+    },
     quantity: {
       type: Number,
       required: true,

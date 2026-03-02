@@ -51,6 +51,11 @@ const userSchema = new mongoose.Schema({
       enum: ['Standard', 'Premium'],
       default: 'Standard'
     },
+    frame: {
+      type: String,
+      enum: ['No Frame', 'Black', 'White', 'Woody'],
+      default: 'No Frame'
+    },
     customization: {
       uploadedImageUrl: String,
       uploadedImagePublicId: String,

@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 import Navbar from './components/Navbar.optimized'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
+import VybePageTransitions from './components/VybePageTransitions'
+import './components/PageTransitions.css'
 import Home from './pages/Home'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
@@ -34,75 +36,77 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/products/:id" element={<ProductDetail />} />
-          <Route path="/customize" element={<Customize />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          {/* Protected Routes */}
-          <Route path="/checkout" element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          } />
-          <Route path="/order-success" element={
-            <ProtectedRoute>
-              <OrderSuccess />
-            </ProtectedRoute>
-          } />
-          <Route path="/my-orders" element={
-            <ProtectedRoute>
-              <MyOrders />
-            </ProtectedRoute>
-          } />
+      <main className="flex-grow pt-16">
+        <VybePageTransitions location={location}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/customize" element={<Customize />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Protected Routes */}
+            <Route path="/checkout" element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            } />
+            <Route path="/order-success" element={
+              <ProtectedRoute>
+                <OrderSuccess />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-orders" element={
+              <ProtectedRoute>
+                <MyOrders />
+              </ProtectedRoute>
+            } />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={
-            <ProtectedRoute adminOnly>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/products" element={
-            <ProtectedRoute adminOnly>
-              <AdminProducts />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/orders" element={
-            <ProtectedRoute adminOnly>
-              <AdminOrders />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/users" element={
-            <ProtectedRoute adminOnly>
-              <AdminUsers />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/featured-posters" element={
-            <ProtectedRoute adminOnly>
-              <AdminFeaturedPosters />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/hero-items" element={
-            <ProtectedRoute adminOnly>
-              <AdminHeroItems />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/custom-orders" element={
-            <ProtectedRoute adminOnly>
-              <AdminCustomOrders />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/custom-approvals" element={
-            <ProtectedRoute adminOnly>
-              <AdminCustomApprovals />
-            </ProtectedRoute>
-          } />
-        </Routes>
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/products" element={
+              <ProtectedRoute adminOnly>
+                <AdminProducts />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/orders" element={
+              <ProtectedRoute adminOnly>
+                <AdminOrders />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute adminOnly>
+                <AdminUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/featured-posters" element={
+              <ProtectedRoute adminOnly>
+                <AdminFeaturedPosters />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/hero-items" element={
+              <ProtectedRoute adminOnly>
+                <AdminHeroItems />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/custom-orders" element={
+              <ProtectedRoute adminOnly>
+                <AdminCustomOrders />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/custom-approvals" element={
+              <ProtectedRoute adminOnly>
+                <AdminCustomApprovals />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </VybePageTransitions>
       </main>
       <Footer />
       <BackToTop />

@@ -13,8 +13,16 @@ export default function AdminProducts() {
     name: '',
     description: '',
     category: 'motivational',
-    basePrice: '',
-    sizes: [{ name: 'A4', dimensions: '8.3 x 11.7 inches', price: '' }],
+    basePrice: 520,
+    originalPrice: 650,
+    discount: 20,
+    sizes: [{ 
+      name: 'A4', 
+      dimensions: '8.3 x 11.7 inches', 
+      price: 520, 
+      originalPrice: 650,
+      tier: 'Standard'
+    }],
     images: [],
     stock: '',
     tags: '',
@@ -41,9 +49,9 @@ export default function AdminProducts() {
   ];
 
   const sizeOptions = [
-    { name: 'A5', dimensions: '5.8 x 8.3 inches' },
-    { name: 'A4', dimensions: '8.3 x 11.7 inches' },
-    { name: 'A3', dimensions: '11.7 x 16.5 inches' },
+    { name: 'A5', dimensions: '6 x 8 inches', price: 350, originalPrice: 440 },
+    { name: 'A4', dimensions: '8.3 x 11.7 inches', price: 520, originalPrice: 650 },
+    { name: 'A3', dimensions: '11.7 x 16.5 inches', price: 800, originalPrice: 1000 },
     { name: 'A2', dimensions: '16.5 x 23.4 inches' }
   ];
 
@@ -125,9 +133,17 @@ export default function AdminProducts() {
   };
 
   const addSize = () => {
+    // Default to A5 size when adding new size
+    const defaultSize = sizeOptions[0]; // A5
     setFormData(prev => ({
       ...prev,
-      sizes: [...prev.sizes, { name: '', dimensions: '', price: '' }]
+      sizes: [...prev.sizes, { 
+        name: defaultSize.name, 
+        dimensions: defaultSize.dimensions, 
+        price: defaultSize.price,
+        originalPrice: defaultSize.originalPrice,
+        tier: 'Standard'
+      }]
     }));
   };
 
@@ -716,6 +732,8 @@ export default function AdminProducts() {
                                 handleSizeChange(index, 'name', e.target.value);
                                 if (selected) {
                                   handleSizeChange(index, 'dimensions', selected.dimensions);
+                                  handleSizeChange(index, 'price', selected.price);
+                                  handleSizeChange(index, 'originalPrice', selected.originalPrice);
                                 }
                               }}
                               className={`w-full sm:w-24 px-2 sm:px-3 py-2 text-sm border rounded-lg ${

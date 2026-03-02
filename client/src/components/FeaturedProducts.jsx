@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiShoppingCart, FiStar } from 'react-icons/fi';
 import { productsAPI } from '../api';
+import LoadingStore from './LoadingStore';
 
 /**
  * FeaturedProducts - Showcase best sellers
@@ -36,17 +37,7 @@ export default function FeaturedProducts() {
   };
 
   if (loading) {
-    return (
-      <section className="py-12 sm:py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-gray-200 rounded-2xl aspect-[3/4]" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
+    return <LoadingStore text="Loading featured products" />;
   }
 
   return (
@@ -98,7 +89,7 @@ export default function FeaturedProducts() {
                     />
                     {/* Discount Badge */}
                     <span className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      33% OFF
+                      20% OFF
                     </span>
                     {/* Quick Add Overlay */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -120,7 +111,7 @@ export default function FeaturedProducts() {
                           ৳{product.basePrice}
                         </span>
                         <span className="text-xs text-gray-400 line-through ml-2">
-                          ৳{product.originalPrice || Math.round(product.basePrice / 0.67)}
+                          ৳{product.originalPrice || Math.round(product.basePrice / 0.80)}
                         </span>
                       </div>
                       <div className="flex items-center gap-1 text-xs text-gray-500">

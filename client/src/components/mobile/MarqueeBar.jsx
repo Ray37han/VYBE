@@ -3,11 +3,11 @@ export default function MarqueeBar({ darkMode }) {
     'CUSTOM POSTERS',
     'PREMIUM ART',
     'EXPRESS YOURSELF',
-    'FLAT 33% DISCOUNT',
+    'FLAT 20% DISCOUNT',
     'CUSTOM POSTERS',
     'PREMIUM ART',
     'EXPRESS YOURSELF',
-    'FLAT 33% DISCOUNT',
+    'FLAT 20% DISCOUNT',
   ];
 
   return (

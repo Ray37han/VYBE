@@ -108,7 +108,7 @@ export default function Cart() {
   const getItemOriginalPrice = (item) => {
     const variant = getVariantForCartItem(item);
     const price = getItemPrice(item);
-    return variant?.originalPrice || item.product?.originalPrice || Math.round(price / 0.67);
+    return variant?.originalPrice || item.product?.originalPrice || Math.round(price / 0.80);
   };
 
   const subtotal = getTotal();
@@ -159,7 +159,7 @@ export default function Cart() {
                     }`}>{item.product.name}</h3>
                     <p className={`text-sm mb-2 ${
                       darkMode ? 'text-moon-silver/60' : 'text-gray-600'
-                    }`}>Option: {item.tier || 'Standard'} • Size: {item.size}</p>
+                    }`}>Option: {item.tier || 'Standard'} • Size: {item.size}{item.frame && item.frame !== 'No Frame' ? ` • Frame: ${item.frame}` : ''}</p>
                     {item.customization && (
                       <div className={`text-xs mb-2 space-y-1 ${
                         darkMode ? 'text-moon-gold/80' : 'text-purple-600'
@@ -188,7 +188,7 @@ export default function Cart() {
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                         darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
                       }`}>
-                        33% OFF
+                        20% OFF
                       </span>
                     </div>
                   </div>
@@ -271,7 +271,7 @@ export default function Cart() {
                     🎉 You're saving ৳{savings.toFixed(2)}
                   </p>
                   <p className={`text-xs ${darkMode ? 'text-green-300/70' : 'text-green-600'}`}>
-                    with 33% off!
+                    with 20% off!
                   </p>
                 </div>
               </div>

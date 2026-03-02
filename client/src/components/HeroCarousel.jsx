@@ -20,7 +20,7 @@ const slides = [
     subtitle: 'Premium posters that speak your language. Made in Bangladesh, made for you.',
     cta: 'Shop Now',
     ctaLink: '/products',
-    image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1920&q=85',
+    image: '/src/components/images/FOOTBALL.png',
     gradient: 'from-purple-900/90 via-purple-900/70 to-transparent',
   },
   {
@@ -30,7 +30,7 @@ const slides = [
     subtitle: 'From Anime to Football — find art that defines you.',
     cta: 'Explore Collections',
     ctaLink: '/products',
-    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1920&q=85',
+    image: '/src/components/images/GAMES.png',
     gradient: 'from-indigo-900/90 via-indigo-900/70 to-transparent',
   },
   {
@@ -40,7 +40,7 @@ const slides = [
     subtitle: 'Upload any image. We\'ll turn it into premium wall art.',
     cta: 'Start Creating',
     ctaLink: '/customize',
-    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=1920&q=85',
+    image: '/src/components/images/gemini.jpg',
     gradient: 'from-pink-900/90 via-pink-900/70 to-transparent',
   },
 ];
@@ -135,7 +135,7 @@ export default function HeroCarousel() {
                 <p className="text-lg sm:text-xl text-white/80 mb-8 max-w-lg">
                   {slide.subtitle}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 mt-12 sm:mt-0">
                   <Link
                     to={slide.ctaLink}
                     className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-gray-900 font-bold rounded-full hover:bg-gray-100 transition-all hover:scale-105 min-h-[48px]"

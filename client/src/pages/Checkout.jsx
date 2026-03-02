@@ -103,6 +103,7 @@ export default function Checkout() {
           quantity: item.quantity,
           size: item.size,
           tier: item.tier || 'Standard',
+          frame: item.frame || 'No Frame',
           price:
             item.product.sizes.find(
               (s) => s.name === item.size && (s.tier || 'Standard') === (item.tier || 'Standard')
@@ -506,7 +507,7 @@ export default function Checkout() {
 
                 <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-all ${
                   paymentMethod === 'online'
-                      : 'border-blue-500 bg-blue-50'
+                    ? 'border-blue-500 bg-blue-50'
                     : darkMode
                       ? 'border-moon-gold/30 hover:border-moon-gold/50'
                       : 'border-gray-300 hover:border-blue-300'

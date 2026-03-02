@@ -34,7 +34,7 @@ export default function Newsletter() {
           className="max-w-2xl mx-auto text-center"
         >
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-            Get <span className="text-purple-400">10% OFF</span> Your First Order
+            Get <span className="text-purple-400">20% OFF</span> On Your First Order
           </h2>
           <p className="text-gray-400 mb-8">
             Subscribe to our newsletter for exclusive deals, new arrivals, and art inspiration.

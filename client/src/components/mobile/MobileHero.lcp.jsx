@@ -137,7 +137,7 @@ export default function MobileHeroLCP({ darkMode }) {
         <div className={`mt-10 flex flex-wrap justify-center gap-4 transition-opacity duration-500 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}>
-          {['Fast Shipping', 'Premium Quality', 'Flat 33% Discount'].map((text, i) => (
+          {['Fast Shipping', 'Premium Quality', 'Flat 20% Discount'].map((text, i) => (
             <div
               key={text}
               className={`px-5 py-2 text-sm font-semibold rounded-full border ${

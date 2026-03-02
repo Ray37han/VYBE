@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid, FiX } from 'react-icons/fi';
 import Fuse from 'fuse.js';
 import { productsAPI } from '../api';
-import { ProductGridSkeleton } from '../components/LoadingSkeleton';
-import LoadingSpinner, { FullPageLoader } from '../components/LoadingSpinner';
+import LoadingStore from '../components/LoadingStore';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
 import SpotlightContainer from '../components/SpotlightContainer';
 import MagneticButton from '../components/MagneticButton';
@@ -192,7 +191,7 @@ export default function Products() {
     <>
       {/* Show full page loader on initial load */}
       {initialLoad ? (
-        <FullPageLoader text="Loading Mystical Collection..." />
+        <LoadingStore text="Loading your collection" />
       ) : (
         <div className={`pt-28 pb-12 min-h-screen relative overflow-hidden ${
           darkMode
@@ -376,7 +375,7 @@ export default function Products() {
 
         {/* Products Grid */}
         {loading ? (
-          <ProductGridSkeleton count={8} darkMode={darkMode} />
+          <LoadingStore text="Finding perfect posters" />
         ) : products.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -429,7 +428,7 @@ export default function Products() {
                         alt={product.name}
                         loading="lazy"
                         decoding="async"
-                        className="absolute inset-0 w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300 ease-out relative z-20"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out z-20"
                       />
                       
                       {/* Discount Badge */}
@@ -442,7 +441,7 @@ export default function Products() {
                             : 'bg-gradient-to-r from-green-600 to-emerald-700'
                         }`}
                       >
-                        🎉 33% OFF
+                        🎉 20% OFF
                       </motion.span>
                       
                       {product.customizable && (
@@ -501,13 +500,13 @@ export default function Products() {
                               <span className={`text-sm line-through ${
                                 darkMode ? 'text-moon-silver/40' : 'text-gray-400'
                               }`}>
-                                ৳{product.originalPrice || Math.round(product.basePrice / 0.67)}
+                                ৳{product.originalPrice || Math.round(product.basePrice / 0.80)}
                               </span>
                             </div>
                             <span className={`text-xs font-semibold ${
                               darkMode ? 'text-green-400' : 'text-green-600'
                             }`}>
-                              33% OFF
+                              20% OFF
                             </span>
                           </div>
                           {/* Premium Minimal Accent Line */}

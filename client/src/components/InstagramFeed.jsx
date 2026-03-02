@@ -1,15 +1,36 @@
 import { motion } from 'framer-motion';
 import { FiInstagram } from 'react-icons/fi';
+import { FaFacebook } from 'react-icons/fa';
 
 /**
- * InstagramFeed - Social proof section
+ * InstagramFeed - Social proof section (Facebook & Instagram Posts)
  */
 
-const instagramPosts = [
-  { id: 1, image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&q=80', likes: 234 },
-  { id: 2, image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&q=80', likes: 189 },
-  { id: 3, image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&q=80', likes: 312 },
-  { id: 4, image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&q=80', likes: 156 },
+const socialPosts = [
+  { 
+    id: 1, 
+    type: 'facebook',
+    embedUrl: 'https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fvybe.bd911%2Fposts%2Fpfbid02gmUgvdR1ibqQyL3n4a8r6CzfZHjAvNbYWGHuLDBqBj1mBAWpKpMsfcx6eVdeGijDl&show_text=true&width=500',
+    postUrl: 'https://www.facebook.com/vybe.bd911/posts/pfbid02gmUgvdR1ibqQyL3n4a8r6CzfZHjAvNbYWGHuLDBqBj1mBAWpKpMsfcx6eVdeGijDl'
+  },
+  { 
+    id: 2, 
+    type: 'facebook',
+    embedUrl: 'https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fvybe.bd911%2Fposts%2Fpfbid0kFdMQDy7QAQU8giUC5EA7MmLRWe62UPF9E3dV4bs9zjzMzRHb3W8UKMFEaxBTup9l&show_text=true&width=500',
+    postUrl: 'https://www.facebook.com/vybe.bd911/posts/pfbid0kFdMQDy7QAQU8giUC5EA7MmLRWe62UPF9E3dV4bs9zjzMzRHb3W8UKMFEaxBTup9l'
+  },
+  { 
+    id: 3, 
+    type: 'facebook',
+    embedUrl: 'https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fvybe.bd911%2Fposts%2Fpfbid0pjf3rmzVr8ByPrDkPZdw3Eooxb8ymVnQFRAgoqWS7LwPJ5LNEhGXrh6GVqP9mEaLl&show_text=true&width=500',
+    postUrl: 'https://www.facebook.com/vybe.bd911/posts/pfbid0pjf3rmzVr8ByPrDkPZdw3Eooxb8ymVnQFRAgoqWS7LwPJ5LNEhGXrh6GVqP9mEaLl'
+  },
+  { 
+    id: 4, 
+    type: 'facebook',
+    embedUrl: 'https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fvybe.bd911%2Fposts%2Fpfbid02n6ymnzLJibFC2YJt5aSfyegGrA9AeLcgNdA13GQ69JB3Fgi8ukEAe5i1NHZdVPU6l&show_text=true&width=500',
+    postUrl: 'https://www.facebook.com/vybe.bd911/posts/pfbid02n6ymnzLJibFC2YJt5aSfyegGrA9AeLcgNdA13GQ69JB3Fgi8ukEAe5i1NHZdVPU6l'
+  },
 ];
 
 export default function InstagramFeed() {
@@ -24,46 +45,69 @@ export default function InstagramFeed() {
           className="text-center mb-8"
         >
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Follow Us on <span className="text-pink-500">Instagram</span>
+            Follow Us on <span className="text-pink-500">Instagram</span> & <span className="text-blue-600">Facebook</span>
           </h2>
-          <a
-            href="https://www.instagram.com/vybebd/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-pink-500 font-medium hover:text-pink-600"
-          >
-            <FiInstagram className="w-5 h-5" />
-            @vybebd
-          </a>
+          <div className="flex items-center justify-center gap-6 mt-3">
+            <a
+              href="https://www.instagram.com/vybe.bd/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-pink-500 font-medium hover:text-pink-600 transition"
+            >
+              <FiInstagram className="w-5 h-5" />
+              @vybe.bd
+            </a>
+            <a
+              href="https://www.facebook.com/vybe.bd911/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-blue-600 font-medium hover:text-blue-700 transition"
+            >
+              <FaFacebook className="w-5 h-5" />
+              vybe.bd911
+            </a>
+          </div>
         </motion.div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-          {instagramPosts.map((post, index) => (
-            <motion.a
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {socialPosts.map((post, index) => (
+            <motion.div
               key={post.id}
-              href="https://www.instagram.com/vybebd/"
-              target="_blank"
-              rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group relative aspect-square overflow-hidden rounded-xl"
+              className="group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
-              <img
-                src={post.image}
-                alt={`Instagram post ${post.id}`}
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <div className="text-white text-center">
-                  <FiInstagram className="w-8 h-8 mx-auto mb-2" />
-                  <span className="text-sm font-medium">View on Instagram</span>
-                </div>
+              {/* Facebook Embed */}
+              <div className="w-full h-[400px] sm:h-[450px] overflow-hidden">
+                <iframe
+                  src={post.embedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 'none', overflow: 'hidden' }}
+                  scrolling="no"
+                  frameBorder="0"
+                  allowFullScreen={true}
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  className="w-full h-full"
+                />
               </div>
-            </motion.a>
+              
+              {/* Hover Overlay with View on Facebook */}
+              <a
+                href={post.postUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100"
+              >
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                  <FaFacebook className="w-5 h-5" />
+                  <span className="text-sm font-medium">View on Facebook</span>
+                </div>
+              </a>
+            </motion.div>
           ))}
         </div>
       </div>
