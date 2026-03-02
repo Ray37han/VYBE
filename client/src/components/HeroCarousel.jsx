@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
-// Import images
-import footballImg from './images/FOOTBALL.png';
-import gamesImg from './images/GAMES.png';
+// Import optimized images
+import footballImg from './images/FOOTBALL.jpg';
+import gamesImg from './images/GAMES.jpg';
 import geminiImg from './images/gemini.jpg';
 
 /**

@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-// Import images
-import footballImg from './images/FOOTBALL.png';
-import carsImg from './images/CARS.png';
-import bikesImg from './images/BIKES.png';
-import f1Img from './images/F1.png';
-import seriesImg from './images/SERIES.png';
-import moviesImg from './images/MOVIES.png';
-import musicImg from './images/MUSIC.png';
-import gamesImg from './images/GAMES.png';
+// Import optimized images
+import footballImg from './images/FOOTBALL.jpg';
+import carsImg from './images/CARS.jpg';
+import bikesImg from './images/BIKES.jpg';
+import f1Img from './images/F1.jpg';
+import seriesImg from './images/SERIES.jpg';
+import moviesImg from './images/MOVIES.jpg';
+import musicImg from './images/MUSIC.jpg';
+import gamesImg from './images/GAMES.jpg';
 
 /**
  * CollectionGrid Component - "Shop by Passion" Category Grid
