@@ -116,8 +116,9 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       });
     }
 
-    // Check if email is verified
-    if (!user.emailVerified) {
+    // Check if email is verified (only for new users with emailVerified explicitly set to false)
+    // Existing users (emailVerified = undefined) are allowed to login
+    if (user.emailVerified === false) {
       return res.status(401).json({
         success: false,
         message: 'Please verify your email before logging in',

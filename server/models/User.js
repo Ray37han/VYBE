@@ -75,7 +75,7 @@ const userSchema = new mongoose.Schema({
   // Email verification fields
   emailVerified: {
     type: Boolean,
-    default: false
+    default: undefined // Allow existing users without this field to login
   },
   verificationCode: {
     type: String,
