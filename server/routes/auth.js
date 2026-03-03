@@ -147,17 +147,22 @@ router.post('/login', loginRateLimiter, async (req, res) => {
     // Reset rate limits
     resetLoginRateLimit(req.ip || req.connection.remoteAddress);
 
-    // Log login history
-    if (user.loginHistory) {
-      user.loginHistory.push({
-        ipAddress: req.ip || req.connection.remoteAddress,
-        userAgent: req.headers['user-agent'],
-        deviceInfo: parseUserAgent(req.headers['user-agent']).deviceName,
-        timestamp: new Date(),
-        success: true,
-        method: 'password'
-      });
-      await user.save();
+    // Log login history (optional - don't fail login if this fails)
+    try {
+      if (user.loginHistory) {
+        user.loginHistory.push({
+          ipAddress: req.ip || req.connection.remoteAddress,
+          userAgent: req.headers['user-agent'],
+          deviceInfo: parseUserAgent(req.headers['user-agent']).deviceName,
+          timestamp: new Date(),
+          success: true,
+          method: 'password'
+        });
+        await user.save();
+      }
+    } catch (historyError) {
+      console.error('Failed to save login history:', historyError.message);
+      // Continue with login even if history save fails
     }
 
     res.json({
@@ -173,6 +178,11 @@ router.post('/login', loginRateLimiter, async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: 'Login failed. Please try again.'
