@@ -39,7 +39,7 @@
 
 .border-animation:after {
   content: "";
-  background: linear-gradient(45deg, #ccc 48.9%, #9810fa 49%);
+  background: linear-gradient(45deg, #fffefe 48.9%, #9810fa 49%);
   background-size: 300% 300%;
   border-radius: 10px;
   position: absolute;

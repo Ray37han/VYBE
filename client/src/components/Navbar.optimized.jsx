@@ -8,17 +8,8 @@ import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import { usePageLoad } from '../hooks/usePageLoad';
 import toast from 'react-hot-toast';
 
-// Categories with subcategories for dropdown - organized by main collections
+// Main 8 mother categories for easy navigation
 const categories = [
-  {
-    label: 'All Posters',
-    icon: '🌟',
-    subcategories: [
-      { value: '', label: 'All Collections', icon: '✨' },
-      { value: 'best-selling', label: 'Best Selling', icon: '🔥' },
-      { value: 'motivational', label: 'Motivational', icon: '💪' },
-    ]
-  },
   {
     label: 'Football',
     icon: '⚽',
@@ -81,15 +72,6 @@ const categories = [
     icon: '📺',
     subcategories: [
       { value: 'tv-series', label: 'TV Series', icon: '📺' },
-    ]
-  },
-  {
-    label: 'More Sports',
-    icon: '🏆',
-    subcategories: [
-      { value: 'cricket', label: 'Cricket', icon: '🏏' },
-      { value: 'nba', label: 'NBA', icon: '🏀' },
-      { value: 'ufc', label: 'UFC', icon: '🥊' },
     ]
   },
 ];

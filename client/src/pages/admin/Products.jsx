@@ -35,15 +35,26 @@ export default function AdminProducts() {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
 
+  // 8 Main Mother Categories
   const categories = [
-    // All Posters
-    'motivational', 'best-selling',
-    // Cars & Bikes
-    'bikes', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars',
-    // Sports
-    'football', 'football-motivational', 'cricket', 'ufc', 'nba', 'f1', 'f1-motivational',
-    // Pop Culture
-    'marvel', 'dc', 'movies', 'tv-series', 'music', 'games',
+    // 1. Football
+    'football', 'football-motivational',
+    // 2. Movies
+    'movies', 'marvel', 'dc',
+    // 3. Games
+    'games',
+    // 4. F1
+    'f1', 'f1-motivational',
+    // 5. Cars
+    'cars', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars',
+    // 6. Bikes
+    'bikes',
+    // 7. Music
+    'music',
+    // 8. Series
+    'tv-series',
+    // Additional Categories
+    'motivational', 'best-selling', 'cricket', 'ufc', 'nba',
     // Legacy categories
     'abstract', 'minimalist', 'nature', 'typography', 'custom', 'anime', 'vintage', 'modern', 'other'
   ];
