@@ -13,6 +13,7 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import OrderSuccess from './pages/OrderSuccess'
 import MyOrders from './pages/MyOrders'
+import Account from './pages/Account'
 import Login from './pages/Login'
 import Register from './pages/Register'
 // Admin components - all lowercase 'admin' folder
@@ -61,6 +62,11 @@ function App() {
             <Route path="/my-orders" element={
               <ProtectedRoute>
                 <MyOrders />
+              </ProtectedRoute>
+            } />
+            <Route path="/account" element={
+              <ProtectedRoute>
+                <Account />
               </ProtectedRoute>
             } />
 

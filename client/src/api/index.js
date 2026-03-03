@@ -68,6 +68,7 @@ export const authAPI = {
   loginWithBackup: (data) => api.post('/auth/login-with-backup', data),
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
+  updateProfile: (data) => api.put('/auth/me', data),
   
   // Trusted devices
   getTrustedDevices: () => api.get('/auth/trusted-devices'),

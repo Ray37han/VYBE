@@ -460,6 +460,18 @@ export default function NavbarOptimized() {
                       </div>
                       
                       <Link
+                        to="/account"
+                        className={`block px-4 py-2 text-sm transition-colors ${
+                          darkMode
+                            ? 'text-moon-silver hover:bg-moon-blue/30 hover:text-moon-gold'
+                            : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                        }`}
+                      >
+                        <FiUser className="inline w-4 h-4 mr-2" />
+                        My Account
+                      </Link>
+                      
+                      <Link
                         to="/my-orders"
                         className={`block px-4 py-2 text-sm transition-colors ${
                           darkMode
@@ -594,6 +606,9 @@ export default function NavbarOptimized() {
                 <div className={`pt-2 mt-2 border-t ${darkMode ? 'border-moon-gold/20' : 'border-purple-200'}`}>
                   {isAuthenticated ? (
                     <>
+                      <MobileNavLink to="/account" icon={FiUser} darkMode={darkMode} onClick={() => setMobileMenuOpen(false)}>
+                        My Account
+                      </MobileNavLink>
                       <MobileNavLink to="/my-orders" icon={FiPackage} darkMode={darkMode} onClick={() => setMobileMenuOpen(false)}>
                         My Orders
                       </MobileNavLink>
