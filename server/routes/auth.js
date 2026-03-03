@@ -84,9 +84,10 @@ router.post('/register', async (req, res) => {
       requiresVerification: true
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Registration failed. Please try again.'
     });
   }
 });
@@ -173,7 +174,7 @@ router.post('/login', loginRateLimiter, async (req, res) => {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Login failed. Please try again.'
     });
   }
 });

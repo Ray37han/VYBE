@@ -97,7 +97,7 @@ export default function Register() {
       setExpiresAt(response.data.expiresAt);
       setVerificationCode('');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to resend code');
+      toast.error(error.response?.data?.message || 'Failed to send code');
     } finally {
       setLoading(false);
     }
