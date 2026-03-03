@@ -1,30 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { authAPI } from '../api';
 import { useAuthStore } from '../store';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ButtonSpinner } from '../components/LoadingSpinner';
 
 export default function Login() {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
   
   // Form states
-  const [step, setStep] = useState(1); // 1: Login form, 2: OTP verification, 3: Backup code
+  const [step, setStep] = useState(1); // 1: Login form, 2: Forgot password verification
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [verificationCode, setVerificationCode] = useState('');
-  const [backupCode, setBackupCode] = useState('');
-  const [rememberDevice, setRememberDevice] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [expiresAt, setExpiresAt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
-  const [canRememberDevice, setCanRememberDevice] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Countdown timer for OTP expiration
+  // Countdown timer for code expiration
   useEffect(() => {
     if (expiresAt) {
       const timer = setInterval(() => {
@@ -46,47 +42,57 @@ export default function Login() {
     }
   }, [expiresAt]);
 
-  // Step 1: Handle login and request OTP
-  const handleLoginRequest = async (e) => {
+  // Step 1: Handle direct login
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { data } = await authAPI.login({ ...formData, rememberDevice });
+      const { data } = await authAPI.login(formData);
       
-      // Check if verification is required
-      if (data.requiresVerification) {
-        toast.success('Verification code sent to your email!');
-        setStep(2);
-        setExpiresAt(data.expiresAt);
-        setCanRememberDevice(data.canRememberDevice || false);
-      } else {
-        // Direct login (trusted device or 2FA disabled or fallback)
-        login(data.data, data.token);
-        toast.success(data.message || 'Login successful!');
-        navigate('/');
-      }
+      login(data.data, data.token);
+      toast.success('Login successful!');
+      navigate('/');
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Login failed';
-      toast.error(errorMsg);
+      const errorData = error.response?.data;
       
-      // Show rate limit information if available
-      if (error.response?.status === 429) {
-        const remainingMs = error.response.data.remainingMs;
-        if (remainingMs) {
-          const minutes = Math.ceil(remainingMs / 60000);
-          toast.error(`Please try again in ${minutes} minute${minutes > 1 ? 's' : ''}`);
-        }
+      // Check if email is not verified
+      if (errorData?.emailNotVerified) {
+        toast.error(errorData.message + '. Please check your email for verification code.');
+        // Could redirect to a resend verification page here if needed
+      } else {
+        toast.error(errorData?.message || 'Login failed');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Verify OTP code
-  const handleVerifyCode = async (e) => {
+  // Handle forgot password - send code
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await authAPI.forgotPassword({ email: formData.email });
+      toast.success(response.data.message || 'Password reset code sent to your email!');
+      setStep(2);
+      setExpiresAt(response.data.expiresAt);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send reset code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Verify email code and log in
+  const handleVerifyResetCode = async (e) => {
     e.preventDefault();
-    
+
     if (verificationCode.length !== 6) {
       toast.error('Please enter a 6-digit code');
       return;
@@ -95,16 +101,15 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await authAPI.verifyCode({
+      const response = await authAPI.resetPasswordWithEmail({
         email: formData.email,
-        code: verificationCode,
-        rememberDevice
+        code: verificationCode
       });
 
       login(response.data.data, response.data.token);
       
-      if (response.data.deviceRemembered) {
-        toast.success('Login successful! Device remembered for 30 days.');
+      if (response.data.shouldChangePassword) {
+        toast.success('Logged in! Please change your password in settings.');
       } else {
         toast.success('Login successful!');
       }
@@ -118,53 +123,13 @@ export default function Login() {
     }
   };
 
-  // Step 3: Backup code login
-  const handleBackupCodeLogin = async (e) => {
-    e.preventDefault();
-
-    if (backupCode.length < 8) {
-      toast.error('Please enter a valid backup code');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await authAPI.loginWithBackup({
-        email: formData.email,
-        password: formData.password,
-        backupCode,
-        rememberDevice
-      });
-
-      login(response.data.data, response.data.token);
-      
-      if (response.data.warning) {
-        toast.warning(response.data.warning);
-      }
-      
-      if (response.data.deviceRemembered) {
-        toast.success('Login successful! Device remembered for 30 days.');
-      } else {
-        toast.success('Login successful!');
-      }
-      
-      navigate('/');
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid backup code');
-      setBackupCode('');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Resend verification code
+  // Resend password reset code
   const handleResendCode = async () => {
     setLoading(true);
 
     try {
-      const response = await authAPI.resendCode({ email: formData.email });
-      toast.success('New verification code sent!');
+      const response = await authAPI.forgotPassword({ email: formData.email });
+      toast.success('New code sent to your email!');
       setExpiresAt(response.data.expiresAt);
       setVerificationCode('');
     } catch (error) {
@@ -178,20 +143,8 @@ export default function Login() {
   const handleBackToLogin = () => {
     setStep(1);
     setVerificationCode('');
-    setBackupCode('');
     setExpiresAt(null);
     setTimeLeft(null);
-    setRememberDevice(false);
-  };
-
-  // Switch to backup code login
-  const switchToBackupCode = () => {
-    setStep(3);
-  };
-
-  // Switch back to OTP
-  const switchToOTP = () => {
-    setStep(2);
   };
 
   return (
@@ -207,11 +160,9 @@ export default function Login() {
               transition={{ duration: 0.3 }}
             >
               <h1 className="text-3xl font-bold text-center mb-2 dark:text-moon-silver">Welcome Back</h1>
-              <p className="text-gray-600 dark:text-moon-silver/70 text-center mb-8">
-                Login to your VYBE account
-              </p>
-
-              <form onSubmit={handleLoginRequest} className="space-y-4">
+              <p className="text-gray-600 dark:text-moon-silver/70 text-center mb-8">Login to your account</p>
+              
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2 dark:text-moon-silver">Email</label>
                   <input
@@ -219,7 +170,7 @@ export default function Login() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="input-field w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
+                    className="input-field dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -229,26 +180,37 @@ export default function Login() {
                   <input
                     type="password"
                     required
+                    minLength={6}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="input-field w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
+                    className="input-field dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="••••••••"
                   />
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={loading}
+                    className="text-sm text-purple-600 dark:text-moon-gold hover:underline disabled:opacity-50"
+                  >
+                    Forgot Password?
+                  </button>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full btn-primary bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full btn-primary disabled:opacity-50"
                 >
-                  {loading && <ButtonSpinner darkMode={false} />}
-                  {loading ? 'Processing...' : 'Continue'}
+                  {loading ? 'Logging in...' : 'Login'}
                 </button>
               </form>
 
-              <p className="text-center mt-6 text-gray-600 dark:text-gray-400">
+              <p className="text-center mt-6 text-gray-600 dark:text-moon-silver/70">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-purple-600 dark:text-purple-400 font-semibold hover:underline">
+                <Link to="/register" className="text-vybe-purple dark:text-moon-gold font-semibold hover:underline">
                   Register here
                 </Link>
               </p>
@@ -257,70 +219,55 @@ export default function Login() {
 
           {step === 2 && (
             <motion.div
-              key="otp"
-              initial={{ opacity: 0, x: 20 }}
+              key="forgot-password"
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-moon-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-purple-600 dark:text-moon-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h1 className="text-3xl font-bold mb-2">Check Your Email</h1>
+                <h1 className="text-3xl font-bold mb-2 dark:text-moon-silver">Reset Password</h1>
                 <p className="text-gray-600 dark:text-gray-400">
-                  We've sent a 6-digit verification code to
+                  We've sent a 6-digit code to
                 </p>
                 <p className="text-purple-600 dark:text-purple-400 font-semibold mt-1">
                   {formData.email}
                 </p>
               </div>
 
-              <form onSubmit={handleVerifyCode} className="space-y-4">
+              <form onSubmit={handleVerifyResetCode} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-center dark:text-moon-silver">
-                    Enter Verification Code
+                  <label className="block text-sm font-semibold mb-2 dark:text-moon-silver">
+                    Verification Code
                   </label>
                   <input
                     type="text"
-                    required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     maxLength={6}
-                    pattern="\d{6}"
+                    required
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                    className="input-field w-full px-4 py-4 border rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
+                    className="input-field text-center text-2xl tracking-widest dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
                     placeholder="000000"
                     autoFocus
                   />
                   {timeLeft && (
-                    <p className={`text-sm text-center mt-2 ${timeLeft === 'Expired' ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
-                      {timeLeft === 'Expired' ? '⏰ Code expired' : `⏱️ Expires in ${timeLeft}`}
+                    <p className={`text-sm text-center mt-2 ${timeLeft === 'Expired' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                      {timeLeft === 'Expired' ? 'Code expired' : `Expires in: ${timeLeft}`}
                     </p>
                   )}
                 </div>
 
-                {/* Remember Device Checkbox */}
-                {canRememberDevice && (
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="rememberDevice"
-                      checked={rememberDevice}
-                      onChange={(e) => setRememberDevice(e.target.checked)}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                    />
-                    <label htmlFor="rememberDevice" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                      Remember this device for 30 days (skip OTP)
-                    </label>
-                  </div>
-                )}
-
                 <button
                   type="submit"
                   disabled={loading || verificationCode.length !== 6}
-                  className="w-full btn-primary bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Verifying...' : 'Verify & Login'}
                 </button>
@@ -329,18 +276,10 @@ export default function Login() {
               <div className="mt-6 space-y-3">
                 <button
                   onClick={handleResendCode}
-                  disabled={loading}
-                  className="w-full text-purple-600 dark:text-purple-400 font-semibold hover:underline disabled:opacity-50"
+                  disabled={loading || (timeLeft && timeLeft !== 'Expired')}
+                  className="w-full text-purple-600 dark:text-purple-400 font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   📧 Resend Code
-                </button>
-
-                <button
-                  onClick={switchToBackupCode}
-                  disabled={loading}
-                  className="w-full text-gray-600 dark:text-gray-400 font-semibold hover:underline"
-                >
-                  🔑 Use Backup Code Instead
                 </button>
                 
                 <button
@@ -353,95 +292,7 @@ export default function Login() {
 
               <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <strong>💡 Tip:</strong> Check your spam folder if you don't see the email within a minute.
-                </p>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div
-              key="backup"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                  </svg>
-                </div>
-                <h1 className="text-3xl font-bold mb-2">Backup Code Login</h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Enter one of your backup codes
-                </p>
-              </div>
-
-              <form onSubmit={handleBackupCodeLogin} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-center dark:text-moon-silver">
-                    Enter Backup Code
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={9}
-                    value={backupCode}
-                    onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
-                    className="input-field w-full px-4 py-4 border rounded-lg text-center text-xl font-mono tracking-wider focus:ring-2 focus:ring-purple-500 dark:bg-moon-midnight/50 dark:border-moon-gold/20 dark:text-moon-silver dark:placeholder-moon-silver/40 dark:focus:border-moon-gold dark:focus:ring-moon-gold/50"
-                    placeholder="ABCD-1234"
-                    autoFocus
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                    Format: XXXX-XXXX (e.g., ABCD-1234)
-                  </p>
-                </div>
-
-                {/* Remember Device Checkbox */}
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="rememberDeviceBackup"
-                    checked={rememberDevice}
-                    onChange={(e) => setRememberDevice(e.target.checked)}
-                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                  />
-                  <label htmlFor="rememberDeviceBackup" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Remember this device for 30 days (skip OTP)
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading || backupCode.length < 8}
-                  className="w-full btn-primary bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Verifying...' : 'Login with Backup Code'}
-                </button>
-              </form>
-
-              <div className="mt-6 space-y-3">
-                <button
-                  onClick={switchToOTP}
-                  disabled={loading}
-                  className="w-full text-purple-600 dark:text-purple-400 font-semibold hover:underline"
-                >
-                  📧 Use Email Code Instead
-                </button>
-                
-                <button
-                  onClick={handleBackToLogin}
-                  className="w-full text-gray-600 dark:text-gray-400 font-semibold hover:underline"
-                >
-                  ← Back to Login
-                </button>
-              </div>
-
-              <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                  <strong>⚠️ Warning:</strong> Backup codes are single-use. After using one, generate new codes from your security settings.
+                  💡 Tip: After logging in, you can change your password in account settings
                 </p>
               </div>
             </motion.div>

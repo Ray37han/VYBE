@@ -30,7 +30,7 @@ const generateToken = (id) => {
 };
 
 // @route   POST /api/auth/register
-// @desc    Register new user
+// @desc    Register new user & send verification email
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
@@ -45,33 +45,43 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create user
+    // Create user with email unverified
     const user = await User.create({
       name,
       email,
       password,
-      phone
+      phone,
+      emailVerified: false
     });
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate verification code
+    const verificationCode = generateVerificationCode();
+    const codeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes for registration
 
-    // Set cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    // Save verification code
+    await User.findByIdAndUpdate(user._id, {
+      verificationCode,
+      codeExpires
     });
+
+    // Send verification email
+    const emailResult = await sendVerificationEmail(user._id, user.email, user.name, verificationCode, codeExpires);
+
+    if (!emailResult.success) {
+      // If email fails, delete the user and return error
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email. Please try again.'
+      });
+    }
 
     res.status(201).json({
       success: true,
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      },
-      token
+      message: 'Registration successful! Please check your email to verify your account.',
+      email: user.email,
+      expiresAt: codeExpires,
+      requiresVerification: true
     });
   } catch (error) {
     res.status(500).json({
@@ -82,11 +92,11 @@ router.post('/register', async (req, res) => {
 });
 
 // @route   POST /api/auth/login
-// @desc    Step 1: Request login & send verification code
+// @desc    Login directly with email & password
 // @access  Public
 router.post('/login', loginRateLimiter, async (req, res) => {
   try {
-    const { email, password, rememberDevice } = req.body;
+    const { email, password } = req.body;
 
     // Validation
     if (!email || !password) {
@@ -105,6 +115,15 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       });
     }
 
+    // Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email before logging in',
+        emailNotVerified: true
+      });
+    }
+
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -114,158 +133,42 @@ router.post('/login', loginRateLimiter, async (req, res) => {
       });
     }
 
-    // Check if 2FA is enabled for user
-    if (!user.securitySettings?.twoFactorEnabled) {
-      // 2FA disabled - direct login
-      const token = generateToken(user._id);
-      
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60 * 1000
-      });
+    // Generate token and log user in directly
+    const token = generateToken(user._id);
+    
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000
+    });
 
-      // Log login history
+    // Reset rate limits
+    resetLoginRateLimit(req.ip || req.connection.remoteAddress);
+
+    // Log login history
+    if (user.loginHistory) {
       user.loginHistory.push({
         ipAddress: req.ip || req.connection.remoteAddress,
         userAgent: req.headers['user-agent'],
         deviceInfo: parseUserAgent(req.headers['user-agent']).deviceName,
         timestamp: new Date(),
         success: true,
-        method: 'password-only'
+        method: 'password'
       });
       await user.save();
-
-      return res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        },
-        token,
-        message: 'Login successful (2FA disabled)'
-      });
     }
 
-    // Check if device is trusted
-    const deviceFingerprint = generateDeviceFingerprint(req);
-    const trusted = await isTrustedDevice(user._id, deviceFingerprint);
-
-    if (trusted) {
-      // Skip OTP for trusted device
-      const token = generateToken(user._id);
-      
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60 * 1000
-      });
-
-      // Reset rate limits
-      resetLoginRateLimit(req.ip || req.connection.remoteAddress);
-
-      // Log login history
-      user.loginHistory.push({
-        ipAddress: req.ip || req.connection.remoteAddress,
-        userAgent: req.headers['user-agent'],
-        deviceInfo: parseUserAgent(req.headers['user-agent']).deviceName,
-        timestamp: new Date(),
-        success: true,
-        method: 'trusted-device'
-      });
-      await user.save();
-
-      // Send notification if enabled
-      if (user.securitySettings?.loginAlerts) {
-        sendLoginNotification(user, req, 'trusted-device').catch(console.error);
-      }
-
-      return res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        },
-        token,
-        message: 'Login successful (trusted device)'
-      });
-    }
-
-    // Send verification code via email (non-blocking send to reduce wait time)
-    try {
-      // 1) Generate and store code fast
-      const verificationCode = generateVerificationCode();
-      const codeExpires = new Date(Date.now() + 5 * 60 * 1000);
-      await User.findByIdAndUpdate(user._id, {
-        verificationCode,
-        codeExpires
-      });
-
-      // 2) Fire-and-forget email send (don't block response)
-      (async () => {
-        try {
-          console.log('🔄 Attempting to send verification email...');
-          console.log('📧 Email config:', {
-            service: process.env.EMAIL_SERVICE,
-            user: process.env.EMAIL_USER,
-            hasPass: !!process.env.EMAIL_PASS
-          });
-          const emailResult = await sendVerificationEmail(user._id, user.email, user.name, verificationCode, codeExpires);
-          console.log('✅ Email sent successfully:', emailResult);
-        } catch (emailError) {
-          console.error('❌ Email sending failed (async):', {
-            error: emailError.message,
-            code: emailError.code,
-            command: emailError.command,
-            response: emailError.response,
-            responseCode: emailError.responseCode
-          });
-        }
-      })();
-
-      // 3) Respond immediately
-      res.json({
-        success: true,
-        message: 'Verification code sent to your email',
+    res.json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
         email: user.email,
-        expiresAt: codeExpires,
-        requiresVerification: true,
-        canRememberDevice: true
-      });
-    } catch (emailError) {
-      console.error('❌ Email flow failed before send:', {
-        error: emailError.message,
-        code: emailError.code,
-        command: emailError.command,
-        response: emailError.response,
-        responseCode: emailError.responseCode
-      });
-      
-      // If email fails, still allow direct login (fallback)
-      const token = generateToken(user._id);
-      
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60 * 1000
-      });
-
-      res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        },
-        token,
-        message: 'Email service unavailable. Logged in directly.'
-      });
-    }
+        role: user.role
+      },
+      token,
+      message: 'Login successful'
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
@@ -275,12 +178,12 @@ router.post('/login', loginRateLimiter, async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/verify-code
-// @desc    Step 2: Verify code and complete login
+// @route   POST /api/auth/verify-email
+// @desc    Verify email address after registration
 // @access  Public
-router.post('/verify-code', async (req, res) => {
+router.post('/verify-email', async (req, res) => {
   try {
-    const { email, code, rememberDevice } = req.body;
+    const { email, code } = req.body;
 
     // Validation
     if (!email || !code) {
@@ -302,7 +205,14 @@ router.post('/verify-code', async (req, res) => {
 
     const user = verificationResult.user;
 
-    // Generate JWT token
+    // Mark email as verified
+    await User.findByIdAndUpdate(user._id, {
+      emailVerified: true,
+      verificationCode: null,
+      codeExpires: null
+    });
+
+    // Generate JWT token and log them in
     const token = generateToken(user._id);
 
     // Set cookie
@@ -312,54 +222,22 @@ router.post('/verify-code', async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000
     });
 
-    // Reset rate limits on successful login
+    // Reset rate limits
     resetOtpRateLimit(email);
-    resetLoginRateLimit(req.ip || req.connection.remoteAddress);
-
-    // Add to trusted devices if requested
-    let deviceInfo = null;
-    if (rememberDevice) {
-      const result = await addTrustedDevice(user._id, req, 30);
-      if (result.success) {
-        deviceInfo = {
-          deviceName: result.deviceName,
-          expiresAt: result.expiresAt
-        };
-      }
-    }
-
-    // Log login history
-    const fullUser = await User.findById(user._id);
-    fullUser.loginHistory.push({
-      ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.headers['user-agent'],
-      deviceInfo: parseUserAgent(req.headers['user-agent']).deviceName,
-      timestamp: new Date(),
-      success: true,
-      method: 'otp'
-    });
-    await fullUser.save();
-
-    // Send login notification if enabled
-    if (fullUser.securitySettings?.loginAlerts) {
-      sendLoginNotification(fullUser, req, 'otp').catch(console.error);
-    }
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: 'Email verified successfully! You are now logged in.',
       data: {
         _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role
       },
-      token,
-      deviceRemembered: rememberDevice && deviceInfo ? true : false,
-      deviceInfo
+      token
     });
   } catch (error) {
-    console.error('Code verification error:', error);
+    console.error('Email verification error:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -367,10 +245,10 @@ router.post('/verify-code', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/resend-code
-// @desc    Resend verification code
+// @route   POST /api/auth/resend-verification
+// @desc    Resend email verification code
 // @access  Public
-router.post('/resend-code', otpRateLimiter, async (req, res) => {
+router.post('/resend-verification', otpRateLimiter, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -390,16 +268,140 @@ router.post('/resend-code', otpRateLimiter, async (req, res) => {
       });
     }
 
+    // Generate new verification code
+    const verificationCode = generateVerificationCode();
+    const codeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Update user with new code
+    await User.findByIdAndUpdate(user._id, {
+      verificationCode,
+      codeExpires
+    });
+
     // Send new verification code
-    const emailResult = await sendVerificationEmail(user._id, user.email, user.name);
+    const emailResult = await sendVerificationEmail(user._id, user.email, user.name, verificationCode, codeExpires);
 
     res.json({
       success: true,
       message: 'New verification code sent to your email',
-      expiresAt: emailResult.expiresAt
+      expiresAt: emailResult.expiresAt || codeExpires
     });
   } catch (error) {
-    console.error('Resend code error:', error);
+    console.error('Resend verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @route   POST /api/auth/forgot-password
+// @desc    Send password reset code via email
+// @access  Public
+router.post('/forgot-password', otpRateLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email'
+      });
+    }
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal if user exists or not for security
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, a password reset code has been sent.'
+      });
+    }
+
+    // Generate verification code for password reset
+    const verificationCode = generateVerificationCode();
+    const codeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Save code to user
+    await User.findByIdAndUpdate(user._id, {
+      verificationCode,
+      codeExpires
+    });
+
+    // Send password reset email
+    const emailResult = await sendVerificationEmail(user._id, user.email, user.name, verificationCode, codeExpires);
+
+    res.json({
+      success: true,
+      message: 'Password reset code sent to your email',
+      email: user.email,
+      expiresAt: codeExpires
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @route   POST /api/auth/reset-password-with-email
+// @desc    Verify email code and log user in (password reset flow)
+// @access  Public
+router.post('/reset-password-with-email', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    // Validation
+    if (!email || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and verification code'
+      });
+    }
+
+    // Verify the code
+    const verificationResult = await verifyCode(email, code);
+
+    if (!verificationResult.success) {
+      return res.status(401).json({
+        success: false,
+        message: verificationResult.message
+      });
+    }
+
+    const user = verificationResult.user;
+
+    // Generate JWT token and log them in
+    const token = generateToken(user._id);
+
+    // Set cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000
+    });
+
+    // Reset rate limits
+    resetOtpRateLimit(email);
+    resetLoginRateLimit(req.ip || req.connection.remoteAddress);
+
+    res.json({
+      success: true,
+      message: 'Email verified! You are now logged in. Please change your password in settings.',
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      },
+      token,
+      shouldChangePassword: true
+    });
+  } catch (error) {
+    console.error('Reset password with email error:', error);
     res.status(500).json({
       success: false,
       message: error.message

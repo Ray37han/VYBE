@@ -72,7 +72,11 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order'
   }],
-  // Email verification OTP fields
+  // Email verification fields
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
   verificationCode: {
     type: String,
     default: null
