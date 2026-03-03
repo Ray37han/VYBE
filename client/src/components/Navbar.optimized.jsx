@@ -8,22 +8,54 @@ import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import { usePageLoad } from '../hooks/usePageLoad';
 import toast from 'react-hot-toast';
 
-// Categories with subcategories for dropdown
+// Categories with subcategories for dropdown - organized by main collections
 const categories = [
   {
     label: 'All Posters',
     icon: '🌟',
     subcategories: [
-      { value: '', label: 'New Arrivals', icon: '✨' },
+      { value: '', label: 'All Collections', icon: '✨' },
       { value: 'best-selling', label: 'Best Selling', icon: '🔥' },
       { value: 'motivational', label: 'Motivational', icon: '💪' },
     ]
   },
   {
-    label: 'Cars & Bikes',
+    label: 'Football',
+    icon: '⚽',
+    subcategories: [
+      { value: 'football', label: 'Football Posters', icon: '⚽' },
+      { value: 'football-motivational', label: 'Motivational', icon: '💪' },
+    ]
+  },
+  {
+    label: 'Movies',
+    icon: '🎬',
+    subcategories: [
+      { value: 'movies', label: 'Movies', icon: '🎬' },
+      { value: 'marvel', label: 'Marvel', icon: '🦸' },
+      { value: 'dc', label: 'DC', icon: '🦇' },
+    ]
+  },
+  {
+    label: 'Games',
+    icon: '🎮',
+    subcategories: [
+      { value: 'games', label: 'All Games', icon: '🎮' },
+    ]
+  },
+  {
+    label: 'F1',
+    icon: '🏁',
+    subcategories: [
+      { value: 'f1', label: 'F1 Posters', icon: '🏁' },
+      { value: 'f1-motivational', label: 'F1 Motivational', icon: '🏎️' },
+    ]
+  },
+  {
+    label: 'Cars',
     icon: '🏎️',
     subcategories: [
-      { value: 'bikes', label: 'Bikes', icon: '🏍️' },
+      { value: 'cars', label: 'All Cars', icon: '🚗' },
       { value: 'sports-cars', label: 'Sports Cars', icon: '🏎️' },
       { value: 'vintage-cars', label: 'Vintage Cars', icon: '🚗' },
       { value: 'muscle-cars', label: 'Muscle Cars', icon: '💨' },
@@ -31,28 +63,33 @@ const categories = [
     ]
   },
   {
-    label: 'Sports',
-    icon: '⚽',
+    label: 'Bikes',
+    icon: '🏍️',
     subcategories: [
-      { value: 'football', label: 'Football', icon: '⚽' },
-      { value: 'football-motivational', label: 'Football Motivational', icon: '⚽' },
-      { value: 'cricket', label: 'Cricket', icon: '🏏' },
-      { value: 'ufc', label: 'UFC', icon: '🥊' },
-      { value: 'nba', label: 'NBA', icon: '🏀' },
-      { value: 'f1', label: 'F1', icon: '🏁' },
-      { value: 'f1-motivational', label: 'F1 Motivational', icon: '🏎️' },
+      { value: 'bikes', label: 'All Bikes', icon: '🏍️' },
     ]
   },
   {
-    label: 'Pop Culture',
-    icon: '🎬',
+    label: 'Music',
+    icon: '🎵',
     subcategories: [
-      { value: 'marvel', label: 'Marvel', icon: '🦸' },
-      { value: 'dc', label: 'DC', icon: '🦇' },
-      { value: 'movies', label: 'Movies', icon: '🎬' },
+      { value: 'music', label: 'Music Posters', icon: '🎵' },
+    ]
+  },
+  {
+    label: 'Series',
+    icon: '📺',
+    subcategories: [
       { value: 'tv-series', label: 'TV Series', icon: '📺' },
-      { value: 'music', label: 'Music', icon: '🎵' },
-      { value: 'games', label: 'Games', icon: '🎮' },
+    ]
+  },
+  {
+    label: 'More Sports',
+    icon: '🏆',
+    subcategories: [
+      { value: 'cricket', label: 'Cricket', icon: '🏏' },
+      { value: 'nba', label: 'NBA', icon: '🏀' },
+      { value: 'ufc', label: 'UFC', icon: '🥊' },
     ]
   },
 ];

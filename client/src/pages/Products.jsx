@@ -12,19 +12,45 @@ import toast from 'react-hot-toast';
 
 const categories = [
   { value: '', label: '✨ All Collections', icon: '🌟' },
-  { value: 'abstract', label: 'Abstract Art', icon: '🎨' },
-  { value: 'minimalist', label: 'Minimalist', icon: '⚪' },
-  { value: 'nature', label: 'Nature', icon: '🌿' },
-  { value: 'typography', label: 'Typography', icon: '📝' },
-  { value: 'custom', label: 'Custom Creations', icon: '👑' },
-  { value: 'anime', label: 'Anime', icon: '⚡' },
-  { value: 'vintage', label: 'Vintage', icon: '📻' },
-  { value: 'modern', label: 'Modern', icon: '🔮' },
-  { value: 'sports', label: 'Sports', icon: '🏆' },
+  { value: 'best-selling', label: '🔥 Best Selling', icon: '🔥' },
+  { value: 'motivational', label: '💪 Motivational', icon: '💪' },
+  
+  // Main Categories
   { value: 'football', label: 'Football', icon: '⚽' },
+  { value: 'football-motivational', label: 'Football Motivational', icon: '⚽' },
+  
+  { value: 'movies', label: 'Movies', icon: '🎬' },
+  { value: 'marvel', label: 'Marvel', icon: '🦸' },
+  { value: 'dc', label: 'DC Comics', icon: '🦇' },
+  
+  { value: 'games', label: 'Games', icon: '🎮' },
+  
+  { value: 'f1', label: 'F1', icon: '🏁' },
+  { value: 'f1-motivational', label: 'F1 Motivational', icon: '🏎️' },
+  
+  { value: 'cars', label: 'All Cars', icon: '🚗' },
+  { value: 'sports-cars', label: 'Sports Cars', icon: '🏎️' },
+  { value: 'vintage-cars', label: 'Vintage Cars', icon: '🚗' },
+  { value: 'muscle-cars', label: 'Muscle Cars', icon: '💨' },
+  { value: 'vector-cars', label: 'Vector Cars', icon: '🎨' },
+  
+  { value: 'bikes', label: 'Bikes', icon: '🏍️' },
+  
+  { value: 'music', label: 'Music', icon: '🎵' },
+  
+  { value: 'tv-series', label: 'TV Series', icon: '📺' },
+  
+  // Other Sports
   { value: 'cricket', label: 'Cricket', icon: '🏏' },
   { value: 'nba', label: 'NBA', icon: '🏀' },
-  { value: 'cars', label: 'Cars', icon: '🏎️' },
+  { value: 'ufc', label: 'UFC', icon: '🥊' },
+  
+  // Additional Categories
+  { value: 'anime', label: 'Anime', icon: '⚡' },
+  { value: 'abstract', label: 'Abstract Art', icon: '🎨' },
+  { value: 'minimalist', label: 'Minimalist', icon: '⚪' },
+  { value: 'vintage', label: 'Vintage', icon: '📻' },
+  { value: 'modern', label: 'Modern', icon: '🔮' },
 ];
 
 /**
