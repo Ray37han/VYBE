@@ -81,8 +81,16 @@ export default function NavbarOptimized() {
         document.documentElement.classList.remove('dark');
       }
     } else {
-      localStorage.setItem('theme', 'light');
-      document.documentElement.classList.remove('dark');
+      // Check system preference and use it as default
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const systemTheme = prefersDark ? 'dark' : 'light';
+      localStorage.setItem('theme', systemTheme);
+      setDarkMode(prefersDark);
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
 
     const handleStorageChange = () => {
@@ -98,12 +106,32 @@ export default function NavbarOptimized() {
       }
     };
 
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e) => {
+      // Only auto-update if user hasn't manually set a preference
+      const savedTheme = localStorage.getItem('theme');
+      if (!savedTheme) {
+        const prefersDark = e.matches;
+        setDarkMode(prefersDark);
+        localStorage.setItem('theme', prefersDark ? 'dark' : 'light');
+        if (prefersDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        window.dispatchEvent(new Event('themeChange'));
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('themeChange', handleStorageChange);
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('themeChange', handleStorageChange);
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
     };
   }, []);
 

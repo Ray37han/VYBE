@@ -417,19 +417,24 @@ export default function ProductDetail() {
               </motion.div>
 
               {/* Add to Cart Button */}
-              <motion.button 
-                onClick={handleAddToCart} 
+              <button 
+                onClick={(e) => {
+                  e.currentTarget.classList.add('active');
+                  handleAddToCart();
+                  setTimeout(() => {
+                    e.currentTarget.classList.remove('active');
+                  }, 2500);
+                }}
                 disabled={!selectedSize}
-                whileTap={selectedSize ? { scale: 0.95 } : {}}
-                className={`w-full flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all ${
-                  !selectedSize
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'btn-primary'
-                }`}
+                className={`btn-cart ${!selectedSize ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <FiShoppingCart />
-                {!selectedSize ? 'Select Size First' : 'Add to Cart'}
-              </motion.button>
+                <span>
+                  <span className="flex items-center justify-center gap-2">
+                    <FiShoppingCart />
+                    {!selectedSize ? 'Select Size First' : 'Add to Cart'}
+                  </span>
+                </span>
+              </button>
             </div>
             
             {/* Trust Banner - Critical for BD market conversion */}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import AnnouncementBar from '../components/AnnouncementBar';
 import HeroCarousel from '../components/HeroCarousel';
@@ -10,9 +10,36 @@ import InstagramFeed from '../components/InstagramFeed';
 import Newsletter from '../components/Newsletter';
 
 export default function Home() {
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check system preference on initial load if no saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
   useEffect(() => {
     // Scroll to top on page load
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    setDarkMode(savedTheme === 'dark');
+
+    const handleThemeChange = () => {
+      const currentTheme = localStorage.getItem('theme');
+      setDarkMode(currentTheme === 'dark');
+    };
+
+    window.addEventListener('storage', handleThemeChange);
+    window.addEventListener('themeChange', handleThemeChange);
+
+    return () => {
+      window.removeEventListener('storage', handleThemeChange);
+      window.removeEventListener('themeChange', handleThemeChange);
+    };
   }, []);
 
   return (
@@ -44,7 +71,11 @@ export default function Home() {
         <meta property="twitter:image" content="https://vybebd.store/og-image.jpg" />
       </Helmet>
 
-      <div className="min-h-screen bg-white">
+      <div className={`min-h-screen transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gradient-to-br from-moon-midnight via-moon-space to-moon-midnight' 
+          : 'bg-white'
+      }`}>
         {/* Announcement Bar */}
         <AnnouncementBar />
 
@@ -52,19 +83,19 @@ export default function Home() {
         <HeroCarousel />
 
         {/* Collection Grid */}
-        <CollectionGrid />
+        <CollectionGrid darkMode={darkMode} />
 
         {/* Featured Products */}
-        <FeaturedProducts />
+        <FeaturedProducts darkMode={darkMode} />
 
         {/* Trust Badges */}
-        <TrustBadges />
+        <TrustBadges darkMode={darkMode} />
 
         {/* Bundle Section */}
         <BundleSection />
 
         {/* Instagram Feed */}
-        <InstagramFeed />
+        <InstagramFeed darkMode={darkMode} />
 
         {/* Newsletter */}
         <Newsletter />

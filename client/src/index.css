@@ -974,6 +974,195 @@ img {
   content-visibility: auto;
 }
 
+/* ===== ADD TO CART ANIMATION ===== */
+@keyframes shift-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-40px);
+  }
+}
+
+@keyframes shift-left-circle {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-40px);
+  }
+  100% {
+    transform: translateX(-40px);
+  }
+}
+
+@keyframes shift-left-mask {
+  0% {
+    height: 7px;
+    transform: translateX(0) rotate(0);
+  }
+  50% {
+    transform: translateX(0) rotate(180deg);
+  }
+  100% {
+    transform: translateX(-40px) rotate(180deg);
+  }
+}
+
+
+.btn-cart {
+  display: block;
+  width: 200px;
+  padding: 12px 24px;
+  line-height: 1.5;
+  border: none;
+  margin: 0 auto;
+  background: none;
+  text-transform: uppercase;
+  color: white;
+  letter-spacing: 1px;
+  font-size: 14px;
+  position: relative;
+  cursor: pointer;
+  border-radius: 50px;
+  box-shadow: 0 8px 16px rgba(147, 51, 234, 0.3),
+              0 4px 8px rgba(219, 39, 119, 0.2),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  transform: translateY(0);
+  transition: all 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Hover effect for 3D button */
+.btn-cart:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(147, 51, 234, 0.4),
+              0 6px 12px rgba(219, 39, 119, 0.3),
+              inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+              inset 0 2px 4px rgba(255, 255, 255, 0.15);
+}
+
+.btn-cart:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3),
+              0 2px 4px rgba(219, 39, 119, 0.2),
+              inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Strap (handle of bag) */
+.btn-cart:before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  border: 2px solid #9333ea;
+  transform: translateX(0);
+  left: 94px;
+  border-radius: 50%;
+  top: 5px;
+  box-sizing: border-box;
+}
+
+/* Bag Square */
+.btn-cart:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+  transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 0;
+  border-radius: 50px;
+}
+
+/* Active/Focus state */
+.btn-cart:focus:before,
+.btn-cart.active:before {
+  animation: shift-left-circle 800ms forwards;
+  animation-delay: 1200ms;
+}
+
+.btn-cart:focus:after,
+.btn-cart.active:after {
+  width: 20px;
+  height: 20px;
+  top: 12px;
+  left: 90px;
+  animation: shift-left 400ms forwards;
+  animation-delay: 1200ms;
+  transition-delay: 400ms;
+  border-radius: 4px;
+}
+
+.btn-cart > span {
+  position: relative;
+  display: block;
+  z-index: 2;
+}
+
+/* White Mask Over Circle */
+.btn-cart > span:before {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 12px;
+  height: 20px;
+  background: white;
+  top: 5px;
+  left: 94px;
+  animation-timing-function: linear;
+  transform: translateX(0) rotate(0deg);
+  transform-origin: center bottom;
+  opacity: 0;
+ }
+
+.btn-cart:focus > span:before,
+.btn-cart.active > span:before {
+  animation: shift-left-mask 800ms forwards;
+  animation-delay: 800ms;
+  height: 7px;
+  opacity: 1;
+  opacity: 1;
+}
+
+/* "ADDED" text */
+.btn-cart > span:after {
+  content: "ADDED";
+  color: #10b981;
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  opacity: 0;
+  transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translate(-30%, 20px);
+  transition-delay: 0;
+}
+
+.btn-cart:focus > span:after,
+.btn-cart.active > span:after {
+  transform: translate(-30%, 0); 
+  transition-delay: 1600ms;
+  opacity: 1;
+}
+
+/* "ADD TO CART" text */
+.btn-cart span span {
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+  transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateY(0px);
+}
+
+.btn-cart:focus span span,
+.btn-cart.active span span {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
 /* Motion-safe fallback for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

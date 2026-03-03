@@ -33,9 +33,13 @@ const socialPosts = [
   },
 ];
 
-export default function InstagramFeed() {
+export default function InstagramFeed({ darkMode = false }) {
   return (
-    <section className="py-12 sm:py-16 bg-white">
+    <section className={`py-12 sm:py-16 transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-br from-moon-midnight/30 via-moon-space/30 to-moon-midnight/30' 
+        : 'bg-white'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -44,7 +48,9 @@ export default function InstagramFeed() {
           viewport={{ once: true }}
           className="text-center mb-8"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h2 className={`text-2xl sm:text-3xl font-bold mb-2 ${
+            darkMode ? 'text-white' : 'text-gray-900'
+          }`}>
             Follow Us on <span className="text-pink-500">Instagram</span> & <span className="text-blue-600">Facebook</span>
           </h2>
           <div className="flex items-center justify-center gap-6 mt-3">
@@ -78,7 +84,11 @@ export default function InstagramFeed() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+              className={`group relative rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden ${
+                darkMode 
+                  ? 'bg-moon-midnight/50 border border-moon-gold/20' 
+                  : 'bg-white'
+              }`}
             >
               {/* Facebook Embed */}
               <div className="w-full h-[400px] sm:h-[450px] overflow-hidden">

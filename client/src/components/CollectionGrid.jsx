@@ -97,9 +97,13 @@ const collections = [
   },
 ];
 
-export default function CollectionGrid() {
+export default function CollectionGrid({ darkMode = false }) {
   return (
-    <section className="py-12 sm:py-16 bg-white">
+    <section className={`py-12 sm:py-16 transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-br from-moon-midnight/50 via-moon-space/50 to-moon-midnight/50' 
+        : 'bg-white'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -108,10 +112,14 @@ export default function CollectionGrid() {
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-12"
         >
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
-            Shop by <span className="text-purple-600">Passion</span>
+          <h2 className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 ${
+            darkMode ? 'text-white' : 'text-gray-900'
+          }`}>
+            Shop by <span className={darkMode ? 'text-moon-gold' : 'text-purple-600'}>Passion</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className={`max-w-2xl mx-auto ${
+            darkMode ? 'text-moon-silver' : 'text-gray-600'
+          }`}>
             Find art that speaks to your soul. Every collection tells a story.
           </p>
         </motion.div>

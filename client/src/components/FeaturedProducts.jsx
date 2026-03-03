@@ -9,7 +9,7 @@ import LoadingStore from './LoadingStore';
  * FeaturedProducts - Showcase best sellers
  */
 
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ darkMode = false }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +41,11 @@ export default function FeaturedProducts() {
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-gray-50">
+    <section className={`py-12 sm:py-16 transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-br from-moon-space/30 via-moon-midnight/30 to-moon-space/30' 
+        : 'bg-gray-50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -51,10 +55,14 @@ export default function FeaturedProducts() {
           className="flex items-center justify-between mb-8"
         >
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Trending <span className="text-purple-600">Now</span>
+            <h2 className={`text-2xl sm:text-3xl font-bold ${
+              darkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              Trending <span className={darkMode ? 'text-moon-gold' : 'text-purple-600'}>Now</span>
             </h2>
-            <p className="text-gray-500 mt-1">Most loved by our customers</p>
+            <p className={`mt-1 ${
+              darkMode ? 'text-moon-silver' : 'text-gray-500'
+            }`}>Most loved by our customers</p>
           </div>
           <Link
             to="/products"
@@ -78,7 +86,11 @@ export default function FeaturedProducts() {
               transition={{ delay: index * 0.05 }}
             >
               <Link to={`/products/${product._id}`} className="group block">
-                <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+                <div className={`rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 ${
+                  darkMode 
+                    ? 'bg-moon-midnight/50 border border-moon-gold/20' 
+                    : 'bg-white'
+                }`}>
                   {/* Image */}
                   <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
                     <img
@@ -102,7 +114,9 @@ export default function FeaturedProducts() {
                   
                   {/* Info */}
                   <div className="p-4">
-                    <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-2 min-h-[40px]">
+                    <h3 className={`font-medium text-sm line-clamp-2 mb-2 min-h-[40px] ${
+                      darkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
                       {cleanName(product.name)}
                     </h3>
                     <div className="flex items-center justify-between">
@@ -110,11 +124,15 @@ export default function FeaturedProducts() {
                         <span className="text-lg font-bold text-purple-600">
                           ৳{product.basePrice}
                         </span>
-                        <span className="text-xs text-gray-400 line-through ml-2">
+                        <span className={`text-xs line-through ml-2 ${
+                          darkMode ? 'text-moon-silver/60' : 'text-gray-400'
+                        }`}>
                           ৳{product.originalPrice || Math.round(product.basePrice / 0.80)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className={`flex items-center gap-1 text-xs ${
+                        darkMode ? 'text-moon-silver' : 'text-gray-500'
+                      }`}>
                         <FiStar className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                         <span>{(product.rating?.average || 0).toFixed(1)}</span>
                       </div>

@@ -43,9 +43,13 @@ const trustItems = [
 ];
 
 // Main Trust Badges Section (for Homepage)
-export default function TrustBadges() {
+export default function TrustBadges({ darkMode = false }) {
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-b from-gray-50 to-white">
+    <section className={`py-12 sm:py-16 transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-b from-moon-space/20 to-moon-midnight/20' 
+        : 'bg-gradient-to-b from-gray-50 to-white'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -53,10 +57,14 @@ export default function TrustBadges() {
           viewport={{ once: true }}
           className="text-center mb-8"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Why Shop With <span className="text-purple-600">VYBE</span>?
+          <h2 className={`text-2xl sm:text-3xl font-bold ${
+            darkMode ? 'text-white' : 'text-gray-900'
+          }`}>
+            Why Shop With <span className={darkMode ? 'text-moon-gold' : 'text-purple-600'}>VYBE</span>?
           </h2>
-          <p className="text-gray-500 mt-2">Trusted by 10,000+ happy customers across Bangladesh</p>
+          <p className={`mt-2 ${
+            darkMode ? 'text-moon-silver' : 'text-gray-500'
+          }`}>Trusted by 10,000+ happy customers across Bangladesh</p>
         </motion.div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
@@ -68,13 +76,21 @@ export default function TrustBadges() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5, scale: 1.02 }}
-              className="flex flex-col items-center p-4 sm:p-6 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100"
+              className={`flex flex-col items-center p-4 sm:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 ${
+                darkMode 
+                  ? 'bg-moon-midnight/50 border border-moon-gold/20' 
+                  : 'bg-white border border-gray-100'
+              }`}
             >
               <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${item.bgColor} flex items-center justify-center mb-3`}>
                 <item.icon className={`w-6 h-6 sm:w-7 sm:h-7 ${item.color}`} />
               </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base text-center">{item.title}</h3>
-              <p className="text-xs sm:text-sm text-gray-500 text-center mt-1">{item.subtitle}</p>
+              <h3 className={`font-bold text-sm sm:text-base text-center ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>{item.title}</h3>
+              <p className={`text-xs sm:text-sm text-center mt-1 ${
+                darkMode ? 'text-moon-silver' : 'text-gray-500'
+              }`}>{item.subtitle}</p>
             </motion.div>
           ))}
         </div>
