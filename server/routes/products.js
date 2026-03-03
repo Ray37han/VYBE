@@ -26,7 +26,15 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     // Build query
     const query = { isActive: true };
     
-    if (category) query.category = category;
+    // Handle comma-separated categories (e.g., "football,football-motivational")
+    if (category) {
+      if (category.includes(',')) {
+        const categories = category.split(',').map(cat => cat.trim());
+        query.category = { $in: categories };
+      } else {
+        query.category = category;
+      }
+    }
     if (featured) query.featured = featured === 'true';
     if (minPrice || maxPrice) {
       query.basePrice = {};

@@ -149,10 +149,11 @@ export default function Products() {
         
         const searchResults = fuseInstance.search(params.search).map(result => result.item);
         
-        // Apply category filter if present
+        // Apply category filter if present (supports comma-separated categories)
         let filteredResults = searchResults;
         if (params.category) {
-          filteredResults = searchResults.filter(p => p.category === params.category);
+          const categories = params.category.split(',').map(cat => cat.trim());
+          filteredResults = searchResults.filter(p => categories.includes(p.category));
         }
         
         setProducts(filteredResults);

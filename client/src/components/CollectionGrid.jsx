@@ -28,7 +28,7 @@ const collections = [
     name: 'Football',
     tagline: 'Icons of the Beautiful Game',
     image: footballImg,
-    category: 'football',
+    categories: ['football', 'football-motivational'],
     color: 'from-green-500 to-emerald-700',
     emoji: '⚽',
   },
@@ -37,7 +37,7 @@ const collections = [
     name: 'Cars',
     tagline: 'Dream Machines on Walls',
     image: carsImg,
-    category: 'cars',
+    categories: ['cars', 'sports-cars', 'vintage-cars', 'muscle-cars', 'vector-cars'],
     color: 'from-red-600 to-orange-600',
     emoji: '🚗',
   },
@@ -46,7 +46,7 @@ const collections = [
     name: 'Bikes',
     tagline: 'Ride the Wall Art',
     image: bikesImg,
-    category: 'bikes',
+    categories: ['bikes'],
     color: 'from-gray-700 to-gray-900',
     emoji: '🏍️',
   },
@@ -55,7 +55,7 @@ const collections = [
     name: 'F1',
     tagline: 'Speed Legends & Racing Icons',
     image: f1Img,
-    category: 'f1',
+    categories: ['f1', 'f1-motivational'],
     color: 'from-red-500 to-red-800',
     emoji: '🏁',
   },
@@ -64,7 +64,7 @@ const collections = [
     name: 'Series',
     tagline: 'Your Favourite Shows',
     image: seriesImg,
-    category: 'tv-series',
+    categories: ['tv-series'],
     color: 'from-blue-600 to-indigo-800',
     emoji: '📺',
   },
@@ -73,7 +73,7 @@ const collections = [
     name: 'Movies',
     tagline: 'Cinema on Your Wall',
     image: moviesImg,
-    category: 'movies',
+    categories: ['movies', 'marvel', 'dc'],
     color: 'from-yellow-600 to-red-700',
     emoji: '🎬',
   },
@@ -82,7 +82,7 @@ const collections = [
     name: 'Music',
     tagline: 'Feel the Beat Every Day',
     image: musicImg,
-    category: 'music',
+    categories: ['music'],
     color: 'from-purple-600 to-pink-600',
     emoji: '🎵',
   },
@@ -91,7 +91,7 @@ const collections = [
     name: 'Games',
     tagline: 'Level Up Your Room',
     image: gamesImg,
-    category: 'games',
+    categories: ['games'],
     color: 'from-cyan-500 to-blue-700',
     emoji: '🎮',
   },
@@ -135,7 +135,7 @@ export default function CollectionGrid({ darkMode = false }) {
               transition={{ delay: index * 0.05 }}
             >
               <Link
-                to={`/products?category=${collection.category}`}
+                to={`/products?category=${collection.categories.join(',')}`}
                 className="group block relative overflow-hidden rounded-2xl aspect-[3/4] sm:aspect-square"
               >
                 {/* Background Image with Zoom Effect */}
