@@ -35,43 +35,21 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 - `feat:` - New feature
 - `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `style:` - Code style changes (formatting, etc.)
-- `refactor:` - Code refactoring
-- `perf:` - Performance improvements
-- `test:` - Adding tests
-- `chore:` - Maintenance tasks
+# Contributing to VYBE
 
-### Code Style
+## Status: Personal Portfolio Project
 
-- Use meaningful variable names
-- Add comments for complex logic
-- Follow existing code patterns
-- Run linting before committing
+This repository is a **personal portfolio project** created and maintained by **Rakibul Hasan Rayhan**.
 
-## Development Setup
+- The code is public so recruiters, collaborators, and other developers can **review the implementation**.
+- External **contributions, pull requests, and feature requests are not accepted**.
+- The project roadmap and changes are driven solely by the author.
 
-```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/VYBE.git
-cd VYBE
+If you discover a critical issue that you think I should be aware of, you may:
 
-# Install dependencies
-cd server && npm install
-cd ../client && npm install
+- Open a minimal GitHub Issue describing the problem **or**
+- Reach out directly via LinkedIn: `www.linkedin.com/in/rakibul-hasan-rayhan-906b22335`
 
-# Start development servers
-# Terminal 1
-cd server && npm run dev
+Please note that response times and fixes are **not guaranteed**, as this codebase is primarily for showcasing my work, not for community support.
 
-# Terminal 2
-cd client && npm run dev
-```
-
-## Questions?
-
-Feel free to open an issue or reach out!
-
----
-
-Thank you for contributing! 🙏
+Thank you for your understanding and interest in VYBE. 🙏
