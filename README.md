@@ -111,35 +111,15 @@ Live site: **https://vybebd.store**
 
 <div align="center">
 
-**Desktop View**
+| Desktop View |  |  |
+|:---:|:---:|:---:|
+| <img src="screenshots/home.jpg" alt="Homepage" width="200" /> | <img src="screenshots/shop.jpg" alt="Shop" width="200" /> | <img src="screenshots/admin.jpg" alt="Admin" width="200" /> |
+| **Homepage** | **Shop** | **Admin** |
 
-<table>
-<tr>
-<td width="33%"><img src="screenshots/home.jpg" alt="Homepage" width="100%" /></td>
-<td width="33%"><img src="screenshots/shop.jpg" alt="Shop Page" width="100%" /></td>
-<td width="33%"><img src="screenshots/admin.jpg" alt="Admin Dashboard" width="100%" /></td>
-</tr>
-<tr>
-<td align="center"><b>Homepage</b></td>
-<td align="center"><b>Shop Page</b></td>
-<td align="center"><b>Admin Dashboard</b></td>
-</tr>
-</table>
-
-**Mobile & Features**
-
-<table>
-<tr>
-<td width="33%"><img src="screenshots/mobile.jpg" alt="Mobile View" width="100%" /></td>
-<td width="33%"><img src="screenshots/dark.jpg" alt="Dark Mode" width="100%" /></td>
-<td width="33%"><img src="screenshots/cart.jpg" alt="Shopping Cart" width="100%" /></td>
-</tr>
-<tr>
-<td align="center"><b>Mobile View</b></td>
-<td align="center"><b>Dark Mode</b></td>
-<td align="center"><b>Cart</b></td>
-</tr>
-</table>
+| Mobile & Features |  |  |
+|:---:|:---:|:---:|
+| <img src="screenshots/mobile.jpg" alt="Mobile" width="200" /> | <img src="screenshots/dark.jpg" alt="Dark Mode" width="200" /> | <img src="screenshots/cart.jpg" alt="Cart" width="200" /> |
+| **Mobile** | **Dark Mode** | **Cart** |
 
 </div>
 
