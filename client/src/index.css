@@ -427,8 +427,7 @@
   }
 
   .input-field {
-    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none 
-           focus:ring-2 focus:ring-vybe-purple focus:border-transparent transition-all;
+    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none
   }
 
   .gradient-text {
@@ -1009,44 +1008,23 @@ img {
   }
 }
 
-
 .btn-cart {
   display: block;
-  width: 200px;
-  padding: 12px 24px;
-  line-height: 1.5;
+  width: 100%;
+  max-width: 400px;
+  line-height: 44px;
   border: none;
   margin: 0 auto;
   background: none;
   text-transform: uppercase;
   color: white;
   letter-spacing: 1px;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 700;
   position: relative;
   cursor: pointer;
-  border-radius: 50px;
-  box-shadow: 0 8px 16px rgba(147, 51, 234, 0.3),
-              0 4px 8px rgba(219, 39, 119, 0.2),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.2),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1);
-  transform: translateY(0);
-  transition: all 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-/* Hover effect for 3D button */
-.btn-cart:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(147, 51, 234, 0.4),
-              0 6px 12px rgba(219, 39, 119, 0.3),
-              inset 0 -2px 4px rgba(0, 0, 0, 0.2),
-              inset 0 2px 4px rgba(255, 255, 255, 0.15);
-}
-
-.btn-cart:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3),
-              0 2px 4px rgba(219, 39, 119, 0.2),
-              inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
 }
 
 /* Strap (handle of bag) */
@@ -1056,12 +1034,13 @@ img {
   width: 12px;
   height: 12px;
   position: absolute;
-  border: 2px solid #9333ea;
+  border: 2px solid #fafafa;
   transform: translateX(0);
-  left: 94px;
+  left: calc(50% + 44px);
   border-radius: 50%;
   top: 5px;
   box-sizing: border-box;
+  transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* Bag Square */
@@ -1072,10 +1051,10 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
+  background: linear-gradient(to right, #9333ea, #db2777);
   transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 0.5rem;
   z-index: 0;
-  border-radius: 50px;
 }
 
 /* Active/Focus state */
@@ -1090,11 +1069,11 @@ img {
   width: 20px;
   height: 20px;
   top: 12px;
-  left: 90px;
+  left: calc(50% + 50px);
   animation: shift-left 400ms forwards;
   animation-delay: 1200ms;
   transition-delay: 400ms;
-  border-radius: 4px;
+  border-radius: 0.25rem;
 }
 
 .btn-cart > span {
@@ -1112,38 +1091,38 @@ img {
   height: 20px;
   background: white;
   top: 5px;
-  left: 94px;
+  left: calc(50% + 44px);
   animation-timing-function: linear;
   transform: translateX(0) rotate(0deg);
   transform-origin: center bottom;
-  opacity: 0;
- }
+  z-index: 1;
+}
 
 .btn-cart:focus > span:before,
 .btn-cart.active > span:before {
   animation: shift-left-mask 800ms forwards;
   animation-delay: 800ms;
   height: 7px;
-  opacity: 1;
-  opacity: 1;
 }
 
 /* "ADDED" text */
 .btn-cart > span:after {
-  content: "ADDED";
+  content: "ADDED ✓";
   color: #10b981;
   position: absolute;
   z-index: 3;
   left: 50%;
   opacity: 0;
   transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform: translate(-30%, 20px);
+  transform: translate(-50%, 20px);
   transition-delay: 0;
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .btn-cart:focus > span:after,
 .btn-cart.active > span:after {
-  transform: translate(-30%, 0); 
+  transform: translate(-50%, 0); 
   transition-delay: 1600ms;
   opacity: 1;
 }
@@ -1155,6 +1134,7 @@ img {
   z-index: 2;
   transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transform: translateY(0px);
+  opacity: 1;
 }
 
 .btn-cart:focus span span,

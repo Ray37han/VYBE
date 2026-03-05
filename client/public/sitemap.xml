@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Home Page -->
+  <url>
+    <loc>https://vybebd.store/</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Products Page -->
+  <url>
+    <loc>https://vybebd.store/products</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Customize Page -->
+  <url>
+    <loc>https://vybebd.store/customize</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://vybebd.store/privacy-policy</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Terms of Service -->
+  <url>
+    <loc>https://vybebd.store/terms-of-service</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+</urlset>

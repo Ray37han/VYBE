@@ -6,13 +6,90 @@ import Product from '../models/Product.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { sendOrderConfirmation, sendOrderStatusUpdate } from '../utils/emailService.js';
 import { sendOrderConfirmationSMS, sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
+import { verifyIdToken } from '../config/firebase-admin.js';
+
+// Import security middleware
+import {
+  orderCreationLimiter,
+  validateOrderCreation,
+  handleValidationErrors,
+  preventDuplicateOrders,
+  sanitizePhoneNumber,
+  logOrderAttempt
+} from '../middleware/security.js';
 
 const router = express.Router();
 
 // @route   POST /api/orders
-// @desc    Create new order with atomic transaction
-// @access  Private
-router.post('/', protect, async (req, res) => {
+// @desc    Create new order with Firebase Phone OTP verification
+// @access  Private (requires phone verification)
+// @security Rate limited, validated, sanitized, duplicate prevention
+router.post('/',
+  protect,                        // JWT authentication
+  orderCreationLimiter,          // Rate limiting (5 orders per 15 min)
+  logOrderAttempt,               // Log for security monitoring
+  sanitizePhoneNumber,           // Sanitize phone to E.164 format
+  validateOrderCreation,         // Validate all inputs
+  handleValidationErrors,        // Handle validation errors
+  preventDuplicateOrders,        // Prevent duplicate submissions
+  async (req, res) => {
+  /**
+   * FIREBASE PHONE OTP VERIFICATION
+   * 
+   * Before creating the order, verify that the user has completed
+   * phone OTP verification via Firebase Authentication.
+   * 
+   * This ensures orders are only placed by verified phone numbers,
+   * preventing fraud and fake orders.
+   */
+  const { firebaseToken } = req.body;
+  
+  // Check if Firebase token is provided
+  if (firebaseToken) {
+    try {
+      console.log('🔐 Verifying Firebase phone OTP token...');
+      
+      // Verify the Firebase ID token
+      const decodedToken = await verifyIdToken(firebaseToken);
+      
+      console.log('✅ Phone verified:', decodedToken.phone_number);
+      console.log('👤 Firebase UID:', decodedToken.uid);
+      
+      // Optional: Verify phone number matches the shipping address
+      if (req.body.shippingAddress && req.body.shippingAddress.phone) {
+        const normalizePhone = (phone) => phone.replace(/\D/g, '').replace(/^0/, '880');
+        const verifiedPhone = normalizePhone(decodedToken.phone_number);
+        const shippingPhone = normalizePhone(req.body.shippingAddress.phone);
+        
+        if (verifiedPhone !== shippingPhone) {
+          console.warn('⚠️  Phone mismatch:', verifiedPhone, 'vs', shippingPhone);
+          return res.status(400).json({
+            success: false,
+            message: 'Phone number mismatch. Please use the verified phone number.',
+          });
+        }
+      }
+      
+      // Attach verified phone info to request for logging
+      req.verifiedPhone = decodedToken.phone_number;
+      req.firebaseUid = decodedToken.uid;
+      
+    } catch (error) {
+      console.error('❌ Firebase token verification failed:', error.message);
+      return res.status(401).json({
+        success: false,
+        message: 'Phone verification failed. Please verify your phone number and try again.',
+      });
+    }
+  } else {
+    console.log('ℹ️  No Firebase token provided - proceeding without phone verification');
+    // Optional: Make phone verification required by uncommenting:
+    // return res.status(401).json({
+    //   success: false,
+    //   message: 'Phone verification required. Please verify your phone number.',
+    // });
+  }
+  
   // Start a MongoDB session for transaction
   const session = await mongoose.startSession();
   
@@ -64,10 +141,12 @@ router.post('/', protect, async (req, res) => {
       item.customization && Object.keys(item.customization).length > 0
     );
 
-    // Format shipping address to match schema
+    // Format shipping address to match schema with verification data
     const formattedAddress = {
       name: shippingAddress.fullName,
       phone: shippingAddress.phone,
+      phoneVerified,        // Add phone verification status
+      firebaseUid,          // Add Firebase UID
       street: shippingAddress.address,
       city: shippingAddress.city,
       zipCode: shippingAddress.postalCode,

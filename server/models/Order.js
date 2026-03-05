@@ -53,7 +53,16 @@ const orderSchema = new mongoose.Schema({
   }],
   shippingAddress: {
     name: String,
-    phone: String,
+    phone: {
+      type: String,
+      required: true,
+      index: true  // Index for phone number queries
+    },
+    phoneVerified: {
+      type: Boolean,
+      default: false
+    },
+    firebaseUid: String,  // Store Firebase UID for verified users
     street: String,
     city: String,
     state: String,
@@ -122,5 +131,7 @@ orderSchema.index({ orderStatus: 1 });
 orderSchema.index({ 'paymentInfo.status': 1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ user: 1, orderStatus: 1 });
+orderSchema.index({ 'shippingAddress.phone': 1 }); // Phone index for quick lookups
+orderSchema.index({ 'shippingAddress.phoneVerified': 1 }); // Verified orders index
 
 export default mongoose.model('Order', orderSchema);

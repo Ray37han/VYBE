@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
+import helmet from 'helmet';
 import os from 'os';
 
 // Import routes
@@ -21,6 +22,9 @@ import customApprovalsRoutes from './routes/customApprovals.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
+
+// Import security middleware
+import { generalLimiter } from './middleware/security.js';
 
 // Set Node environment
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -101,10 +105,20 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
+// Security middleware - Helmet for HTTP headers protection
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for now (can be configured later)
+  crossOriginEmbedderPolicy: false, // Allow embedded content
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow cross-origin resources
+}));
+
 app.use(cors(corsOptions));
 
 // Handle preflight requests with the SAME config (important for credentials)
 app.options('*', cors(corsOptions));
+
+// Apply general rate limiting to all routes
+app.use('/api/', generalLimiter);
 
 // Compression middleware - must come before routes
 app.use(compression({

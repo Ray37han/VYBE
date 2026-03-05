@@ -1,39 +1,89 @@
+/**
+ * Checkout Page with Firebase Phone OTP Verification
+ * 
+ * Complete checkout flow with phone number verification:
+ * 1. User fills checkout form (name, phone, address, payment)
+ * 2. On "Place Order", sends OTP to phone via Firebase
+ * 3. User verifies OTP in modal
+ * 4. On successful verification, creates order in MongoDB
+ * 5. Shows order confirmation
+ * 
+ * Features:
+ * - Bangladesh phone number format (+880)
+ * - Firebase Phone Authentication
+ * - Secure OTP verification
+ * - COD and Online Payment support
+ * - District-based shipping
+ * - Mobile optimized
+ * - Dark mode support
+ * 
+ * @component
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiShoppingBag, FiMapPin, FiPhone, FiMail, FiCreditCard, FiShield } from 'react-icons/fi';
 import { useCartStore, useAuthStore } from '../store';
 import { ordersAPI } from '../api';
+import OTPVerification from '../components/OTPVerification';
+import { setupRecaptcha, sendOTP, verifyOTP, phoneUtils, getCurrentUserToken } from '../firebase';
 import toast from 'react-hot-toast';
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { items, getTotal, clearCart } = useCartStore();
-  const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
-  
+
+  /**
+   * Form State - Shipping & Billing Information
+   */
   const [formData, setFormData] = useState({
-    firstName: user?.name?.split(' ')[0] || '',
-    lastName: user?.name?.split(' ')[1] || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     streetAddress: '',
     district: '',
     phone: '',
     email: user?.email || '',
-    orderNotes: ''
+    orderNotes: '',
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  /**
+   * Payment State
+   */
+  const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' or 'online'
   const [transactionId, setTransactionId] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const subtotal = getTotal();
-  // Dynamic shipping cost based on district
-  const shippingCost = (formData.district === 'Dhaka' || formData.district === 'Rajshahi') ? 100 : 130;
-  const total = subtotal + shippingCost;
+  /**
+   * OTP Verification State
+   */
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [verifiedPhone, setVerifiedPhone] = useState('');
+  const [firebaseToken, setFirebaseToken] = useState('');
 
+  /**
+   * Loading & Theme State
+   */
+  const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  /**
+   * Pricing Calculations
+   */
+  const subtotal = getTotal();
+  const shipping = ['Dhaka', 'Rajshahi'].includes(formData.district) ? 100 : 130;
+  const total = subtotal + shipping;
+
+  /**
+   * Initialize theme on mount
+   */
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    setDarkMode(savedTheme ? savedTheme === 'dark' : true);
+    setDarkMode(savedTheme === 'dark');
 
     const handleThemeChange = () => {
       const currentTheme = localStorage.getItem('theme');
@@ -49,107 +99,282 @@ export default function Checkout() {
     };
   }, []);
 
+  /**
+   * Redirect if cart is empty
+   */
   useEffect(() => {
     if (items.length === 0) {
+      toast.error('Your cart is empty');
       navigate('/cart');
     }
   }, [items, navigate]);
 
-  const handleInputChange = (e) => {
+  /**
+   * Bangladesh Districts (All 64)
+   */
+  const bangladeshDistricts = [
+    'Bagerhat', 'Bandarban', 'Barguna', 'Barisal', 'Bhola', 'Bogra', 'Brahmanbaria',
+    'Chandpur', 'Chapai Nawabganj', 'Chattogram', 'Chuadanga', 'Comilla', "Cox's Bazar",
+    'Dhaka', 'Dinajpur', 'Faridpur', 'Feni', 'Gaibandha', 'Gazipur', 'Gopalganj',
+    'Habiganj', 'Jamalpur', 'Jessore', 'Jhalokati', 'Jhenaidah', 'Joypurhat', 'Khagrachari',
+    'Khulna', 'Kishoreganj', 'Kurigram', 'Kushtia', 'Lakshmipur', 'Lalmonirhat', 'Madaripur',
+    'Magura', 'Manikganj', 'Meherpur', 'Moulvibazar', 'Munshiganj', 'Mymensingh', 'Naogaon',
+    'Narail', 'Narayanganj', 'Narsingdi', 'Natore', 'Netrokona', 'Nilphamari', 'Noakhali',
+    'Pabna', 'Panchagarh', 'Patuakhali', 'Pirojpur', 'Rajbari', 'Rajshahi', 'Rangamati',
+    'Rangpur', 'Satkhira', 'Shariatpur', 'Sherpur', 'Sirajganj', 'Sunamganj', 'Sylhet',
+    'Tangail', 'Thakurgaon',
+  ];
+
+  /**
+   * Handle form input changes
+   */
+  const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
+  /**
+   * Validate form before sending OTP
+   * 
+   * @returns {boolean} True if form is valid
+   */
   const validateForm = () => {
-    const { firstName, lastName, streetAddress, district, phone } = formData;
-    
-    if (!firstName || !lastName) {
-      toast.error('Please enter your full name');
+    // Check required fields
+    if (!formData.firstName.trim()) {
+      toast.error('Please enter your first name');
       return false;
     }
-    if (!streetAddress) {
+
+    if (!formData.lastName.trim()) {
+      toast.error('Please enter your last name');
+      return false;
+    }
+
+    if (!formData.streetAddress.trim()) {
       toast.error('Please enter your street address');
       return false;
     }
-    if (!district) {
+
+    if (!formData.district) {
       toast.error('Please select your district');
       return false;
     }
-    if (!phone || phone.length < 11) {
-      toast.error('Please enter a valid phone number');
+
+    if (!formData.phone.trim()) {
+      toast.error('Please enter your phone number');
       return false;
     }
+
+    // Validate Bangladesh phone number
+    if (!phoneUtils.isValidBangladeshPhone(formData.phone)) {
+      toast.error('Please enter a valid Bangladesh phone number (11 digits starting with 01)');
+      return false;
+    }
+
+    // Check terms agreement
     if (!agreedToTerms) {
       toast.error('Please agree to the terms and conditions');
       return false;
     }
-    if (paymentMethod === 'online' && !transactionId) {
-      toast.error('Please enter your Bkash transaction ID');
+
+    // Validate online payment transaction ID
+    if (paymentMethod === 'online' && !transactionId.trim()) {
+      toast.error('Please enter your transaction ID for online payment');
       return false;
     }
+
     return true;
   };
 
+  /**
+   * Handle Place Order Click
+   * Step 1: Validate form and send OTP
+   */
   const handlePlaceOrder = async () => {
-    if (!validateForm()) return;
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
 
-    setLoading(true);
     try {
-      const orderData = {
-        items: items.map(item => ({
-          product: item.product._id,
-          quantity: item.quantity,
-          size: item.size,
-          tier: item.tier || 'Standard',
-          frame: item.frame || 'No Frame',
-          price:
-            item.product.sizes.find(
-              (s) => s.name === item.size && (s.tier || 'Standard') === (item.tier || 'Standard')
-            )?.price ||
-            item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
-            item.product.basePrice
-        })),
-        shippingAddress: {
-          fullName: `${formData.firstName} ${formData.lastName}`,
-          phone: formData.phone,
-          address: formData.streetAddress,
-          city: formData.district,
-          postalCode: ''
-        },
-        paymentMethod: paymentMethod === 'cod' ? 'cod' : 'bkash',
-        paymentInfo: {
-          method: paymentMethod === 'cod' ? 'cod' : 'bkash',
-          transactionId: transactionId || 'COD',
-          status: 'pending'
-        },
-        pricing: {
-          subtotal: subtotal,
-          shipping: shippingCost,
-          total: total
-        },
-        notes: formData.orderNotes
-      };
+      setLoading(true);
 
-      const response = await ordersAPI.create(orderData);
-      clearCart();
-      toast.success('Order placed successfully!');
-      navigate('/order-success', { state: { orderId: response.data?._id || response._id } });
+      // Format phone number to E.164 format (+880XXXXXXXXXX)
+      const formattedPhone = phoneUtils.formatBangladeshPhone(formData.phone);
+      console.log('📱 Formatted phone:', formattedPhone);
+
+      // Setup reCAPTCHA verifier
+      const verifier = setupRecaptcha(
+        'recaptcha-container',
+        () => console.log('✅ reCAPTCHA verified'),
+        (error) => console.error('❌ reCAPTCHA error:', error)
+      );
+
+      // Send OTP to phone number
+      toast.loading('Sending verification code...', { id: 'otp-send' });
+      
+      const result = await sendOTP(formattedPhone, verifier);
+      
+      toast.success('Verification code sent!', { id: 'otp-send' });
+      console.log('✅ OTP sent successfully');
+
+      // Save confirmation result for verification
+      setConfirmationResult(result);
+      setVerifiedPhone(formattedPhone);
+      
+      // Show OTP verification modal
+      setShowOTPModal(true);
+
     } catch (error) {
-      console.error('Order error:', error);
-      toast.error(error.response?.data?.message || 'Failed to place order');
+      console.error('❌ Failed to send OTP:', error);
+      toast.error(error.message || 'Failed to send verification code');
     } finally {
       setLoading(false);
     }
   };
 
-  if (items.length === 0) {
-    return null;
-  }
+  /**
+   * Handle OTP Verification
+   * Step 2: Verify OTP code
+   * 
+   * @param {string} otpCode - 6-digit OTP entered by user
+   */
+  const handleVerifyOTP = async (otpCode) => {
+    if (!confirmationResult) {
+      toast.error('Please request a new verification code');
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+      setOtpError('');
+
+      // Verify OTP with Firebase
+      const result = await verifyOTP(confirmationResult, otpCode);
+      
+      console.log('✅ Phone verified successfully');
+      console.log('👤 Firebase UID:', result.user.uid);
+
+      // Get Firebase ID token for backend verification
+      const token = await getCurrentUserToken();
+      setFirebaseToken(token);
+
+      toast.success('Phone verified!');
+      
+      // Close OTP modal
+      setShowOTPModal(false);
+
+      // Proceed to create order
+      await createOrder(token);
+
+    } catch (error) {
+      console.error('❌ OTP verification failed:', error);
+      setOtpError(error.message || 'Invalid verification code');
+      throw error; // Re-throw to prevent OTP modal from closing
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  /**
+   * Create Order in MongoDB
+   * Step 3: After OTP verification succeeds
+   * 
+   * @param {string} firebaseToken - Firebase ID token for backend verification
+   */
+  const createOrder = async (firebaseToken) => {
+    try {
+      setLoading(true);
+      toast.loading('Creating your order...', { id: 'create-order' });
+
+      // Prepare order data
+      const orderData = {
+        items: items.map((item) => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          size: item.size,
+          tier: item.tier || 'Standard',
+          frame: item.frame || 'No Frame',
+          customization: item.customization || null,
+        })),
+        shippingAddress: {
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          phone: verifiedPhone, // Use verified phone number
+          street: formData.streetAddress,
+          city: formData.district,
+          zipCode: '', // Optional
+        },
+        paymentMethod: paymentMethod === 'cod' ? 'cod' : 'bkash', // Default online to bkash
+        paymentInfo: {
+          transactionId: paymentMethod === 'online' ? transactionId : null,
+          phoneVerified: true, // Mark as phone verified
+          firebaseUid: firebaseToken ? 'verified' : null, // Indicate Firebase verification
+        },
+        orderNotes: formData.orderNotes || '',
+        firebaseToken: firebaseToken, // Send token for backend verification
+      };
+
+      console.log('📦 Creating order with data:', orderData);
+
+      // Send order to backend
+      const response = await ordersAPI.create(orderData);
+      
+      console.log('✅ Order created:', response.data);
+      toast.success('Order placed successfully!', { id: 'create-order' });
+
+      // Clear cart
+      clearCart();
+
+      // Navigate to success page with order details
+      navigate('/order-success', {
+        state: {
+          orderId: response.data.orderNumber,
+          total: total,
+          paymentMethod: paymentMethod,
+        },
+      });
+
+    } catch (error) {
+      console.error('❌ Failed to create order:', error);
+      toast.error(error.response?.data?.message || 'Failed to place order', {
+        id: 'create-order',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Handle OTP Resend
+   */
+  const handleResendOTP = async () => {
+    try {
+      const formattedPhone = phoneUtils.formatBangladeshPhone(formData.phone);
+      const verifier = setupRecaptcha('recaptcha-container');
+      const result = await sendOTP(formattedPhone, verifier);
+      setConfirmationResult(result);
+      setOtpError('');
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to resend OTP:', error);
+      throw error;
+    }
+  };
+
+  /**
+   * Handle Cancel OTP Verification
+   */
+  const handleCancelOTP = () => {
+    setShowOTPModal(false);
+    setConfirmationResult(null);
+    setOtpError('');
+    toast('Verification cancelled', { icon: 'ℹ️' });
+  };
 
   return (
-    <div className={`pt-24 pb-12 px-4 sm:px-6 min-h-screen transition-colors duration-500 ${
+    <div className={`min-h-screen pt-24 pb-12 ${
       darkMode
         ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
         : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
@@ -160,96 +385,104 @@ export default function Checkout() {
           animate={{ opacity: 1, y: 0 }}
           className="grid lg:grid-cols-3 gap-8"
         >
-          {/* Billing & Shipping Form */}
+          {/* Left Column - Checkout Form */}
           <div className="lg:col-span-2">
-            <div className={`rounded-2xl shadow-lg p-8 ${
-              darkMode ? 'bg-moon-midnight/50 border border-moon-gold/20' : 'bg-white'
+            <div className={`rounded-2xl shadow-xl p-6 md:p-8 ${
+              darkMode
+                ? 'bg-moon-midnight border border-moon-gold/20'
+                : 'bg-white'
             }`}>
-              <h2 className={`text-2xl font-bold mb-6 ${
-                darkMode ? 'text-moon-gold' : 'text-gray-900'
-              }`}>
-                BILLING & SHIPPING
-              </h2>
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className={`p-3 rounded-xl ${
+                  darkMode ? 'bg-moon-gold/20 text-moon-gold' : 'bg-purple-100 text-purple-600'
+                }`}>
+                  <FiShoppingBag className="w-6 h-6" />
+                </div>
+                <div>
+                  <h1 className={`text-2xl font-bold ${
+                    darkMode ? 'text-moon-silver' : 'text-gray-900'
+                  }`}>
+                    Checkout
+                  </h1>
+                  <p className={`text-sm ${
+                    darkMode ? 'text-moon-silver/60' : 'text-gray-500'
+                  }`}>
+                    Complete your order
+                  </p>
+                </div>
+              </div>
 
+              {/* Billing & Shipping Information */}
               <div className="space-y-6">
-                {/* First Name & Last Name */}
+                {/* Name */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${
+                    <label className={`block text-sm font-semibold mb-2 ${
                       darkMode ? 'text-moon-silver' : 'text-gray-700'
                     }`}>
-                      First name <span className="text-red-500">*</span>
+                      First Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       name="firstName"
                       value={formData.firstName}
-                      onChange={handleInputChange}
-                      autoComplete="given-name"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      autoCapitalize="words"
-                      className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                      onChange={handleChange}
+                      placeholder="Enter first name"
+                      className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                         darkMode
                           ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                      } focus:ring-2 focus:ring-purple-500/20`}
-                      required
+                          : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                      }`}
                     />
                   </div>
+
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${
+                    <label className={`block text-sm font-semibold mb-2 ${
                       darkMode ? 'text-moon-silver' : 'text-gray-700'
                     }`}>
-                      Last name <span className="text-red-500">*</span>
+                      Last Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       name="lastName"
                       value={formData.lastName}
-                      onChange={handleInputChange}
-                      autoComplete="family-name"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      autoCapitalize="words"
-                      className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                      onChange={handleChange}
+                      placeholder="Enter last name"
+                      className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                         darkMode
                           ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                      } focus:ring-2 focus:ring-purple-500/20`}
-                      required
+                          : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                      }`}
                     />
                   </div>
                 </div>
 
                 {/* Street Address */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
+                  <label className={`flex items-center gap-2 text-sm font-semibold mb-2 ${
                     darkMode ? 'text-moon-silver' : 'text-gray-700'
                   }`}>
-                    Street address <span className="text-red-500">*</span>
+                    <FiMapPin className="w-4 h-4" />
+                    Street Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="streetAddress"
                     value={formData.streetAddress}
-                    onChange={handleInputChange}
-                    placeholder="House number and street name"
-                    autoComplete="street-address"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                    onChange={handleChange}
+                    placeholder="House/Flat, Road, Area"
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                       darkMode
-                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold'
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                    } focus:ring-2 focus:ring-purple-500/20`}
-                    required
+                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
+                        : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                    }`}
                   />
                 </div>
 
                 {/* District */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
+                  <label className={`block text-sm font-semibold mb-2 ${
                     darkMode ? 'text-moon-silver' : 'text-gray-700'
                   }`}>
                     District <span className="text-red-500">*</span>
@@ -257,358 +490,367 @@ export default function Checkout() {
                   <select
                     name="district"
                     value={formData.district}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                       darkMode
                         ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                    } focus:ring-2 focus:ring-purple-500/20`}
-                    required
+                        : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                    }`}
                   >
-                    <option value="">Select a district...</option>
-                    <option value="Bagerhat">Bagerhat</option>
-                    <option value="Bandarban">Bandarban</option>
-                    <option value="Barguna">Barguna</option>
-                    <option value="Barishal">Barishal</option>
-                    <option value="Bhola">Bhola</option>
-                    <option value="Bogura">Bogura</option>
-                    <option value="Brahmanbaria">Brahmanbaria</option>
-                    <option value="Chandpur">Chandpur</option>
-                    <option value="Chapai Nawabganj">Chapai Nawabganj</option>
-                    <option value="Chattogram">Chattogram</option>
-                    <option value="Chuadanga">Chuadanga</option>
-                    <option value="Cox's Bazar">Cox's Bazar</option>
-                    <option value="Cumilla">Cumilla</option>
-                    <option value="Dhaka">Dhaka</option>
-                    <option value="Dinajpur">Dinajpur</option>
-                    <option value="Faridpur">Faridpur</option>
-                    <option value="Feni">Feni</option>
-                    <option value="Gaibandha">Gaibandha</option>
-                    <option value="Gazipur">Gazipur</option>
-                    <option value="Gopalganj">Gopalganj</option>
-                    <option value="Habiganj">Habiganj</option>
-                    <option value="Jamalpur">Jamalpur</option>
-                    <option value="Jashore">Jashore</option>
-                    <option value="Jhalokathi">Jhalokathi</option>
-                    <option value="Jhenaidah">Jhenaidah</option>
-                    <option value="Joypurhat">Joypurhat</option>
-                    <option value="Khagrachari">Khagrachari</option>
-                    <option value="Khulna">Khulna</option>
-                    <option value="Kishoreganj">Kishoreganj</option>
-                    <option value="Kurigram">Kurigram</option>
-                    <option value="Kushtia">Kushtia</option>
-                    <option value="Lakshmipur">Lakshmipur</option>
-                    <option value="Lalmonirhat">Lalmonirhat</option>
-                    <option value="Madaripur">Madaripur</option>
-                    <option value="Magura">Magura</option>
-                    <option value="Manikganj">Manikganj</option>
-                    <option value="Meherpur">Meherpur</option>
-                    <option value="Moulvibazar">Moulvibazar</option>
-                    <option value="Munshiganj">Munshiganj</option>
-                    <option value="Mymensingh">Mymensingh</option>
-                    <option value="Naogaon">Naogaon</option>
-                    <option value="Narail">Narail</option>
-                    <option value="Narayanganj">Narayanganj</option>
-                    <option value="Narsingdi">Narsingdi</option>
-                    <option value="Natore">Natore</option>
-                    <option value="Netrokona">Netrokona</option>
-                    <option value="Nilphamari">Nilphamari</option>
-                    <option value="Noakhali">Noakhali</option>
-                    <option value="Pabna">Pabna</option>
-                    <option value="Panchagarh">Panchagarh</option>
-                    <option value="Patuakhali">Patuakhali</option>
-                    <option value="Pirojpur">Pirojpur</option>
-                    <option value="Rajbari">Rajbari</option>
-                    <option value="Rajshahi">Rajshahi</option>
-                    <option value="Rangamati">Rangamati</option>
-                    <option value="Rangpur">Rangpur</option>
-                    <option value="Satkhira">Satkhira</option>
-                    <option value="Shariatpur">Shariatpur</option>
-                    <option value="Sherpur">Sherpur</option>
-                    <option value="Sirajganj">Sirajganj</option>
-                    <option value="Sunamganj">Sunamganj</option>
-                    <option value="Sylhet">Sylhet</option>
-                    <option value="Tangail">Tangail</option>
-                    <option value="Thakurgaon">Thakurgaon</option>
+                    <option value="">Select District</option>
+                    {bangladeshDistricts.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
                   </select>
+                  <p className={`mt-2 text-xs ${
+                    darkMode ? 'text-moon-silver/60' : 'text-gray-500'
+                  }`}>
+                    📦 Shipping: ৳{shipping} ({['Dhaka', 'Rajshahi'].includes(formData.district) ? 'Inside Dhaka/Rajshahi' : 'Outside Dhaka/Rajshahi'})
+                  </p>
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
+                  <label className={`flex items-center gap-2 text-sm font-semibold mb-2 ${
                     darkMode ? 'text-moon-silver' : 'text-gray-700'
                   }`}>
-                    Phone <span className="text-red-500">*</span>
+                    <FiPhone className="w-4 h-4" />
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="01XXXXXXXXX"
-                    autoComplete="tel"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                    onChange={handleChange}
+                    placeholder="01712345678"
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                       darkMode
-                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold'
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                    } focus:ring-2 focus:ring-purple-500/20`}
-                    required
+                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
+                        : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                    }`}
                   />
+                  <p className={`mt-2 text-xs ${
+                    darkMode ? 'text-moon-silver/60' : 'text-gray-500'
+                  }`}>
+                    🔐 You'll receive an OTP for verification
+                  </p>
                 </div>
 
-                {/* Email */}
+                {/* Email (Optional) */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${
+                  <label className={`flex items-center gap-2 text-sm font-semibold mb-2 ${
                     darkMode ? 'text-moon-silver' : 'text-gray-700'
                   }`}>
-                    Email address <span className="text-red-500">*</span>
+                    <FiMail className="w-4 h-4" />
+                    Email (Optional)
                   </label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleInputChange}
-                    autoComplete="email"
-                    className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                    onChange={handleChange}
+                    placeholder="your@email.com"
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                       darkMode
                         ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
-                        : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                    } focus:ring-2 focus:ring-purple-500/20`}
-                    required
+                        : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                    }`}
                   />
                 </div>
 
-                {/* Additional Information */}
-                <div className="pt-6 border-t border-opacity-20">
-                  <h3 className={`text-xl font-bold mb-4 ${
-                    darkMode ? 'text-moon-gold' : 'text-gray-900'
+                {/* Order Notes (Optional) */}
+                <div>
+                  <label className={`block text-sm font-semibold mb-2 ${
+                    darkMode ? 'text-moon-silver' : 'text-gray-700'
                   }`}>
-                    ADDITIONAL INFORMATION
-                  </h3>
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      darkMode ? 'text-moon-silver' : 'text-gray-700'
-                    }`}>
-                      Order notes (optional)
-                    </label>
-                    <textarea
-                      name="orderNotes"
-                      value={formData.orderNotes}
-                      onChange={handleInputChange}
-                      rows={4}
-                      placeholder="Notes about your order, e.g. special notes for delivery."
-                      className={`w-full px-4 py-3 rounded-lg border transition-all ${
-                        darkMode
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold'
-                          : 'bg-white border-gray-300 text-gray-900 focus:border-purple-500'
-                      } focus:ring-2 focus:ring-purple-500/20`}
-                    />
-                  </div>
+                    Order Notes (Optional)
+                  </label>
+                  <textarea
+                    name="orderNotes"
+                    value={formData.orderNotes}
+                    onChange={handleChange}
+                    placeholder="Special instructions for your order..."
+                    rows="3"
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none resize-none ${
+                      darkMode
+                        ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
+                        : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
+                    }`}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
-            <div className={`rounded-2xl shadow-lg p-6 sticky top-24 ${
-              darkMode ? 'bg-moon-midnight/50 border border-moon-gold/20' : 'bg-white'
+            <div className={`rounded-2xl shadow-xl p-6 sticky top-24 ${
+              darkMode
+                ? 'bg-moon-midnight border border-moon-gold/20'
+                : 'bg-white'
             }`}>
-              <h3 className={`text-xl font-bold mb-6 ${
-                darkMode ? 'text-moon-gold' : 'text-gray-900'
+              <h2 className={`text-xl font-bold mb-4 ${
+                darkMode ? 'text-moon-silver' : 'text-gray-900'
               }`}>
-                YOUR ORDER
-              </h3>
+                Order Summary
+              </h2>
 
-              <div className={`flex justify-between text-sm font-semibold pb-3 mb-4 border-b ${
-                darkMode ? 'border-moon-gold/20 text-moon-silver' : 'border-gray-200 text-gray-700'
-              }`}>
-                <span>PRODUCT</span>
-                <span>SUBTOTAL</span>
-              </div>
-
-              <div className="space-y-3 mb-4">
+              {/* Cart Items */}
+              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
                 {items.map((item) => (
-                  <div key={item._id} className={`flex justify-between text-sm ${
-                    darkMode ? 'text-moon-silver' : 'text-gray-700'
-                  }`}>
+                  <div
+                    key={item._id}
+                    className={`flex gap-3 p-3 rounded-lg ${
+                      darkMode ? 'bg-moon-night/50' : 'bg-gray-50'
+                    }`}
+                  >
+                    <img
+                      src={item.product.images?.[0]?.url || '/placeholder.jpg'}
+                      alt={item.product.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
                     <div className="flex-1">
-                      <p className="font-medium">{item.product.name} - {item.size} × {item.quantity}</p>
-                    </div>
-                    <div className="font-semibold ml-4">
-                      ৳{(
-                        item.product.sizes.find(
-                          (s) => s.name === item.size && (s.tier || 'Standard') === (item.tier || 'Standard')
-                        )?.price ||
-                        item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
-                        item.product.basePrice
-                      ) * item.quantity}
+                      <h3 className={`font-semibold text-sm ${
+                        darkMode ? 'text-moon-silver' : 'text-gray-900'
+                      }`}>
+                        {item.product.name}
+                      </h3>
+                      <p className={`text-xs ${
+                        darkMode ? 'text-moon-silver/60' : 'text-gray-500'
+                      }`}>
+                        {item.size} • {item.tier} • Qty: {item.quantity}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className={`flex justify-between py-3 border-t ${
+              {/* Price Breakdown */}
+              <div className={`border-t pt-4 space-y-2 ${
                 darkMode ? 'border-moon-gold/20' : 'border-gray-200'
               }`}>
-                <span className={darkMode ? 'text-moon-silver' : 'text-gray-700'}>Subtotal</span>
-                <span className={`font-semibold ${darkMode ? 'text-moon-gold' : 'text-gray-900'}`}>
-                  ৳{subtotal}
-                </span>
-              </div>
-
-              <div className={`flex justify-between py-3 border-t ${
-                darkMode ? 'border-moon-gold/20' : 'border-gray-200'
-              }`}>
-                <span className={darkMode ? 'text-moon-silver' : 'text-gray-700'}>Shipping</span>
-                <div className="text-right">
-                  <p className={`font-semibold ${darkMode ? 'text-moon-gold' : 'text-gray-900'}`}>
-                    ৳{shippingCost}
-                  </p>
+                <div className="flex justify-between text-sm">
+                  <span className={darkMode ? 'text-moon-silver/70' : 'text-gray-600'}>
+                    Subtotal
+                  </span>
+                  <span className={`font-semibold ${
+                    darkMode ? 'text-moon-silver' : 'text-gray-900'
+                  }`}>
+                    ৳{subtotal}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className={darkMode ? 'text-moon-silver/70' : 'text-gray-600'}>
+                    Shipping
+                  </span>
+                  <span className={`font-semibold ${
+                    darkMode ? 'text-moon-silver' : 'text-gray-900'
+                  }`}>
+                    ৳{shipping}
+                  </span>
+                </div>
+                <div className={`flex justify-between text-lg pt-2 border-t ${
+                  darkMode ? 'border-moon-gold/20' : 'border-gray-200'
+                }`}>
+                  <span className={`font-bold ${
+                    darkMode ? 'text-moon-gold' : 'text-purple-600'
+                  }`}>
+                    Total
+                  </span>
+                  <span className={`font-bold ${
+                    darkMode ? 'text-moon-gold' : 'text-purple-600'
+                  }`}>
+                    ৳{total}
+                  </span>
                 </div>
               </div>
 
-              <div className={`flex justify-between py-4 border-t text-lg font-bold ${
-                darkMode ? 'border-moon-gold/20 text-moon-gold' : 'border-gray-200 text-gray-900'
-              }`}>
-                <span>Total</span>
-                <span>৳{total}</span>
-              </div>
-
-              {/* Payment Methods */}
-              <div className="mt-6 space-y-3">
-                <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-all ${
-                  paymentMethod === 'cod'
-                    ? darkMode
-                      ? 'border-moon-gold bg-moon-gold/10'
-                      : 'border-blue-500 bg-blue-50'
-                    : darkMode
-                      ? 'border-moon-gold/30 hover:border-moon-gold/50'
-                      : 'border-gray-300 hover:border-blue-300'
+              {/* Payment Method */}
+              <div className="mt-6">
+                <label className={`flex items-center gap-2 text-sm font-semibold mb-3 ${
+                  darkMode ? 'text-moon-silver' : 'text-gray-700'
                 }`}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cod"
-                    checked={paymentMethod === 'cod'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mt-1"
-                  />
-                  <div className="ml-3 flex-1">
-                    <p className={`font-semibold ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Cash On Delivery
-                    </p>
-                    <p className="text-sm mt-1 opacity-80">Pay delivery charge (৳{shippingCost}) now, rest at delivery</p>
-                    <p className="text-sm mt-1 opacity-80">Pay full amount when you receive your order</p>
-                  </div>
+                  <FiCreditCard className="w-4 h-4" />
+                  Payment Method
                 </label>
 
-                <label className={`flex items-start p-4 rounded-lg border cursor-pointer transition-all ${
-                  paymentMethod === 'online'
-                    ? 'border-blue-500 bg-blue-50'
-                    : darkMode
-                      ? 'border-moon-gold/30 hover:border-moon-gold/50'
-                      : 'border-gray-300 hover:border-blue-300'
-                }`}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="online"
-                    checked={paymentMethod === 'online'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="mt-1"
-                  />
-                  <div className="ml-3 flex-1">
-                    <p className={`font-semibold ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-                      Pay Online (Bkash/Nagad/Rocket)
-                    </p>
-                    <p className="text-sm mt-1 opacity-80">Pay full amount via mobile banking</p>
-                  </div>
-                </label>
-
-                {paymentMethod === 'online' && (
-                  <div className={`p-4 rounded-lg ${
-                    darkMode ? 'bg-moon-night/50' : 'bg-gray-50'
+                <div className="space-y-3">
+                  {/* Cash on Delivery */}
+                  <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === 'cod'
+                      ? darkMode
+                        ? 'border-moon-gold bg-moon-gold/10'
+                        : 'border-purple-600 bg-purple-50'
+                      : darkMode
+                        ? 'border-moon-silver/20 hover:border-moon-gold/50'
+                        : 'border-gray-300 hover:border-purple-300'
                   }`}>
-                    <p className={`text-sm mb-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>
-                      <strong>Bkash Number:</strong> 01747809138<br/>
-                      Send ৳{total} and enter your Transaction ID below:
-                    </p>
-                    <label className={`block text-sm font-medium mb-2 ${
-                      darkMode ? 'text-moon-silver' : 'text-gray-700'
-                    }`}>
-                      Bkash Transaction ID <span className="text-red-500">*</span>
-                    </label>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={paymentMethod === 'cod'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-5 h-5"
+                    />
+                    <div className="flex-1">
+                      <p className={`font-semibold ${
+                        darkMode ? 'text-moon-silver' : 'text-gray-900'
+                      }`}>
+                        Cash on Delivery
+                      </p>
+                      <p className={`text-xs ${
+                        darkMode ? 'text-moon-silver/60' : 'text-gray-500'
+                      }`}>
+                        Pay ৳{total} when you receive
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Online Payment */}
+                  <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    paymentMethod === 'online'
+                      ? darkMode
+                        ? 'border-moon-gold bg-moon-gold/10'
+                        : 'border-purple-600 bg-purple-50'
+                      : darkMode
+                        ? 'border-moon-silver/20 hover:border-moon-gold/50'
+                        : 'border-gray-300 hover:border-purple-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="online"
+                      checked={paymentMethod === 'online'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-5 h-5"
+                    />
+                    <div className="flex-1">
+                      <p className={`font-semibold ${
+                        darkMode ? 'text-moon-silver' : 'text-gray-900'
+                      }`}>
+                        Online Payment
+                      </p>
+                      <p className={`text-xs ${
+                        darkMode ? 'text-moon-silver/60' : 'text-gray-500'
+                      }`}>
+                        Bkash / Nagad / Rocket
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Transaction ID for Online Payment */}
+                {paymentMethod === 'online' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-3"
+                  >
                     <input
                       type="text"
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value)}
-                      placeholder="Enter transaction ID"
-                      className={`w-full px-4 py-2 rounded-lg border ${
+                      placeholder="Enter Transaction ID"
+                      className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${
                         darkMode
-                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver'
-                          : 'bg-white border-gray-300 text-gray-900'
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:border-moon-gold'
+                          : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
                       }`}
                     />
-                  </div>
+                  </motion.div>
                 )}
               </div>
 
-              {/* Privacy Policy */}
-              <div className={`mt-6 p-4 rounded-lg text-sm ${
-                darkMode ? 'bg-moon-night/30 text-moon-silver/80' : 'bg-gray-50 text-gray-600'
-              }`}>
-                Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our{' '}
-                <a href="#" className={darkMode ? 'text-moon-gold underline' : 'text-blue-600 underline'}>
-                  privacy policy
-                </a>.
+              {/* Terms & Conditions */}
+              <div className="mt-6">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-1 w-5 h-5"
+                  />
+                  <span className={`text-xs ${
+                    darkMode ? 'text-moon-silver/70' : 'text-gray-600'
+                  }`}>
+                    I agree to the{' '}
+                    <a
+                      href="/terms"
+                      className={darkMode ? 'text-moon-gold hover:underline' : 'text-purple-600 hover:underline'}
+                    >
+                      Terms & Conditions
+                    </a>{' '}
+                    and{' '}
+                    <a
+                      href="/privacy"
+                      className={darkMode ? 'text-moon-gold hover:underline' : 'text-purple-600 hover:underline'}
+                    >
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
               </div>
 
-              {/* Terms Checkbox */}
-              <label className="flex items-start mt-4 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1"
-                />
-                <span className={`ml-3 text-sm ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>
-                  I have read and agree to the website{' '}
-                  <a href="#" className={darkMode ? 'text-moon-gold underline' : 'text-blue-600 underline'}>
-                    terms and conditions
-                  </a>
-                  ,{' '}
-                  <a href="#" className={darkMode ? 'text-moon-gold underline' : 'text-blue-600 underline'}>
-                    privacy policy
-                  </a>
-                  {' '}&{' '}
-                  <a href="#" className={darkMode ? 'text-moon-gold underline' : 'text-blue-600 underline'}>
-                    refund and returns policy
-                  </a>
-                  . <span className="text-red-500">*</span>
-                </span>
-              </label>
-
               {/* Place Order Button */}
-              <button
+              <motion.button
+                whileTap={{ scale: 0.98 }}
                 onClick={handlePlaceOrder}
                 disabled={loading || !agreedToTerms}
-                className={`w-full mt-6 py-4 rounded-lg font-bold text-lg transition-all ${
-                  loading || !agreedToTerms
-                    ? 'opacity-50 cursor-not-allowed'
-                    : darkMode
-                      ? 'bg-gradient-to-r from-moon-gold to-moon-mystical text-moon-night hover:shadow-lg hover:shadow-moon-gold/50'
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg'
+                className={`w-full mt-6 py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-moon-mystical to-moon-gold hover:from-moon-gold hover:to-moon-mystical'
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
                 }`}
               >
-                {loading ? 'Processing...' : 'PLACE ORDER'}
-              </button>
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <FiShield className="w-5 h-5" />
+                    </motion.div>
+                    Processing...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <FiShield className="w-5 h-5" />
+                    Place Order - ৳{total}
+                  </span>
+                )}
+              </motion.button>
+
+              <p className={`text-xs text-center mt-3 ${
+                darkMode ? 'text-moon-silver/50' : 'text-gray-500'
+              }`}>
+                🔒 Your order is verified via phone OTP
+              </p>
             </div>
           </div>
         </motion.div>
       </div>
+
+      {/* reCAPTCHA Container (Invisible) */}
+      <div id="recaptcha-container"></div>
+
+      {/* OTP Verification Modal */}
+      <AnimatePresence>
+        {showOTPModal && (
+          <OTPVerification
+            phoneNumber={verifiedPhone}
+            onVerify={handleVerifyOTP}
+            onResend={handleResendOTP}
+            onCancel={handleCancelOTP}
+            isVerifying={isVerifying}
+            error={otpError}
+            darkMode={darkMode}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

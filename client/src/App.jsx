@@ -1,21 +1,26 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import Navbar from './components/Navbar.optimized'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
 import VybePageTransitions from './components/VybePageTransitions'
+import CheckoutSkeleton from './components/CheckoutSkeleton'
 import './components/PageTransitions.css'
 import Home from './pages/Home'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
 import Customize from './pages/Customize'
 import Cart from './pages/Cart'
-import Checkout from './pages/Checkout'
-import OrderSuccess from './pages/OrderSuccess'
 import MyOrders from './pages/MyOrders'
 import Account from './pages/Account'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
+
+// Lazy load checkout flow for better performance
+const Checkout = lazy(() => import('./pages/Checkout'))
+const OrderSuccess = lazy(() => import('./pages/OrderSuccess'))
 // Admin components - all lowercase 'admin' folder
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
@@ -47,16 +52,22 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             
             {/* Protected Routes */}
             <Route path="/checkout" element={
               <ProtectedRoute>
-                <Checkout />
+                <Suspense fallback={<CheckoutSkeleton />}>
+                  <Checkout />
+                </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/order-success" element={
               <ProtectedRoute>
-                <OrderSuccess />
+                <Suspense fallback={<CheckoutSkeleton />}>
+                  <OrderSuccess />
+                </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/my-orders" element={

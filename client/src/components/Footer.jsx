@@ -225,6 +225,25 @@ export default function Footer() {
         <div className={`mt-8 pt-8 text-center text-sm ${
           darkMode ? 'border-t border-gray-800 text-gray-400' : 'border-t border-gray-300 text-gray-600'
         }`}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-4">
+            <Link 
+              to="/privacy-policy" 
+              className={`transition hover:underline ${
+                darkMode ? 'hover:text-white' : 'hover:text-purple-600'
+              }`}
+            >
+              Privacy Policy
+            </Link>
+            <span className="hidden sm:inline">•</span>
+            <Link 
+              to="/terms-of-service" 
+              className={`transition hover:underline ${
+                darkMode ? 'hover:text-white' : 'hover:text-purple-600'
+              }`}
+            >
+              Terms of Service
+            </Link>
+          </div>
           <p>&copy; {new Date().getFullYear()} VYBE. All rights reserved. Made with ❤️ in Bangladesh</p>
         </div>
       </div>

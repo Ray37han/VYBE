@@ -99,6 +99,26 @@ export default function Home() {
 
         {/* Newsletter */}
         <Newsletter />
+
+        {/* Privacy Policy Notice - Required for verification */}
+        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            We value your privacy. Read our{' '}
+            <a 
+              href="/privacy-policy" 
+              className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 underline font-medium"
+            >
+              Privacy Policy
+            </a>
+            {' '}and{' '}
+            <a 
+              href="/terms-of-service" 
+              className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 underline font-medium"
+            >
+              Terms of Service
+            </a>
+          </p>
+        </div>
       </div>
     </>
   );

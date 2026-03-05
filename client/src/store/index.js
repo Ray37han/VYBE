@@ -35,12 +35,28 @@ export const useCartStore = create(
       addItem: (item) => set((state) => {
         console.log('=== CART STORE addItem ===');
         console.log('Adding item:', JSON.stringify(item, null, 2));
+        
+        // Defensive checks
+        if (!item) {
+          console.error('❌ Cannot add null/undefined item to cart');
+          return state;
+        }
+        
+        if (!item.product || !item.product._id) {
+          console.error('❌ Cannot add item without product or product._id', item);
+          return state;
+        }
+        
+        // Ensure quantity is valid
+        const validQuantity = Math.max(1, parseInt(item.quantity) || 1);
+        
         console.log('Item has customization?', !!item.customization);
         console.log('Customization data:', item.customization);
         
         // Generate unique ID if not present
         const itemWithId = {
           ...item,
+          quantity: validQuantity,
           _id: item._id || `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         };
         
@@ -54,7 +70,7 @@ export const useCartStore = create(
         
         const existing = state.items.find(
           (i) =>
-            i.product._id === item.product._id &&
+            i.product?._id === item.product._id &&
             i.size === item.size &&
             (i.tier || 'Standard') === (item.tier || 'Standard') &&
             (i.frame || 'No Frame') === (item.frame || 'No Frame') &&
@@ -65,12 +81,12 @@ export const useCartStore = create(
           console.log('Found existing non-custom item - updating quantity');
           return {
             items: state.items.map((i) =>
-              i.product._id === item.product._id &&
+              i.product?._id === item.product._id &&
               i.size === item.size &&
               (i.tier || 'Standard') === (item.tier || 'Standard') &&
               (i.frame || 'No Frame') === (item.frame || 'No Frame') &&
               !i.customization
-                ? { ...i, quantity: i.quantity + item.quantity }
+                ? { ...i, quantity: i.quantity + validQuantity }
                 : i
             ),
           };

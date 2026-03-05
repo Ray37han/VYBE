@@ -68,24 +68,19 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = async () => {
+    // Defensive check for product
+    if (!product) {
+      toast.error('Product not found');
+      return;
+    }
+
     if (!selectedSize) {
       toast.error('Please select a size');
       return;
     }
 
     try {
-      const cartItem = {
-        productId: product._id,
-        quantity,
-        size: selectedSize,
-        tier: selectedTier,
-        frame: selectedFrame || 'No Frame',
-      };
-
-      if (isAuthenticated) {
-        await cartAPI.add(cartItem);
-      }
-      
+      // Always add to local cart first for immediate feedback
       addToCart({
         product,
         quantity,
@@ -95,9 +90,57 @@ export default function ProductDetail() {
         _id: Date.now().toString(),
       });
       
+      console.log('✅ Added to local cart');
       toast.success('Added to cart!');
+
+      // Then sync with backend if authenticated (don't block on this)
+      if (isAuthenticated) {
+        const cartItem = {
+          productId: product._id,
+          quantity,
+          size: selectedSize,
+          tier: selectedTier,
+          frame: selectedFrame || 'No Frame',
+        };
+
+        try {
+          await cartAPI.add(cartItem);
+          console.log('✅ Synced with backend');
+        } catch (apiError) {
+          console.warn('⚠️ Failed to sync with backend, but item is in local cart:', apiError);
+          // Don't show error to user - local cart is updated successfully
+        }
+      }
     } catch (error) {
+      console.error('❌ Failed to add to cart:', error);
       toast.error('Failed to add to cart');
+    }
+  };
+
+  /**
+   * Buy Now - Add to cart and go directly to checkout
+   * Skips the cart page for faster purchase flow
+   */
+  const handleBuyNow = async () => {
+    if (!selectedSize) {
+      toast.error('Please select a size first');
+      return;
+    }
+
+    try {
+      // First, add to cart (same logic as Add to Cart)
+      await handleAddToCart();
+      
+      // Then immediately navigate to checkout
+      toast.success('Proceeding to checkout...', { duration: 1500 });
+      
+      // Small delay for better UX (let user see the success message)
+      setTimeout(() => {
+        navigate('/checkout');
+      }, 500);
+    } catch (error) {
+      console.error('❌ Buy now failed:', error);
+      toast.error('Failed to proceed. Please try again.');
     }
   };
 
@@ -416,25 +459,48 @@ export default function ProductDetail() {
                 </span>
               </motion.div>
 
-              {/* Add to Cart Button */}
-              <button 
-                onClick={(e) => {
-                  e.currentTarget.classList.add('active');
-                  handleAddToCart();
-                  setTimeout(() => {
-                    e.currentTarget.classList.remove('active');
-                  }, 2500);
-                }}
-                disabled={!selectedSize}
-                className={`btn-cart ${!selectedSize ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <span>
-                  <span className="flex items-center justify-center gap-2">
-                    <FiShoppingCart />
-                    {!selectedSize ? 'Select Size First' : 'Add to Cart'}
+              {/* Action Buttons */}
+              <div className="flex gap-3 w-full">
+                {/* Add to Cart Button */}
+                <button 
+                  onClick={(e) => {
+                    e.currentTarget.classList.add('active');
+                    handleAddToCart();
+                    setTimeout(() => {
+                      e.currentTarget.classList.remove('active');
+                    }, 2500);
+                  }}
+                  disabled={!selectedSize}
+                  className={`btn-cart flex-1 ${!selectedSize ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <span>
+                    <span className="flex items-center justify-center gap-2">
+                      <FiShoppingCart />
+                      {!selectedSize ? 'Select Size' : 'Add to Cart'}
+                    </span>
                   </span>
-                </span>
-              </button>
+                </button>
+
+                {/* Buy Now Button */}
+                <motion.button
+                  onClick={handleBuyNow}
+                  disabled={!selectedSize}
+                  whileHover={selectedSize ? { scale: 1.02 } : {}}
+                  whileTap={selectedSize ? { scale: 0.98 } : {}}
+                  className={`flex-1 px-6 py-4 rounded-lg font-bold text-white transition-all ${
+                    !selectedSize
+                      ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    {!selectedSize ? 'Select Size' : 'Buy Now'}
+                  </span>
+                </motion.button>
+              </div>
             </div>
             
             {/* Trust Banner - Critical for BD market conversion */}
