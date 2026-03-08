@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "https://vybe-backend-production-2ab6.up.railway.app/api/sitemap"
+      "destination": "https://vybe-backend-93eu.onrender.com/api/sitemap"
     },
     {
       "source": "/(.*)",
