@@ -69,6 +69,41 @@ export default function Home() {
         <meta property="twitter:title" content="vybebd.store - Premium Posters & Wall Art" />
         <meta property="twitter:description" content="Turn your walls into vibes with premium quality posters. Free delivery on orders over ৳999." />
         <meta property="twitter:image" content="https://vybebd.store/og-image.jpg" />
+
+        {/* Organization Schema — helps Google Knowledge Panel */}
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'VYBE',
+          url: 'https://vybebd.store',
+          logo: 'https://vybebd.store/vybe-logo.svg',
+          description: 'Premium poster and wall art store in Bangladesh. Anime, Marvel, Football, Cars, Music posters.',
+          sameAs: [
+            'https://www.facebook.com/profile.php?id=61580594942475',
+            'https://www.instagram.com/vybe.bd/',
+          ],
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer service',
+            availableLanguage: ['Bengali', 'English'],
+          },
+        })}</script>
+
+        {/* WebSite Schema — enables Google Sitelinks Search Box */}
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'VYBE',
+          url: 'https://vybebd.store',
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: 'https://vybebd.store/products?search={search_term_string}',
+            },
+            'query-input': 'required name=search_term_string',
+          },
+        })}</script>
       </Helmet>
 
       <div className={`min-h-screen transition-colors duration-300 ${

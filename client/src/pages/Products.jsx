@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid, FiX } from 'react-icons/fi';
 import Fuse from 'fuse.js';
@@ -220,8 +221,47 @@ export default function Products() {
     handleFilterChange('page', page.toString());
   };
 
+  const categoryLabels = {
+    'anime': 'Anime Posters', 'marvel': 'Marvel Posters', 'dc': 'DC & Batman Posters',
+    'football': 'Football Posters', 'football-motivational': 'Football Motivational Posters',
+    'cricket': 'Cricket Posters', 'f1': 'F1 Racing Posters', 'f1-motivational': 'F1 Motivational Posters',
+    'cars': 'Car Posters', 'sports-cars': 'Sports Car Posters', 'vintage-cars': 'Vintage Car Posters',
+    'muscle-cars': 'Muscle Car Posters', 'vector-cars': 'Vector Car Posters',
+    'bikes': 'Bike & Motorcycle Posters', 'music': 'Music Posters', 'tv-series': 'TV Series Posters',
+    'movies': 'Movie Posters', 'games': 'Gaming Posters', 'ufc': 'UFC & MMA Posters',
+    'nba': 'NBA Basketball Posters', 'motivational': 'Motivational Posters',
+    'abstract': 'Abstract Art Posters', 'minimalist': 'Minimalist Posters',
+    'nature': 'Nature Posters', 'vintage': 'Vintage Posters', 'modern': 'Modern Art Posters',
+  };
+  const activeCategory = filters.category;
+  const activeSearch = filters.search;
+  const catLabel = categoryLabels[activeCategory] || (activeCategory ? activeCategory.replace(/-/g, ' ') + ' Posters' : '');
+  const pageTitle = activeCategory
+    ? `${catLabel} | Buy Online Bangladesh | VYBE`
+    : activeSearch
+      ? `"${activeSearch}" Posters | VYBE`
+      : 'All Posters & Wall Art Bangladesh | Anime, Marvel, Sports | VYBE';
+  const pageDesc = activeCategory
+    ? `Shop premium ${catLabel} in Bangladesh. Best prices, fast delivery. vybebd.store`
+    : activeSearch
+      ? `Search results for "${activeSearch}" posters at vybebd.store. Premium wall art Bangladesh.`
+      : 'Browse 180+ premium posters in Bangladesh — anime, marvel, football, cars, music and more. Fast delivery, secure checkout.';
+  const canonicalUrl = activeCategory
+    ? `https://vybebd.store/products?category=${activeCategory}`
+    : 'https://vybebd.store/products';
+
   return (
     <>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="VYBE" />
+      </Helmet>
       {/* Show full page loader on initial load */}
       {initialLoad ? (
         <LoadingStore text="Loading your collection" />

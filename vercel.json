@@ -6,6 +6,10 @@
   "installCommand": "cd client && npm install",
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://vybe-backend-production-2ab6.up.railway.app/api/sitemap"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

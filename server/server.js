@@ -20,6 +20,7 @@ import heroItemsRoutes from './routes/heroItems.js';
 import customizationRoutes from './routes/customizations.js';
 import customApprovalsRoutes from './routes/customApprovals.js';
 import bulkImportRoutes from './routes/bulkImport.js';
+import sitemapRoute from './routes/sitemap.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
@@ -206,6 +207,7 @@ app.use('/api/hero-items', heroItemsRoutes);
 app.use('/api/customizations', customizationRoutes);
 app.use('/api/admin/custom-approvals', customApprovalsRoutes);
 app.use('/api/admin/bulk-import', bulkImportRoutes);
+app.use('/api', sitemapRoute);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

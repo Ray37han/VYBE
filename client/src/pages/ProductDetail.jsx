@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn, FiImage } from 'react-icons/fi';
 import { productsAPI, cartAPI } from '../api';
@@ -158,6 +159,10 @@ export default function ProductDetail() {
 
   if (!product) return null;
 
+  const productImageUrl = product.images?.[0]?.urls?.large || product.images?.[0]?.urls?.medium || product.images?.[0]?.url;
+  const productUrl = `https://vybebd.store/products/${product._id}`;
+  const productDesc = `Buy ${product.name} poster in Bangladesh. ${(product.description || '').slice(0, 130)}. Fast delivery, secure checkout at vybebd.store`;
+
   const currentVariant = product.sizes.find(
     (s) => s.name === selectedSize && (s.tier || 'Standard') === selectedTier
   );
@@ -172,6 +177,58 @@ export default function ProductDetail() {
 
   return (
     <div className="pt-24 pb-12 md:pb-12 pb-32 min-h-screen">
+      <Helmet>
+        <title>{product.name} | Buy Poster Online Bangladesh | VYBE</title>
+        <meta name="description" content={productDesc} />
+        <meta name="keywords" content={`${product.name}, ${product.category} poster, wall art bangladesh, poster bd, buy poster online${product.tags?.length ? ', ' + product.tags.join(', ') : ''}`} />
+        <link rel="canonical" href={productUrl} />
+
+        {/* Open Graph — product image shows when shared on WhatsApp/Facebook */}
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={productUrl} />
+        <meta property="og:title" content={`${product.name} | VYBE`} />
+        <meta property="og:description" content={(product.description || '').slice(0, 200)} />
+        {productImageUrl && <meta property="og:image" content={productImageUrl} />}
+        <meta property="og:site_name" content="VYBE" />
+        <meta property="product:price:amount" content={String(product.basePrice)} />
+        <meta property="product:price:currency" content="BDT" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${product.name} | VYBE`} />
+        <meta name="twitter:description" content={(product.description || '').slice(0, 200)} />
+        {productImageUrl && <meta name="twitter:image" content={productImageUrl} />}
+
+        {/* JSON-LD Product Schema — Google rich snippets: stars + price in search results */}
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          description: product.description,
+          image: product.images?.map(img => img.urls?.large || img.urls?.medium || img.url).filter(Boolean),
+          sku: product._id,
+          brand: { '@type': 'Brand', name: 'VYBE' },
+          offers: {
+            '@type': 'Offer',
+            url: productUrl,
+            priceCurrency: 'BDT',
+            price: product.basePrice,
+            priceValidUntil: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            availability: (product.stock || 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            seller: { '@type': 'Organization', name: 'VYBE' },
+          },
+          ...(product.rating?.count > 0 ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: product.rating.average,
+              reviewCount: product.rating.count,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          } : {}),
+        })}</script>
+      </Helmet>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12">
           {/* Images */}
