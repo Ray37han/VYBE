@@ -23,8 +23,15 @@ build/
 .DS_Store
 Thumbs.db
 
-# Testing
+# Testing & API Examples
 coverage/
+test*.js
+*.test.js
+*.spec.js
+test-*.sh
+.env.*example*
+*.example.*
+server/examples/
 
 # Production
 *.tgz
