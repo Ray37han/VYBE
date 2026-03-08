@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const featuredPosterSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    default: null
+  },
   title: {
     type: String,
     required: [true, 'Title is required'],
@@ -14,6 +19,14 @@ const featuredPosterSchema = new mongoose.Schema({
   image: {
     type: String,
     required: [true, 'Image URL is required']
+  },
+  basePrice: {
+    type: Number,
+    default: null
+  },
+  originalPrice: {
+    type: Number,
+    default: null
   },
   colorGradient: {
     type: String,

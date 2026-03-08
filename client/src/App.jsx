@@ -30,6 +30,7 @@ import AdminFeaturedPosters from './pages/admin/FeaturedPosters'
 import AdminHeroItems from './pages/admin/HeroItems'
 import AdminCustomOrders from './pages/admin/AdminCustomOrders'
 import AdminCustomApprovals from './pages/admin/CustomApprovals'
+import AdminBulkImport from './pages/admin/BulkImport'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -120,6 +121,11 @@ function App() {
             <Route path="/admin/custom-approvals" element={
               <ProtectedRoute adminOnly>
                 <AdminCustomApprovals />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/bulk-import" element={
+              <ProtectedRoute adminOnly>
+                <AdminBulkImport />
               </ProtectedRoute>
             } />
           </Routes>

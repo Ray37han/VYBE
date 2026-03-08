@@ -127,7 +127,7 @@ export default function AdminDashboard() {
                 : 'bg-white border-pink-300 text-pink-700 hover:bg-pink-50 hover:border-pink-500'
             }`}
           >
-            Featured Posters
+            Trending Now
           </Link>
           <Link 
             to="/admin/hero-items" 
@@ -159,8 +159,8 @@ export default function AdminDashboard() {
           >
             🎨 Custom Approvals
           </Link>
-          <Link 
-            to="/products" 
+          <Link
+            to="/products"
             className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
               darkMode
                 ? 'bg-moon-midnight/50 border-moon-silver/30 text-moon-silver hover:bg-moon-blue/50 hover:border-moon-silver/50'
@@ -168,6 +168,16 @@ export default function AdminDashboard() {
             }`}
           >
             View Store
+          </Link>
+          <Link
+            to="/admin/bulk-import"
+            className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
+              darkMode
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500'
+                : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-400 hover:to-teal-400'
+            }`}
+          >
+            Bulk Import
           </Link>
         </motion.div>
 

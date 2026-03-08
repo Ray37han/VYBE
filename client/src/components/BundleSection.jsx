@@ -26,7 +26,7 @@ export default function BundleSection() {
               <span className="text-purple-300">Up to 40% OFF</span>
             </h2>
             <p className="text-white/80 text-lg mb-8 max-w-lg">
-              Create your perfect gallery wall. Buy 3 or more posters and unlock exclusive discounts.
+              Create your perfect gallery wall. Buy 2 or more posters and unlock exclusive discounts.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -41,12 +41,12 @@ export default function BundleSection() {
             {/* Bundle Perks */}
             <div className="mt-10 grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-purple-300">3+</p>
-                <p className="text-sm text-white/70">Buy 3, Get 15% OFF</p>
+                <p className="text-2xl font-bold text-purple-300">2+</p>
+                <p className="text-sm text-white/70">Buy 2, Get 30% OFF</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-300">5+</p>
-                <p className="text-sm text-white/70">Buy 5, Get 25% OFF</p>
+                <p className="text-2xl font-bold text-purple-300">6+</p>
+                <p className="text-sm text-white/70">Buy 6, Get Extra 35% OFF</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-purple-300">10+</p>

@@ -172,6 +172,24 @@ export const adminAPI = {
   post: (endpoint, data) => api.post(endpoint, data),
   put: (endpoint, data) => api.put(endpoint, data),
   delete: (endpoint) => api.delete(endpoint),
+
+  // Bulk Import
+  bulkImportPreview: (formData) => {
+    const token = localStorage.getItem('token');
+    return api.post('/admin/bulk-import/preview', formData, {
+      headers: { 'Authorization': `Bearer ${token}` },
+      timeout: 300000,
+    }).then(res => res.data);
+  },
+  bulkImport: (formData, onProgress) => {
+    const token = localStorage.getItem('token');
+    return api.post('/admin/bulk-import/import', formData, {
+      headers: { 'Authorization': `Bearer ${token}` },
+      timeout: 600000, // 10 minutes for large batches
+      onUploadProgress: onProgress,
+    }).then(res => res.data);
+  },
+  getBulkImportCategories: () => api.get('/admin/bulk-import/categories').then(res => res.data),
 };
 
 export default api;

@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const posters = await FeaturedPoster.find({ isActive: true })
+      .populate('productId', 'name basePrice originalPrice images rating')
       .sort({ order: 1 })
       .select('-__v');
     
@@ -26,6 +27,7 @@ router.get('/', async (req, res) => {
 router.get('/admin/all', protect, authorize('admin'), async (req, res) => {
   try {
     const posters = await FeaturedPoster.find()
+      .populate('productId', 'name basePrice originalPrice images rating')
       .sort({ order: 1 })
       .select('-__v');
     
@@ -41,12 +43,12 @@ router.get('/admin/all', protect, authorize('admin'), async (req, res) => {
 // @access  Private/Admin
 router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const { title, category, image, colorGradient, order, isActive } = req.body;
+    const { title, category, image, colorGradient, order, isActive, productId, basePrice, originalPrice } = req.body;
 
     // Validation
     if (!title || !category || !image) {
-      return res.status(400).json({ 
-        message: 'Title, category, and image are required' 
+      return res.status(400).json({
+        message: 'Title, category, and image are required'
       });
     }
 
@@ -58,9 +60,12 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
     }
 
     const poster = await FeaturedPoster.create({
+      productId: productId || null,
       title,
       category,
       image,
+      basePrice: basePrice || null,
+      originalPrice: originalPrice || null,
       colorGradient: colorGradient || 'from-purple-600 to-pink-600',
       order: posterOrder,
       isActive: isActive !== undefined ? isActive : true
@@ -78,7 +83,7 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
 // @access  Private/Admin
 router.put('/:id', protect, authorize('admin'), async (req, res) => {
   try {
-    const { title, category, image, colorGradient, order, isActive } = req.body;
+    const { title, category, image, colorGradient, order, isActive, productId, basePrice, originalPrice } = req.body;
 
     const poster = await FeaturedPoster.findById(req.params.id);
 
@@ -87,9 +92,12 @@ router.put('/:id', protect, authorize('admin'), async (req, res) => {
     }
 
     // Update fields
+    if (productId !== undefined) poster.productId = productId || null;
     if (title !== undefined) poster.title = title;
     if (category !== undefined) poster.category = category;
     if (image !== undefined) poster.image = image;
+    if (basePrice !== undefined) poster.basePrice = basePrice || null;
+    if (originalPrice !== undefined) poster.originalPrice = originalPrice || null;
     if (colorGradient !== undefined) poster.colorGradient = colorGradient;
     if (order !== undefined) poster.order = order;
     if (isActive !== undefined) poster.isActive = isActive;

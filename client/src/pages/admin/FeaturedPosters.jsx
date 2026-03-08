@@ -18,6 +18,8 @@ export default function FeaturedPosters() {
     title: '',
     category: '',
     image: '',
+    basePrice: '',
+    originalPrice: '',
     colorGradient: 'from-purple-600 to-pink-600',
     isActive: true
   });
@@ -75,7 +77,7 @@ export default function FeaturedPosters() {
 
   const fetchProducts = async () => {
     try {
-      const response = await productsAPI.getAll({ limit: 100 });
+      const response = await productsAPI.getAll({ limit: 500 });
       setProducts(response.data || response.products || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -118,10 +120,12 @@ export default function FeaturedPosters() {
   const handleEdit = (poster) => {
     setEditingPoster(poster);
     setFormData({
-      productId: poster.productId || '',
+      productId: poster.productId?._id || poster.productId || '',
       title: poster.title,
       category: poster.category,
       image: poster.image,
+      basePrice: poster.basePrice || poster.productId?.basePrice || '',
+      originalPrice: poster.originalPrice || poster.productId?.originalPrice || '',
       colorGradient: poster.colorGradient,
       isActive: poster.isActive
     });
@@ -160,6 +164,8 @@ export default function FeaturedPosters() {
       title: '',
       category: '',
       image: '',
+      basePrice: '',
+      originalPrice: '',
       colorGradient: 'from-purple-600 to-pink-600',
       isActive: true
     });
@@ -174,7 +180,9 @@ export default function FeaturedPosters() {
         productId,
         title: product.name,
         category: product.category.charAt(0).toUpperCase() + product.category.slice(1),
-        image: product.images?.[0]?.url || ''
+        image: product.images?.[0]?.url || '',
+        basePrice: product.basePrice || '',
+        originalPrice: product.originalPrice || ''
       });
     }
   };
@@ -236,7 +244,7 @@ export default function FeaturedPosters() {
                 : 'bg-gradient-to-r from-purple-600 to-pink-600'
             }`}
           >
-            Featured Posters
+            Trending Now
           </motion.h1>
 
           <motion.button
@@ -252,7 +260,7 @@ export default function FeaturedPosters() {
                 : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
             }`}
           >
-            <FiPlus /> Add New Poster
+            <FiPlus /> Add New Product
           </motion.button>
         </div>
 
@@ -267,7 +275,7 @@ export default function FeaturedPosters() {
           }`}
         >
           <p className="text-sm">
-            <strong>💡 Tip:</strong> Drag and drop posters to reorder them. The order here determines how they appear on the homepage.
+            <strong>💡 Tip:</strong> Drag and drop products to reorder them. The order here determines how they appear in the Trending Now section on the homepage.
           </p>
         </motion.div>
 
@@ -292,10 +300,10 @@ export default function FeaturedPosters() {
           >
             <FiImage className={`w-16 h-16 mx-auto mb-4 ${darkMode ? 'text-moon-silver/40' : 'text-gray-400'}`} />
             <h2 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
-              No Featured Posters
+              No Trending Products
             </h2>
             <p className={darkMode ? 'text-moon-silver/60' : 'text-gray-600'}>
-              Create your first featured poster to display on the homepage
+              Create your first trending product to display in the Trending Now section on the homepage
             </p>
           </motion.div>
         ) : (
@@ -423,7 +431,7 @@ export default function FeaturedPosters() {
               >
                 <div className="flex justify-between items-center mb-6">
                   <h2 className={`text-2xl font-bold ${darkMode ? 'text-moon-gold' : 'text-gray-900'}`}>
-                    {editingPoster ? 'Edit Featured Poster' : 'Add New Featured Poster'}
+                    {editingPoster ? 'Edit Trending Product' : 'Add New Trending Product'}
                   </h2>
                   <button
                     onClick={() => {
@@ -538,6 +546,47 @@ export default function FeaturedPosters() {
                     )}
                   </div>
 
+                  {/* Prices */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        Sale Price (৳) *
+                      </label>
+                      <input
+                        type="number"
+                        name="basePrice"
+                        value={formData.basePrice}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 399"
+                        min="0"
+                        required
+                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                          darkMode
+                            ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold'
+                            : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
+                        Original Price (৳)
+                      </label>
+                      <input
+                        type="number"
+                        name="originalPrice"
+                        value={formData.originalPrice}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 499"
+                        min="0"
+                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                          darkMode
+                            ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:ring-moon-gold'
+                            : 'bg-white border-gray-300 text-gray-900 focus:ring-purple-600'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
                   {/* Color Gradient */}
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>
@@ -587,7 +636,7 @@ export default function FeaturedPosters() {
                       }`}
                     >
                       <FiSave />
-                      {loading ? 'Saving...' : editingPoster ? 'Update Poster' : 'Create Poster'}
+                      {loading ? 'Saving...' : editingPoster ? 'Update Product' : 'Add to Trending'}
                     </button>
                     <button
                       type="button"
