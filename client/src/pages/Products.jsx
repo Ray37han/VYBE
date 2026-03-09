@@ -331,24 +331,24 @@ export default function Products() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className={`mb-12 p-6 rounded-2xl border shadow-2xl relative overflow-hidden group ${
+          className={`mb-12 p-6 rounded-2xl border shadow-2xl relative group ${
             darkMode
               ? 'bg-moon-midnight border-moon-gold/20'
               : 'bg-white border-purple-200'
           }`}
         >
           {/* Animated Background */}
-          <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+          <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
             darkMode
               ? 'bg-gradient-to-r from-moon-mystical/5 via-moon-gold/5 to-moon-mystical/5'
               : 'bg-gradient-to-r from-purple-100/50 via-pink-100/50 to-purple-100/50'
           }`}></div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
 {/* Search - Server-side with debounced suggestions */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="relative group/search"
+              className="relative group/search z-50"
             >
               <FiSearch className={`absolute left-4 top-1/2 transform -translate-y-1/2 transition-all duration-300 w-5 h-5 ${
                 filters.search
@@ -398,7 +398,7 @@ export default function Products() {
               )}
               {/* Search Suggestions Dropdown */}
               {showSuggestions && searchSuggestions.length > 0 && (
-                <div className={`absolute top-full left-0 right-0 mt-1 rounded-xl shadow-xl z-50 overflow-hidden border ${
+                <div className={`absolute top-full left-0 right-0 mt-1 rounded-xl shadow-xl z-[100] max-h-72 overflow-y-auto border ${
                   darkMode ? 'bg-moon-midnight border-moon-gold/30' : 'bg-white border-purple-200'
                 }`}>
                   {searchSuggestions.map((s) => (
