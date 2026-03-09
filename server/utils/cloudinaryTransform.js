@@ -86,9 +86,9 @@ export const getWatermarkedUrl = (publicId, options = {}) => {
  */
 export const getThumbnailUrl = (publicId, options = {}) => {
   const {
-    width = 400,
-    height = 400,
-    quality = 'auto:good',
+    width = 600,
+    height = 600,
+    quality = 'auto:eco',
     crop = 'fill',
     gravity = 'auto',
   } = options;
@@ -241,7 +241,7 @@ export const getResponsiveUrls = (publicId, widths = [400, 800, 1200, 1600]) => 
  */
 export const getProductImageUrls = (publicId) => {
   return {
-    thumbnail: getThumbnailUrl(publicId, { width: 400, height: 400 }),
+    thumbnail: getThumbnailUrl(publicId, { width: 600, height: 600 }),
     medium: getWatermarkedUrl(publicId, { width: 800, height: 800 }),
     large: getWatermarkedUrl(publicId, { width: 1200, height: 1200 }),
     full: getWatermarkedUrl(publicId, { width: 2000, height: 2000 }),

@@ -88,8 +88,10 @@ export const authAPI = {
 export const productsAPI = {
   getAll: (params) => api.get('/products', { params }).then(res => res.data),
   getOne: (id) => api.get(`/products/${id}`).then(res => res.data),
-  getByCategory: (category) => api.get(`/products/category/${category}`).then(res => res.data),
+  getByCategory: (category, params) => api.get(`/products/category/${category}`, { params }).then(res => res.data),
   addReview: (id, data) => api.post(`/products/${id}/review`, data).then(res => res.data),
+  search: (params) => api.get('/products/search/query', { params }).then(res => res.data),
+  searchSuggestions: (q) => api.get('/products/search/suggestions', { params: { q } }).then(res => res.data),
 };
 
 // Featured Posters API (Public)

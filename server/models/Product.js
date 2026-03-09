@@ -149,4 +149,20 @@ productSchema.index({ sold: -1 });
 productSchema.index({ basePrice: 1 });
 productSchema.index({ createdAt: -1 });
 
+// Compound indexes for common query patterns (category + sort)
+productSchema.index({ category: 1, basePrice: 1 });
+productSchema.index({ category: 1, basePrice: -1 });
+productSchema.index({ category: 1, createdAt: -1 });
+productSchema.index({ category: 1, sold: -1 });
+
+// Active products compound indexes (most common queries)
+productSchema.index({ isActive: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, basePrice: 1 });
+productSchema.index({ isActive: 1, sold: -1 });
+productSchema.index({ isActive: 1, 'rating.average': -1 });
+
+// Feature-specific compound indexes
+productSchema.index({ bestSelling: 1, sold: -1 });
+productSchema.index({ newArrival: 1, createdAt: -1 });
+
 export default mongoose.model('Product', productSchema);

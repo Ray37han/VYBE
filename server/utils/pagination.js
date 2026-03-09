@@ -81,15 +81,36 @@ export const paginate = async (model, query = {}, options = {}) => {
 
 /**
  * Parse pagination parameters from request query
+ * Supports both legacy (sortBy/order) and new (sort=price_asc) formats
  * @param {Object} query - Express req.query object
  * @returns {Object} Parsed pagination options
  */
 export const parsePaginationParams = (query) => {
   const page = parseInt(query.page) || 1;
-  const limit = parseInt(query.limit) || 10;
-  const sortField = query.sortBy || 'createdAt';
-  const sortOrder = query.order === 'asc' ? 1 : -1;
-  const sort = { [sortField]: sortOrder };
+  const limit = parseInt(query.limit) || 12;
+
+  // New sort format: ?sort=price_asc, price_desc, newest, trending, rating
+  const sortPresets = {
+    price_asc: { basePrice: 1 },
+    price_desc: { basePrice: -1 },
+    newest: { createdAt: -1 },
+    trending: { sold: -1, createdAt: -1 },
+    rating: { 'rating.average': -1 },
+    oldest: { createdAt: 1 },
+  };
+
+  let sort;
+  if (query.sort && sortPresets[query.sort]) {
+    sort = sortPresets[query.sort];
+  } else if (query.sortBy) {
+    // Legacy format: ?sortBy=createdAt&order=desc
+    // Also handles frontend format like sortBy=-basePrice
+    const sortField = query.sortBy.replace(/^-/, '');
+    const sortOrder = query.sortBy.startsWith('-') ? -1 : (query.order === 'asc' ? 1 : -1);
+    sort = { [sortField]: sortOrder };
+  } else {
+    sort = { createdAt: -1 };
+  }
 
   return { page, limit, sort };
 };

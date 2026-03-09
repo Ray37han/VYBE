@@ -1,4 +1,5 @@
 import multer from 'multer';
+import sharp from 'sharp';
 
 // Configure multer for memory storage
 const storage = multer.memoryStorage();
@@ -42,13 +43,46 @@ export const handleMulterError = (err, req, res, next) => {
 };
 
 /**
- * No watermarking middleware needed!
- * Cloudinary handles watermarks via URL transformations
- * Just pass through the original files
+ * Image preprocessing middleware using Sharp
+ * Resizes and converts to WebP before Cloudinary upload
+ * - Reduces upload bandwidth and storage costs
+ * - Max dimension: 1200x1200 (preserves aspect ratio)
+ * - Format: WebP at quality 80
+ * - Cloudinary still handles watermarks via URL transformations
  */
-export const processImages = (req, res, next) => {
-  // Images uploaded as-is to Cloudinary
-  // Watermarks applied when generating URLs
-  console.log('✅ Images ready for Cloudinary upload (no pre-processing)');
-  next();
+export const processImages = async (req, res, next) => {
+  if (!req.files || req.files.length === 0) {
+    return next();
+  }
+
+  try {
+    const processed = await Promise.all(
+      req.files.map(async (file) => {
+        const optimized = await sharp(file.buffer)
+          .resize(1200, 1200, {
+            fit: 'inside',          // Maintain aspect ratio, don't crop
+            withoutEnlargement: true // Don't upscale small images
+          })
+          .webp({ quality: 80 })
+          .toBuffer();
+
+        return {
+          ...file,
+          buffer: optimized,
+          mimetype: 'image/webp',
+          size: optimized.length,
+          originalSize: file.size
+        };
+      })
+    );
+
+    req.files = processed;
+    const totalSaved = req.files.reduce((acc, f) => acc + (f.originalSize - f.size), 0);
+    console.log(`✅ Images optimized: ${req.files.length} files, saved ${(totalSaved / 1024).toFixed(0)}KB`);
+    next();
+  } catch (error) {
+    console.error('❌ Image processing error:', error.message);
+    // Fall back to original files if processing fails
+    next();
+  }
 };

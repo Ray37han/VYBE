@@ -28,6 +28,9 @@ import { connectRedis, closeRedis } from './config/redis.js';
 // Import security middleware
 import { generalLimiter } from './middleware/security.js';
 
+// Import cache warming
+import { warmCache } from './middleware/cache.js';
+
 // Set Node environment
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -223,6 +226,11 @@ app.use((err, req, res, next) => {
 // Bind to 0.0.0.0 to allow external access (global network)
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
+
+  // Warm Redis cache for popular routes after server starts
+  setTimeout(() => {
+    warmCache(`http://localhost:${PORT}/api`).catch(() => {});
+  }, 3000);
   console.log(`🌍 Accessible on your network at:`);
   
   // Get all network interfaces

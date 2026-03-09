@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid, FiX } from 'react-icons/fi';
-import Fuse from 'fuse.js';
 import { productsAPI } from '../api';
 import LoadingStore from '../components/LoadingStore';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
@@ -78,10 +77,12 @@ const cleanProductName = (name) => {
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [allProducts, setAllProducts] = useState([]); // Store all products for client-side search
   const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchTimerRef = useRef(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -115,88 +116,90 @@ export default function Products() {
     };
   }, []);
 
-  // Initialize Fuse.js for flexible fuzzy search
-  const fuse = useMemo(() => {
-    if (allProducts.length === 0) return null;
-    return new Fuse(allProducts, {
-      keys: ['name', 'category', 'description'],
-      threshold: 0.3,
-      ignoreLocation: true,
-      minMatchCharLength: 1,
-      distance: 100,
-      includeScore: true,
-    });
-  }, [allProducts]);
-
   useEffect(() => {
     fetchProducts();
   }, [searchParams]);
+
+  // Debounced search suggestions
+  const fetchSuggestions = useCallback((query) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (!query || query.length < 2) {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await productsAPI.searchSuggestions(query);
+        setSearchSuggestions(res.data || []);
+        setShowSuggestions(true);
+      } catch {
+        setShowSuggestions(false);
+      }
+    }, 300);
+  }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const params = Object.fromEntries(searchParams);
       
-      // Fetch all products initially for client-side search
-      if (allProducts.length === 0) {
-        const allResponse = await productsAPI.getAll({ limit: 1000 });
-        setAllProducts(allResponse.data || allResponse || []);
-      }
+      // All fetching is server-side — no client-side Fuse.js
+      params.limit = params.limit || 12;
+      params.page = params.page || 1;
+
+      // Map frontend sort values to backend format
+      const sortMap = {
+        '-createdAt': 'newest',
+        'basePrice': 'price_asc',
+        '-basePrice': 'price_desc',
+        '-rating.average': 'rating',
+        '-sold': 'trending'
+      };
       
-      // If search query exists, use Fuse.js for fuzzy search
-      if (params.search && allProducts.length > 0) {
-        const fuseInstance = new Fuse(allProducts, {
-          keys: ['name', 'category', 'description'],
-          threshold: 0.3,
-          ignoreLocation: true,
-          minMatchCharLength: 1,
-          distance: 100,
-          includeScore: true,
-        });
-        
-        const searchResults = fuseInstance.search(params.search).map(result => result.item);
-        
-        // Apply category filter if present (supports comma-separated categories)
-        let filteredResults = searchResults;
-        if (params.category) {
-          const categories = params.category.split(',').map(cat => cat.trim());
-          filteredResults = searchResults.filter(p => categories.includes(p.category));
-        }
-        
-        setProducts(filteredResults);
-        setPagination({
-          currentPage: 1,
-          totalPages: 1,
-          totalItems: filteredResults.length,
-          itemsPerPage: filteredResults.length
+      if (params.sort && sortMap[params.sort]) {
+        params.sort = sortMap[params.sort];
+      }
+
+      let response;
+      if (params.search) {
+        // Use dedicated search endpoint for better results
+        response = await productsAPI.search({
+          q: params.search,
+          page: params.page,
+          limit: params.limit,
+          sort: params.sort,
+          category: params.category
         });
       } else {
-        // Regular API call with filters
-        params.limit = 20;
-        params.page = params.page || 1;
-        
-        const response = await productsAPI.getAll(params);
-        
-        // Update products and pagination data
-        setProducts(response.data || response || []);
-        
-        // Update pagination state from response
-        if (response.pagination) {
-          setPagination({
-            currentPage: response.pagination.currentPage,
-            totalPages: response.pagination.totalPages,
-            totalItems: response.pagination.totalItems,
-            itemsPerPage: response.pagination.itemsPerPage
-          });
-        }
+        response = await productsAPI.getAll(params);
+      }
+      
+      // Update products and pagination data
+      setProducts(response.data || response.products || response || []);
+      
+      // Update pagination state from response
+      if (response.pagination) {
+        setPagination({
+          currentPage: response.pagination.currentPage,
+          totalPages: response.pagination.totalPages,
+          totalItems: response.pagination.totalItems,
+          itemsPerPage: response.pagination.itemsPerPage
+        });
+      } else if (response.pages) {
+        setPagination({
+          currentPage: response.page || 1,
+          totalPages: response.pages || 1,
+          totalItems: response.totalProducts || 0,
+          itemsPerPage: parseInt(params.limit) || 12
+        });
       }
     } catch (error) {
       console.error('Failed to load products:', error);
-      console.error('Error details:', error.response?.data || error.message);
       toast.error('Failed to load products');
     } finally {
       setLoading(false);
-      setInitialLoad(false); // Mark initial load as complete
+      setInitialLoad(false);
     }
   };
 
@@ -342,7 +345,7 @@ export default function Products() {
           }`}></div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
-            {/* Search - Optimized with Fuse.js */}
+{/* Search - Server-side with debounced suggestions */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
               className="relative group/search"
@@ -356,9 +359,20 @@ export default function Products() {
               }`} />
               <input
                 type="text"
-                placeholder="🔍 Search anywhere in name, category, description..."
+                placeholder="🔍 Search posters by name, category..."
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFilters(prev => ({ ...prev, search: val }));
+                  fetchSuggestions(val);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setShowSuggestions(false);
+                    handleFilterChange('search', filters.search);
+                  }
+                }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 className={`w-full pl-12 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-300 ${
                   darkMode
                     ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold focus:ring-moon-gold/20'
@@ -372,15 +386,43 @@ export default function Products() {
                   exit={{ opacity: 0, scale: 0 }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => handleFilterChange('search', '')}
+                  onClick={() => { handleFilterChange('search', ''); setSearchSuggestions([]); }}
                   className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg transition-colors ${
-                    darkMode
+                      darkMode
                       ? 'hover:bg-moon-gold/20 text-moon-gold'
                       : 'hover:bg-purple-100 text-purple-600'
                   }`}
                 >
                   <FiX className="w-4 h-4" />
                 </motion.button>
+              )}
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className={`absolute top-full left-0 right-0 mt-1 rounded-xl shadow-xl z-50 overflow-hidden border ${
+                  darkMode ? 'bg-moon-midnight border-moon-gold/30' : 'bg-white border-purple-200'
+                }`}>
+                  {searchSuggestions.map((s) => (
+                    <button
+                      key={s._id}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setShowSuggestions(false);
+                        handleFilterChange('search', s.name);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors ${
+                        darkMode ? 'hover:bg-moon-gold/10 text-moon-silver' : 'hover:bg-purple-50 text-gray-700'
+                      }`}
+                    >
+                      {s.thumbnail && (
+                        <img src={s.thumbnail} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
+                      )}
+                      <div>
+                        <div className="text-sm font-medium">{cleanProductName(s.name)}</div>
+                        <div className={`text-xs ${darkMode ? 'text-moon-silver/50' : 'text-gray-400'}`}>{s.category}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               )}
             </motion.div>
 
@@ -418,6 +460,7 @@ export default function Products() {
                 <option value="basePrice" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>💰 Price: Low to High</option>
                 <option value="-basePrice" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>💎 Price: High to Low</option>
                 <option value="-rating.average" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>⭐ Highest Rated</option>
+                <option value="-sold" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>🔥 Trending</option>
               </select>
             </motion.div>
 
@@ -496,13 +539,22 @@ export default function Products() {
                         ? 'bg-moon-night/30 border-moon-gold/20 group-hover:bg-black/60 group-hover:border-black'
                         : 'bg-gray-50 border-purple-100 group-hover:bg-black/80 group-hover:border-black'
                     }`}>
-                      <img
-                        src={product.images[0]?.urls?.thumbnail || product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%230a0e27" width="400" height="500"/%3E%3Ctext fill="%23cbd5e1" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
-                        alt={product.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out z-20"
-                      />
+                      <picture>
+                        {product.images[0]?.urls?.thumbnail && (
+                          <source
+                            srcSet={`${product.images[0].urls.thumbnail} 600w${product.images[0].urls?.medium ? `, ${product.images[0].urls.medium} 800w` : ''}`}
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            type="image/webp"
+                          />
+                        )}
+                        <img
+                          src={product.images[0]?.urls?.thumbnail || product.images[0]?.url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="500"%3E%3Crect fill="%230a0e27" width="400" height="500"/%3E%3Ctext fill="%23cbd5e1" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
+                          alt={product.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out z-20"
+                        />
+                      </picture>
                       
                       {/* Discount Badge */}
                       <motion.span
