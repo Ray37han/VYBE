@@ -5,33 +5,36 @@ import Product from './models/Product.js';
 const PRODUCTION_MONGODB_URI = 'mongodb+srv://2303037_db_user:kALl4kOIAR6mUefP@cluster0.p6xeucy.mongodb.net/vybe-store';
 
 // New standardized pricing structure
+// A5: base 375, after discount 280
+// A4: base 625, after discount 470
+// A3: base 1000, after discount 750
 const newPricing = {
   sizes: [
     {
       name: 'A5',
       tier: 'Standard',
       dimensions: '5.8 x 8.3 inches',
-      price: 350,
-      originalPrice: 440
+      price: 280,
+      originalPrice: 375
     },
     {
       name: 'A4',
       tier: 'Standard',
       dimensions: '8.3 x 11.7 inches',
-      price: 520,
-      originalPrice: 650
+      price: 470,
+      originalPrice: 625
     },
     {
       name: 'A3',
       tier: 'Standard',
       dimensions: '11.7 x 16.5 inches',
-      price: 800,
+      price: 750,
       originalPrice: 1000
     }
   ],
-  basePrice: 520,
-  originalPrice: 650,
-  discount: 20
+  basePrice: 470,
+  originalPrice: 625,
+  discount: 25
 };
 
 async function updateProductionPricing() {
@@ -85,10 +88,10 @@ async function updateProductionPricing() {
 
     console.log('✅ PRODUCTION DATABASE UPDATE COMPLETE!\n');
     console.log('🌐 Your website at vybebd.store will now show:');
-    console.log('   - A5: ৳350 (was ৳440)');
-    console.log('   - A4: ৳520 (was ৳650)');
-    console.log('   - A3: ৳800 (was ৳1000)');
-    console.log('   - Discount: 20% (was 33%)\n');
+    console.log('   - A5: ৳280 (base ৳375)');
+    console.log('   - A4: ৳470 (base ৳625)');
+    console.log('   - A3: ৳750 (base ৳1000)');
+    console.log('   - Discount: 25%\n');
 
   } catch (error) {
     console.error('❌ Error updating production database:', error);

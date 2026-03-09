@@ -90,18 +90,20 @@ const PRICE_RULES = {
   'other':          { basePrice: 199, originalPrice: 349 },
 };
 
-// Standard poster sizes
+// Standard poster sizes with fixed pricing
+// A5: 280 (orig 375), A4: 470 (orig 625), A3: 750 (orig 1000)
 const DEFAULT_SIZES = [
-  { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: 0, originalPrice: 0 },
-  { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 0, originalPrice: 0 },
-  { name: 'A2', tier: 'Premium', dimensions: '16.5 x 23.4 inches', price: 0, originalPrice: 0 },
+  { name: 'A5', tier: 'Standard', dimensions: '5.8 x 8.3 inches', price: 280, originalPrice: 375 },
+  { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: 470, originalPrice: 625 },
+  { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 750, originalPrice: 1000 },
 ];
 
 function getSizesWithPricing(basePrice, originalPrice) {
+  // Fixed prices for all products — A5/A4/A3
   return [
-    { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: basePrice, originalPrice },
-    { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: Math.round(basePrice * 1.4), originalPrice: Math.round(originalPrice * 1.4) },
-    { name: 'A2', tier: 'Premium', dimensions: '16.5 x 23.4 inches', price: Math.round(basePrice * 2), originalPrice: Math.round(originalPrice * 2) },
+    { name: 'A5', tier: 'Standard', dimensions: '5.8 x 8.3 inches', price: 280, originalPrice: 375 },
+    { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: 470, originalPrice: 625 },
+    { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 750, originalPrice: 1000 },
   ];
 }
 
@@ -273,23 +275,17 @@ function generateTags(title, category) {
  * Build final product data ready for DB insertion
  */
 export function buildProductData(preview, imageData, overrides = {}) {
-  const { basePrice, originalPrice } = getPricing(
-    overrides.category || preview.category,
-    { basePrice: overrides.basePrice, originalPrice: overrides.originalPrice }
-  );
-
-  const finalBasePrice = overrides.basePrice || basePrice;
-  const finalOriginalPrice = overrides.originalPrice || originalPrice;
+  const finalCategory = overrides.category || preview.category;
 
   return {
     name: overrides.title || preview.title,
     description: overrides.description || preview.description,
-    category: overrides.category || preview.category,
+    category: finalCategory,
     images: [imageData],
-    sizes: getSizesWithPricing(finalBasePrice, finalOriginalPrice),
-    basePrice: finalBasePrice,
-    originalPrice: finalOriginalPrice,
-    discount: Math.round(((finalOriginalPrice - finalBasePrice) / finalOriginalPrice) * 100),
+    sizes: getSizesWithPricing(),
+    basePrice: 470,         // A4 selling price
+    originalPrice: 625,     // A4 original price
+    discount: 25,
     stock: overrides.stock ?? 100,
     tags: preview.tags,
     isActive: true,

@@ -94,13 +94,12 @@ function detectCategory(filename) {
 function previewProductLocal(filename) {
   const title = parseFilename(filename);
   const category = detectCategory(filename);
-  const pricing = PRICE_RULES[category] || PRICE_RULES['other'];
   return {
     filename,
     title,
     category,
-    basePrice: pricing.basePrice,
-    originalPrice: pricing.originalPrice,
+    basePrice: 470,
+    originalPrice: 625,
     description: `High-quality ${category.replace(/-/g, ' ')} poster - ${title}`,
   };
 }
@@ -182,7 +181,14 @@ export default function BulkImport() {
   // ── Preview (client-side, instant) ──
   const handlePreview = () => {
     if (files.length === 0) return toast.error('Add some images first');
-    const generated = files.map(f => previewProductLocal(f.name));
+    const generated = files.map(f => {
+      const preview = previewProductLocal(f.name);
+      // Apply global overrides so bulk price set actually works
+      if (globalCategory) preview.category = globalCategory;
+      if (globalBasePrice) preview.basePrice = Number(globalBasePrice);
+      if (globalOriginalPrice) preview.originalPrice = Number(globalOriginalPrice);
+      return preview;
+    });
     setPreviews(generated);
     setStage(STAGES.PREVIEW);
     toast.success(`${generated.length} products previewed`);
