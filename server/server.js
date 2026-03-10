@@ -136,10 +136,14 @@ const io = new SocketIOServer(httpServer, {
   cors: {
     origin: (origin, cb) => cb(null, true), // mirror main CORS config
     credentials: true,
+    methods: ['GET', 'POST'],
   },
-  transports: ['websocket', 'polling'],
+  // Accept both polling and websocket; client starts with polling, upgrades to ws
+  transports: ['polling', 'websocket'],
+  allowEIO3: true,           // compatibility with older socket.io-client versions
   pingTimeout: 60000,
   pingInterval: 25000,
+  upgradeTimeout: 30000,
 });
 
 // Provide IO to analytics service so it can broadcast

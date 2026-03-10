@@ -65,9 +65,13 @@ export function AnalyticsProvider({ children }) {
   useEffect(() => {
     const socket = io(SOCKET_URL, {
       query: { sessionId: sessionId.current },
-      transports: ['websocket', 'polling'],
-      reconnectionDelay: 3000,
-      reconnectionAttempts: 5,
+      // Start with polling (reliable through Render/Railway proxy), then upgrade to websocket
+      transports: ['polling', 'websocket'],
+      upgrade: true,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      reconnectionAttempts: Infinity,
+      timeout: 20000,
       autoConnect: true,
     });
 

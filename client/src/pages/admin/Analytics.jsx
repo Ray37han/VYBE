@@ -99,8 +99,13 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     let socket;
     socket = io(SOCKET_URL, {
-      transports: ['websocket', 'polling'],
-      reconnectionDelay: 3000,
+      // polling first for Render proxy compatibility, then upgrade to websocket
+      transports: ['polling', 'websocket'],
+      upgrade: true,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      reconnectionAttempts: Infinity,
+      timeout: 20000,
     });
     socketRef.current = socket;
 
