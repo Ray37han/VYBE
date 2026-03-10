@@ -74,16 +74,12 @@ try {
     
   } else {
     /**
-     * Method 2: Application Default Credentials
-     * 
-     * Works automatically on Google Cloud Platform (App Engine, Cloud Functions, etc.)
-     * or when GOOGLE_APPLICATION_CREDENTIALS environment variable is set
+     * Method 2: Project ID only — allows token verification using Google's public keys.
+     * No service account is required; the Admin SDK fetches public certs automatically.
      */
-    firebaseApp = admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-    });
-    
-    console.log('✅ Firebase Admin initialized with default credentials');
+    const projectId = process.env.FIREBASE_PROJECT_ID || 'vybe-web-9ffd6';
+    firebaseApp = admin.initializeApp({ projectId });
+    console.log('✅ Firebase Admin initialized with projectId only (token verification mode)');
   }
   
 } catch (error) {

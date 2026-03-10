@@ -158,7 +158,9 @@ export default function Login() {
       toast.success('Logged in with Google!');
       navigate('/');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Google sign-in failed');
+      // Show the real Firebase error (e.g. auth/unauthorized-domain) or backend message
+      const msg = error.response?.data?.message || error.message || 'Google sign-in failed';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
