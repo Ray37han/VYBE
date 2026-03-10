@@ -22,18 +22,19 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FiShoppingBag, FiMapPin, FiPhone, FiMail, FiCreditCard, FiShield } from 'react-icons/fi';
 import { useCartStore, useAuthStore } from '../store';
 import { ordersAPI } from '../api';
-import OTPVerification from '../components/OTPVerification';
-import { setupRecaptcha, sendOTP, verifyOTP, phoneUtils, getCurrentUserToken } from '../firebase';
+import { useAnalytics } from '../context/AnalyticsContext';
+
 import toast from 'react-hot-toast';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const { items, getTotal, clearCart } = useCartStore();
+  const { trackEvent } = useAnalytics();
 
   /**
    * Form State - Shipping & Billing Information
@@ -55,15 +56,7 @@ export default function Checkout() {
   const [transactionId, setTransactionId] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  /**
-   * OTP Verification State
-   */
-  const [showOTPModal, setShowOTPModal] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [otpError, setOtpError] = useState('');
-  const [verifiedPhone, setVerifiedPhone] = useState('');
-  const [firebaseToken, setFirebaseToken] = useState('');
+
 
   /**
    * Loading & Theme State
@@ -198,93 +191,14 @@ export default function Checkout() {
       return;
     }
 
-    try {
-      setLoading(true);
+    // Track checkout started
+    trackEvent('checkout_started', { price: getTotal ? getTotal() : undefined });
 
-      // Format phone number to E.164 format (+880XXXXXXXXXX)
-      const formattedPhone = phoneUtils.formatBangladeshPhone(formData.phone);
-      console.log('📱 Formatted phone:', formattedPhone);
-
-      // Setup reCAPTCHA verifier
-      const verifier = setupRecaptcha(
-        'recaptcha-container',
-        () => console.log('✅ reCAPTCHA verified'),
-        (error) => console.error('❌ reCAPTCHA error:', error)
-      );
-
-      // Send OTP to phone number
-      toast.loading('Sending verification code...', { id: 'otp-send' });
-      
-      const result = await sendOTP(formattedPhone, verifier);
-      
-      toast.success('Verification code sent!', { id: 'otp-send' });
-      console.log('✅ OTP sent successfully');
-
-      // Save confirmation result for verification
-      setConfirmationResult(result);
-      setVerifiedPhone(formattedPhone);
-      
-      // Show OTP verification modal
-      setShowOTPModal(true);
-
-    } catch (error) {
-      console.error('❌ Failed to send OTP:', error);
-      toast.error(error.message || 'Failed to send verification code');
-    } finally {
-      setLoading(false);
-    }
+    // Go straight to order creation (no OTP)
+    await createOrder();
   };
 
-  /**
-   * Handle OTP Verification
-   * Step 2: Verify OTP code
-   * 
-   * @param {string} otpCode - 6-digit OTP entered by user
-   */
-  const handleVerifyOTP = async (otpCode) => {
-    if (!confirmationResult) {
-      toast.error('Please request a new verification code');
-      return;
-    }
-
-    try {
-      setIsVerifying(true);
-      setOtpError('');
-
-      // Verify OTP with Firebase
-      const result = await verifyOTP(confirmationResult, otpCode);
-      
-      console.log('✅ Phone verified successfully');
-      console.log('👤 Firebase UID:', result.user.uid);
-
-      // Get Firebase ID token for backend verification
-      const token = await getCurrentUserToken();
-      setFirebaseToken(token);
-
-      toast.success('Phone verified!');
-      
-      // Close OTP modal
-      setShowOTPModal(false);
-
-      // Proceed to create order
-      await createOrder(token);
-
-    } catch (error) {
-      console.error('❌ OTP verification failed:', error);
-      setOtpError(error.message || 'Invalid verification code');
-      throw error; // Re-throw to prevent OTP modal from closing
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  /**
-   * Create Order in MongoDB
-   * Step 3: After OTP verification succeeds
-   * 
-   * @param {string} firebaseToken - Firebase ID token for backend verification
-   */
-  const createOrder = async (firebaseToken) => {
+  const createOrder = async () => {
     try {
       setLoading(true);
       toast.loading('Creating your order...', { id: 'create-order' });
@@ -301,19 +215,16 @@ export default function Checkout() {
         })),
         shippingAddress: {
           name: `${formData.firstName} ${formData.lastName}`.trim(),
-          phone: verifiedPhone, // Use verified phone number
+          phone: formData.phone,
           street: formData.streetAddress,
           city: formData.district,
-          zipCode: '', // Optional
+          zipCode: '',
         },
-        paymentMethod: paymentMethod === 'cod' ? 'cod' : 'bkash', // Default online to bkash
+        paymentMethod: paymentMethod === 'cod' ? 'cod' : 'bkash',
         paymentInfo: {
           transactionId: paymentMethod === 'online' ? transactionId : null,
-          phoneVerified: true, // Mark as phone verified
-          firebaseUid: firebaseToken ? 'verified' : null, // Indicate Firebase verification
         },
-        orderNotes: formData.orderNotes || '',
-        firebaseToken: firebaseToken, // Send token for backend verification
+        orderNotes: formData.orderNotes || ''
       };
 
       console.log('📦 Creating order with data:', orderData);
@@ -323,6 +234,12 @@ export default function Checkout() {
       
       console.log('✅ Order created:', response.data);
       toast.success('Order placed successfully!', { id: 'create-order' });
+
+      // Track purchase completed
+      trackEvent('purchase_completed', {
+        orderId: response.data._id,
+        revenue: getTotal ? getTotal() : 0,
+      });
 
       // Clear cart
       clearCart();
@@ -346,32 +263,7 @@ export default function Checkout() {
     }
   };
 
-  /**
-   * Handle OTP Resend
-   */
-  const handleResendOTP = async () => {
-    try {
-      const formattedPhone = phoneUtils.formatBangladeshPhone(formData.phone);
-      const verifier = setupRecaptcha('recaptcha-container');
-      const result = await sendOTP(formattedPhone, verifier);
-      setConfirmationResult(result);
-      setOtpError('');
-      return result;
-    } catch (error) {
-      console.error('❌ Failed to resend OTP:', error);
-      throw error;
-    }
-  };
 
-  /**
-   * Handle Cancel OTP Verification
-   */
-  const handleCancelOTP = () => {
-    setShowOTPModal(false);
-    setConfirmationResult(null);
-    setOtpError('');
-    toast('Verification cancelled', { icon: 'ℹ️' });
-  };
 
   return (
     <div className={`min-h-screen pt-24 pb-12 ${
@@ -531,11 +423,7 @@ export default function Checkout() {
                         : 'bg-gray-50 border-gray-300 text-gray-900 focus:border-purple-600'
                     }`}
                   />
-                  <p className={`mt-2 text-xs ${
-                    darkMode ? 'text-moon-silver/60' : 'text-gray-500'
-                  }`}>
-                    🔐 You'll receive an OTP for verification
-                  </p>
+
                 </div>
 
                 {/* Email (Optional) */}
@@ -827,30 +715,14 @@ export default function Checkout() {
               <p className={`text-xs text-center mt-3 ${
                 darkMode ? 'text-moon-silver/50' : 'text-gray-500'
               }`}>
-                🔒 Your order is verified via phone OTP
+                🔒 Your order is secured and encrypted
               </p>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* reCAPTCHA Container (Invisible) */}
-      <div id="recaptcha-container"></div>
 
-      {/* OTP Verification Modal */}
-      <AnimatePresence>
-        {showOTPModal && (
-          <OTPVerification
-            phoneNumber={verifiedPhone}
-            onVerify={handleVerifyOTP}
-            onResend={handleResendOTP}
-            onCancel={handleCancelOTP}
-            isVerifying={isVerifying}
-            error={otpError}
-            darkMode={darkMode}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

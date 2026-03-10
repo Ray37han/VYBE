@@ -31,7 +31,9 @@ import AdminHeroItems from './pages/admin/HeroItems'
 import AdminCustomOrders from './pages/admin/AdminCustomOrders'
 import AdminCustomApprovals from './pages/admin/CustomApprovals'
 import AdminBulkImport from './pages/admin/BulkImport'
+import AdminAnalytics from './pages/admin/Analytics'
 import ProtectedRoute from './components/ProtectedRoute'
+import { AnalyticsProvider } from './context/AnalyticsContext'
 
 function App() {
   const location = useLocation()
@@ -41,6 +43,7 @@ function App() {
   }, [location.pathname])
 
   return (
+    <AnalyticsProvider>
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-16">
@@ -128,12 +131,18 @@ function App() {
                 <AdminBulkImport />
               </ProtectedRoute>
             } />
+            <Route path="/admin/analytics" element={
+              <ProtectedRoute adminOnly>
+                <AdminAnalytics />
+              </ProtectedRoute>
+            } />
           </Routes>
         </VybePageTransitions>
       </main>
       <Footer />
       <BackToTop />
     </div>
+    </AnalyticsProvider>
   )
 }
 

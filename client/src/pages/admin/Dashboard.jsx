@@ -178,8 +178,16 @@ export default function AdminDashboard() {
             }`}
           >
             Bulk Import
-          </Link>
-        </motion.div>
+          </Link>          <Link
+            to="/admin/analytics"
+            className={`px-6 py-3 rounded-xl font-bold text-center transition-all duration-300 shadow-lg border-2 ${
+                darkMode
+                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-500 hover:to-violet-500'
+                : 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-400 hover:to-violet-400'
+            }`}
+          >
+            📊 Analytics
+          </Link>        </motion.div>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">

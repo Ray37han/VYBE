@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiHeart, FiStar, FiX, FiZoomIn, FiImage } from 'react-icons/fi';
 import { productsAPI, cartAPI } from '../api';
 import { useAuthStore, useCartStore } from '../store';
+import { useAnalytics } from '../context/AnalyticsContext';
 import { ScrollReveal } from '../components/PageTransition';
 import LoadingStore from '../components/LoadingStore';
 import { HeartButton } from '../components/AnimatedIcon';
@@ -28,7 +29,8 @@ export default function ProductDetail() {
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
   const { isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
-  
+  const { trackEvent } = useAnalytics();
+
   // Ref for sticky cart intersection observer
   const priceAreaRef = useRef(null);
 
@@ -59,7 +61,12 @@ export default function ProductDetail() {
       const response = await productsAPI.getOne(id);
       const productData = response.data || response;
       setProduct(productData);
-      // Don't auto-select size - force user to make explicit choice
+      // Track product view
+      trackEvent('product_view', {
+        productId: productData._id,
+        productName: productData.name,
+        productCategory: productData.category,
+      });
     } catch (error) {
       toast.error('Product not found');
       navigate('/products');
@@ -90,7 +97,16 @@ export default function ProductDetail() {
         frame: selectedFrame || 'No Frame',
         _id: Date.now().toString(),
       });
-      
+
+      // Track add-to-cart event
+      trackEvent('add_to_cart', {
+        productId: product._id,
+        productName: product.name,
+        productCategory: product.category,
+        quantity,
+        price: product.basePrice,
+      });
+
       console.log('✅ Added to local cart');
       toast.success('Added to cart!');
 

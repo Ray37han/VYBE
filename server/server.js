@@ -1,5 +1,7 @@
 import 'dotenv/config';
+import { createServer } from 'http';
 import express from 'express';
+import { Server as SocketIOServer } from 'socket.io';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -21,9 +23,13 @@ import customizationRoutes from './routes/customizations.js';
 import customApprovalsRoutes from './routes/customApprovals.js';
 import bulkImportRoutes from './routes/bulkImport.js';
 import sitemapRoute from './routes/sitemap.js';
+import analyticsRoutes from './routes/analytics.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
+
+// Import analytics service
+import { setSocketIO, activeSessions, deactivateSession, broadcastActiveCount, sanitizeSessionId } from './services/analyticsService.js';
 
 // Import security middleware
 import { generalLimiter } from './middleware/security.js';
@@ -35,6 +41,7 @@ import { warmCache } from './middleware/cache.js';
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -123,6 +130,56 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Apply general rate limiting to all routes
+// Socket.IO — mounted on same HTTP server, separate path to avoid CORS conflicts
+const io = new SocketIOServer(httpServer, {
+  path: '/socket.io',
+  cors: {
+    origin: (origin, cb) => cb(null, true), // mirror main CORS config
+    credentials: true,
+  },
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000,
+});
+
+// Provide IO to analytics service so it can broadcast
+setSocketIO(io);
+
+// Socket.IO connection handler
+io.on('connection', (socket) => {
+  const rawSid = socket.handshake.query.sessionId;
+  const sessionId = sanitizeSessionId(rawSid);
+
+  // Admin clients join a dedicated room to receive broadcast events
+  socket.on('join-admin', () => {
+    socket.join('admin-room');
+    // Send current count immediately upon admin joining
+    socket.emit('active-visitors', { count: activeSessions.size, timestamp: Date.now() });
+  });
+
+  if (sessionId) {
+    activeSessions.add(sessionId);
+    broadcastActiveCount();
+  }
+
+  socket.on('heartbeat', () => {
+    // Client sends periodic heartbeats to confirm they are still active
+    if (sessionId) {
+      activeSessions.add(sessionId); // refresh membership
+      broadcastActiveCount();
+    }
+  });
+
+  socket.on('disconnect', () => {
+    if (sessionId) {
+      activeSessions.delete(sessionId);
+      broadcastActiveCount();
+      // Mark session inactive in DB (non-blocking)
+      deactivateSession(sessionId).catch(() => {});
+    }
+  });
+});
+
 app.use('/api/', generalLimiter);
 
 // Compression middleware - must come before routes
@@ -211,6 +268,7 @@ app.use('/api/customizations', customizationRoutes);
 app.use('/api/admin/custom-approvals', customApprovalsRoutes);
 app.use('/api/admin/bulk-import', bulkImportRoutes);
 app.use('/api', sitemapRoute);
+app.use('/api/analytics', analyticsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -224,7 +282,7 @@ app.use((err, req, res, next) => {
 
 // Start server with increased timeout for file uploads
 // Bind to 0.0.0.0 to allow external access (global network)
-const server = app.listen(PORT, '0.0.0.0', () => {
+const server = httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
 
   // Warm Redis cache for popular routes after server starts

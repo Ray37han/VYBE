@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { FiTrash2, FiShoppingBag } from 'react-icons/fi';
 import { useCartStore, useAuthStore } from '../store';
 import { cartAPI } from '../api';
+import { useAnalytics } from '../context/AnalyticsContext';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
 import toast from 'react-hot-toast';
 
@@ -10,6 +11,7 @@ export default function Cart() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, getTotal } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { trackEvent } = useAnalytics();
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
 
   useEffect(() => {
@@ -32,11 +34,20 @@ export default function Cart() {
 
   const handleRemove = async (itemId) => {
     try {
+      const removedItem = items.find(i => i._id === itemId);
       if (isAuthenticated) {
         await cartAPI.remove(itemId);
       }
       removeItem(itemId);
       toast.success('Removed from cart');
+      if (removedItem) {
+        trackEvent('remove_from_cart', {
+          productId: removedItem.product?._id,
+          productName: removedItem.product?.name,
+          productCategory: removedItem.product?.category,
+          quantity: removedItem.quantity,
+        });
+      }
     } catch (error) {
       toast.error('Failed to remove item');
     }
