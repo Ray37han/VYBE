@@ -19,6 +19,7 @@ import {
   getBackupCodes
 } from '../utils/backupCodes.js';
 import { sendLoginNotification, sendSuspiciousLoginAlert } from '../utils/loginNotifications.js';
+import { verifyIdToken } from '../config/firebase-admin.js';
 
 const router = express.Router();
 
@@ -703,6 +704,61 @@ router.put('/me', protect, async (req, res) => {
       success: false,
       message: error.message
     });
+  }
+});
+
+// @route   POST /api/auth/google-login
+// @desc    Sign in or register via Google (Firebase)
+// @access  Public
+router.post('/google-login', async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Google ID token is required.' });
+    }
+
+    // Verify the Firebase token server-side
+    const decoded = await verifyIdToken(idToken);
+    const { uid, email, name, picture } = decoded;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Google account must have an email.' });
+    }
+
+    // Find or create the user
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        emailVerified: true,
+        avatar: picture || '',
+        authProvider: 'google',
+        firebaseUid: uid,
+      });
+    } else if (!user.firebaseUid) {
+      // Link firebase UID to existing account
+      user.firebaseUid = uid;
+      user.emailVerified = true;
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(401).json({ success: false, message: 'Google authentication failed.' });
   }
 });
 

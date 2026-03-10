@@ -15,7 +15,7 @@
  */
 
 import { initializeApp } from 'firebase/app';
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 /**
  * Firebase Configuration Object
@@ -390,6 +390,20 @@ export const signOutUser = async () => {
 export { auth };
 
 /**
+ * Sign In With Google
+ *
+ * Opens the Google sign-in popup and returns the Firebase credential.
+ * @returns {Promise<{user, idToken}>}
+ */
+export const signInWithGoogle = async () => {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  const result = await signInWithPopup(auth, provider);
+  const idToken = await result.user.getIdToken();
+  return { user: result.user, idToken };
+};
+
+/**
  * Default Export - All Firebase Utilities
  */
 export default {
@@ -399,5 +413,6 @@ export default {
   sendOTP,
   verifyOTP,
   getCurrentUserToken,
-  signOutUser
+  signOutUser,
+  signInWithGoogle
 };

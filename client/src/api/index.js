@@ -79,6 +79,9 @@ export const authAPI = {
   getBackupCodesStatus: () => api.get('/auth/backup-codes/status'),
   getBackupCodes: (showUsed = false) => api.get(`/auth/backup-codes?showUsed=${showUsed}`),
   
+  // Google OAuth
+  googleLogin: (data) => api.post('/auth/google-login', data),
+
   // Security
   getLoginHistory: () => api.get('/auth/login-history'),
   updateSecuritySettings: (data) => api.put('/auth/security-settings', data),
