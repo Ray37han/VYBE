@@ -39,18 +39,29 @@ import { AnalyticsProvider } from './context/AnalyticsContext'
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null };
   }
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info);
   }
   render() {
     if (this.state.hasError) {
+      const clearCartAndReload = () => {
+        try { localStorage.removeItem('cart-storage'); } catch(e) {}
+        window.location.href = '/';
+      };
       return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Something went wrong</h2>
-          <p style={{ color: '#666', marginBottom: '1.5rem' }}>Please refresh the page or go back to continue shopping.</p>
-          <a href="/" style={{ padding: '0.75rem 1.5rem', background: '#7c3aed', color: 'white', borderRadius: '0.75rem', textDecoration: 'none' }}>Go to Home</a>
+          <p style={{ color: '#666', marginBottom: '0.5rem' }}>Please refresh the page or clear your cart to continue.</p>
+          <p style={{ color: '#999', fontSize: '0.75rem', marginBottom: '1.5rem', fontFamily: 'monospace' }}>{this.state.error?.message}</p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <a href="/" style={{ padding: '0.75rem 1.5rem', background: '#7c3aed', color: 'white', borderRadius: '0.75rem', textDecoration: 'none' }}>Go to Home</a>
+            <button onClick={clearCartAndReload} style={{ padding: '0.75rem 1.5rem', background: '#ef4444', color: 'white', borderRadius: '0.75rem', border: 'none', cursor: 'pointer' }}>Clear Cart &amp; Reload</button>
+          </div>
         </div>
       );
     }
@@ -66,8 +77,8 @@ function App() {
   }, [location.pathname])
 
   return (
-    <AnalyticsProvider>
     <ErrorBoundary>
+    <AnalyticsProvider>
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-16">
@@ -169,8 +180,8 @@ function App() {
       <Footer />
       <BackToTop />
     </div>
-    </ErrorBoundary>
     </AnalyticsProvider>
+    </ErrorBoundary>
   )
 }
 
