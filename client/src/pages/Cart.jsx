@@ -146,7 +146,7 @@ export default function Cart() {
   return (
     <>
     <Helmet>
-      <title>Shopping Cart ({items.length} items) | VYBE Bangladesh</title>
+      <title>{`Shopping Cart (${items.length} items) | VYBE Bangladesh`}</title>
       <meta name="description" content="Your VYBE shopping cart. Review your premium poster selections and proceed to checkout." />
       <meta name="robots" content="noindex, follow" />
     </Helmet>
