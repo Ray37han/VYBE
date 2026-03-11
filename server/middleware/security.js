@@ -76,14 +76,6 @@ export const authLimiter = rateLimit({
  * Server-side validation - NEVER trust frontend data
  */
 export const validateOrderCreation = [
-  // Firebase Token (required)
-  body('firebaseToken')
-    .trim()
-    .notEmpty()
-    .withMessage('🔒 Firebase authentication token is required')
-    .isString()
-    .withMessage('🔒 Invalid token format'),
-
   // Shipping Address - First Name
   body('shippingAddress.firstName')
     .trim()
