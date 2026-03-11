@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect, lazy, Suspense, Component } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import Navbar from './components/Navbar.optimized'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'

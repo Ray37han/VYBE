@@ -179,7 +179,7 @@ export default function Cart() {
                 >
                   <img
                     src={item.product?.images?.[0]?.url}
-                    alt={item.product?.name}
+                    alt={item.product.name}
                     className="w-24 h-24 object-cover rounded-lg"
                   />
                   <div className="flex-1">
