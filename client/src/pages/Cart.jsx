@@ -110,18 +110,22 @@ export default function Cart() {
     );
   }
 
+  // Filter out corrupted items (missing product/sizes) to prevent crashes
+  const validItems = items.filter((item) => item?.product?.sizes && Array.isArray(item.product.sizes));
+
   const getVariantForCartItem = (item) => {
     const tier = item.tier || 'Standard';
+    const sizes = item.product?.sizes || [];
     return (
-      item.product.sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier) ||
-      item.product.sizes.find((s) => s.name === item.size && !s.tier) ||
+      sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier) ||
+      sizes.find((s) => s.name === item.size && !s.tier) ||
       null
     );
   };
 
   const getItemPrice = (item) => {
     const variant = getVariantForCartItem(item);
-    return variant?.price || item.product.basePrice;
+    return variant?.price || item.product?.basePrice || 0;
   };
 
   const getItemOriginalPrice = (item) => {
@@ -130,9 +134,9 @@ export default function Cart() {
     return variant?.originalPrice || item.product?.originalPrice || Math.round(price / 0.80);
   };
 
-  const subtotal = getTotal();
-  const originalPrice = items.reduce(
-    (sum, item) => sum + getItemOriginalPrice(item) * item.quantity,
+  const subtotal = validItems.reduce((sum, item) => sum + getItemPrice(item) * (item.quantity || 1), 0);
+  const originalPrice = validItems.reduce(
+    (sum, item) => sum + getItemOriginalPrice(item) * (item.quantity || 1),
     0
   );
   const savings = originalPrice - subtotal;
@@ -161,7 +165,7 @@ export default function Cart() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => {
+            {validItems.map((item) => {
               const sizePrice = getItemPrice(item);
               const strikePrice = getItemOriginalPrice(item);
               return (
@@ -174,14 +178,14 @@ export default function Cart() {
                   }`}
                 >
                   <img
-                    src={item.product.images[0]?.url}
-                    alt={item.product.name}
+                    src={item.product?.images?.[0]?.url}
+                    alt={item.product?.name}
                     className="w-24 h-24 object-cover rounded-lg"
                   />
                   <div className="flex-1">
                     <h3 className={`font-semibold text-lg mb-1 ${
                       darkMode ? 'text-moon-silver' : 'text-gray-900'
-                    }`}>{item.product.name}</h3>
+                    }`}>{item.product?.name}</h3>
                     <p className={`text-sm mb-2 ${
                       darkMode ? 'text-moon-silver/60' : 'text-gray-600'
                     }`}>Option: {item.tier || 'Standard'} • Size: {item.size}{item.frame && item.frame !== 'No Frame' ? ` • Frame: ${item.frame}` : ''}</p>

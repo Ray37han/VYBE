@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect, lazy, Suspense, Component } from 'react'
 import Navbar from './components/Navbar.optimized'
 import Footer from './components/Footer'
 import BackToTop from './components/BackToTop'
@@ -36,6 +36,28 @@ import AdminAnalytics from './pages/admin/Analytics'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AnalyticsProvider } from './context/AnalyticsContext'
 
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Something went wrong</h2>
+          <p style={{ color: '#666', marginBottom: '1.5rem' }}>Please refresh the page or go back to continue shopping.</p>
+          <a href="/" style={{ padding: '0.75rem 1.5rem', background: '#7c3aed', color: 'white', borderRadius: '0.75rem', textDecoration: 'none' }}>Go to Home</a>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const location = useLocation()
 
@@ -45,6 +67,7 @@ function App() {
 
   return (
     <AnalyticsProvider>
+    <ErrorBoundary>
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-16">
@@ -146,6 +169,7 @@ function App() {
       <Footer />
       <BackToTop />
     </div>
+    </ErrorBoundary>
     </AnalyticsProvider>
   )
 }

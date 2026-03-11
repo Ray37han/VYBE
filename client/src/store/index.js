@@ -113,11 +113,14 @@ export const useCartStore = create(
       getTotal: () => {
         const { items } = get();
         return items.reduce((total, item) => {
+          if (!item?.product?.sizes) return total;
           const tier = item.tier || 'Standard';
+          const sizes = item.product.sizes;
           const sizePrice =
-            item.product.sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier)?.price ||
-            item.product.sizes.find((s) => s.name === item.size && !s.tier)?.price ||
-            item.product.basePrice;
+            sizes.find((s) => s.name === item.size && (s.tier || 'Standard') === tier)?.price ||
+            sizes.find((s) => s.name === item.size && !s.tier)?.price ||
+            item.product.basePrice ||
+            0;
           const quantity = Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 1;
           return total + sizePrice * quantity;
         }, 0);
