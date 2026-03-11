@@ -13,8 +13,10 @@ export default function PrivacyPolicy() {
   return (
     <>
       <Helmet>
-        <title>Privacy Policy - VYBE</title>
+        <title>Privacy Policy - VYBE | vybebd.store</title>
         <meta name="description" content="VYBE Privacy Policy - How we collect, use, and protect your information at vybebd.store" />
+        <link rel="canonical" href="https://vybebd.store/privacy-policy" />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">

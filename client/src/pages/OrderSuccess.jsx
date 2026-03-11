@@ -19,6 +19,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiPackage, FiMapPin, FiClock, FiDownload, FiHome } from 'react-icons/fi';
 import confetti from 'canvas-confetti';
@@ -120,6 +121,12 @@ export default function OrderSuccess() {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>Order Confirmed! | VYBE Bangladesh</title>
+      <meta name="description" content="Your order has been placed successfully. Thank you for shopping with VYBE!" />
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
     <div className={`min-h-screen pt-24 pb-12 ${
       darkMode
         ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
@@ -433,5 +440,6 @@ export default function OrderSuccess() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

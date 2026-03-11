@@ -64,11 +64,12 @@ export default function Home() {
         <meta property="og:image" content="https://vybebd.store/og-image.jpg" />
         
         {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://vybebd.store" />
-        <meta property="twitter:title" content="vybebd.store - Premium Posters & Wall Art" />
-        <meta property="twitter:description" content="Turn your walls into vibes with premium quality posters. Free delivery on orders over ৳999." />
-        <meta property="twitter:image" content="https://vybebd.store/og-image.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://vybebd.store" />
+        <meta name="twitter:title" content="vybebd.store - Premium Posters & Wall Art" />
+        <meta name="twitter:description" content="Turn your walls into vibes with premium quality posters. Free delivery on orders over ৳999." />
+        <meta name="twitter:image" content="https://vybebd.store/og-image.jpg" />
+        <meta name="twitter:image:alt" content="VYBE - Premium Posters & Wall Art Bangladesh" />
 
         {/* Organization Schema — helps Google Knowledge Panel */}
         <script type="application/ld+json">{JSON.stringify({

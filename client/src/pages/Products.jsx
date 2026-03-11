@@ -264,6 +264,31 @@ export default function Products() {
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="VYBE" />
+        <meta property="og:image" content="https://vybebd.store/og-image.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        <meta name="twitter:image" content="https://vybebd.store/og-image.jpg" />
+
+        {/* BreadcrumbList Schema */}
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vybebd.store' },
+            { '@type': 'ListItem', position: 2, name: activeCategory ? catLabel : 'All Posters', item: canonicalUrl },
+          ],
+        })}</script>
+
+        {/* CollectionPage Schema */}
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: pageTitle,
+          description: pageDesc,
+          url: canonicalUrl,
+          isPartOf: { '@type': 'WebSite', name: 'VYBE', url: 'https://vybebd.store' },
+        })}</script>
       </Helmet>
       {/* Show full page loader on initial load */}
       {initialLoad ? (
@@ -566,7 +591,7 @@ export default function Products() {
                             : 'bg-gradient-to-r from-green-600 to-emerald-700'
                         }`}
                       >
-                        🎉 20% OFF
+                        🎉 25% OFF
                       </motion.span>
                       
                       {product.customizable && (
@@ -615,25 +640,37 @@ export default function Products() {
                           className="relative inline-block"
                           whileHover={{ scale: 1.05 }}
                         >
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${
-                                darkMode ? 'text-moon-gold group-hover:text-white' : 'text-purple-600'
-                              }`}>
-                                ৳{product.basePrice}
-                              </span>
-                              <span className={`text-sm line-through ${
-                                darkMode ? 'text-moon-silver/40' : 'text-gray-400'
-                              }`}>
-                                ৳{product.originalPrice || Math.round(product.basePrice / 0.80)}
-                              </span>
-                            </div>
-                            <span className={`text-xs font-semibold ${
-                              darkMode ? 'text-green-400' : 'text-green-600'
-                            }`}>
-                              20% OFF
-                            </span>
-                          </div>
+                          {(() => {
+                            // Show the lowest available price across all sizes
+                            const standardSizes = (product.sizes || []).filter(s => (s.tier || 'Standard') === 'Standard');
+                            const lowestPrice = standardSizes.length > 0
+                              ? Math.min(...standardSizes.map(s => s.price))
+                              : product.basePrice;
+                            const lowestOriginal = standardSizes.length > 0
+                              ? (standardSizes.find(s => s.price === lowestPrice)?.originalPrice || Math.round(lowestPrice / 0.75))
+                              : (product.originalPrice || Math.round(lowestPrice / 0.75));
+                            return (
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${
+                                    darkMode ? 'text-moon-gold group-hover:text-white' : 'text-purple-600'
+                                  }`}>
+                                    ৳{lowestPrice}
+                                  </span>
+                                  <span className={`text-sm line-through ${
+                                    darkMode ? 'text-moon-silver/40' : 'text-gray-400'
+                                  }`}>
+                                    ৳{lowestOriginal}
+                                  </span>
+                                </div>
+                                <span className={`text-xs font-semibold ${
+                                  darkMode ? 'text-green-400' : 'text-green-600'
+                                }`}>
+                                  25% OFF
+                                </span>
+                              </div>
+                            );
+                          })()}
                           {/* Premium Minimal Accent Line */}
                           <motion.div 
                             className={`absolute bottom-0 left-0 h-0.5 ${

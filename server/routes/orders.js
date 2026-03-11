@@ -6,7 +6,6 @@ import Product from '../models/Product.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { sendOrderConfirmation, sendOrderStatusUpdate } from '../utils/emailService.js';
 import { sendOrderConfirmationSMS, sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
-import { verifyIdToken } from '../config/firebase-admin.js';
 
 // Import security middleware
 import {
@@ -21,113 +20,44 @@ import {
 const router = express.Router();
 
 // @route   POST /api/orders
-// @desc    Create new order with Firebase Phone OTP verification
-// @access  Private (requires phone verification)
-// @security Rate limited, validated, sanitized, duplicate prevention
+// @desc    Create new order (simple, no Firebase OTP)
+// @access  Private (JWT required)
 router.post('/',
-  protect,                        // JWT authentication
-  orderCreationLimiter,          // Rate limiting (5 orders per 15 min)
-  logOrderAttempt,               // Log for security monitoring
-  sanitizePhoneNumber,           // Sanitize phone to E.164 format
-  validateOrderCreation,         // Validate all inputs
-  handleValidationErrors,        // Handle validation errors
-  preventDuplicateOrders,        // Prevent duplicate submissions
+  protect,
+  orderCreationLimiter,
+  logOrderAttempt,
+  sanitizePhoneNumber,
+  validateOrderCreation,
+  handleValidationErrors,
+  preventDuplicateOrders,
   async (req, res) => {
-  /**
-   * FIREBASE PHONE OTP VERIFICATION
-   * 
-   * Before creating the order, verify that the user has completed
-   * phone OTP verification via Firebase Authentication.
-   * 
-   * This ensures orders are only placed by verified phone numbers,
-   * preventing fraud and fake orders.
-   */
-  const { firebaseToken } = req.body;
-  
-  // Check if Firebase token is provided
-  if (firebaseToken) {
-    try {
-      console.log('🔐 Verifying Firebase phone OTP token...');
-      
-      // Verify the Firebase ID token
-      const decodedToken = await verifyIdToken(firebaseToken);
-      
-      console.log('✅ Phone verified:', decodedToken.phone_number);
-      console.log('👤 Firebase UID:', decodedToken.uid);
-      
-      // Optional: Verify phone number matches the shipping address
-      if (req.body.shippingAddress && req.body.shippingAddress.phone) {
-        const normalizePhone = (phone) => phone.replace(/\D/g, '').replace(/^0/, '880');
-        const verifiedPhone = normalizePhone(decodedToken.phone_number);
-        const shippingPhone = normalizePhone(req.body.shippingAddress.phone);
-        
-        if (verifiedPhone !== shippingPhone) {
-          console.warn('⚠️  Phone mismatch:', verifiedPhone, 'vs', shippingPhone);
-          return res.status(400).json({
-            success: false,
-            message: 'Phone number mismatch. Please use the verified phone number.',
-          });
-        }
-      }
-      
-      // Attach verified phone info to request for logging
-      req.verifiedPhone = decodedToken.phone_number;
-      req.firebaseUid = decodedToken.uid;
-      
-    } catch (error) {
-      console.error('❌ Firebase token verification failed:', error.message);
-      return res.status(401).json({
-        success: false,
-        message: 'Phone verification failed. Please verify your phone number and try again.',
-      });
-    }
-  } else {
-    console.log('ℹ️  No Firebase token provided - proceeding without phone verification');
-    // Optional: Make phone verification required by uncommenting:
-    // return res.status(401).json({
-    //   success: false,
-    //   message: 'Phone verification required. Please verify your phone number.',
-    // });
-  }
-  
-  // Start a MongoDB session for transaction
   const session = await mongoose.startSession();
-  
+
   try {
-    // Start transaction
     session.startTransaction();
-    
-    const { items, shippingAddress, paymentMethod, paymentInfo, pricing, notes } = req.body;
+
+    const { items, shippingAddress, paymentMethod, paymentInfo, orderNotes } = req.body;
 
     if (!items || items.length === 0) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(400).json({
-        success: false,
-        message: 'No order items'
-      });
+      return res.status(400).json({ success: false, message: 'No order items' });
     }
 
-    // Validate and check stock for all items within transaction
+    // Validate stock for all items
     for (const item of items) {
       const product = await Product.findById(item.product).session(session);
-      
       if (!product) {
         await session.abortTransaction();
         session.endSession();
-        return res.status(404).json({
-          success: false,
-          message: `Product not found: ${item.product}`
-        });
+        return res.status(404).json({ success: false, message: `Product not found: ${item.product}` });
       }
-
-      // Check if sufficient stock is available
       if (product.stock < item.quantity) {
         await session.abortTransaction();
         session.endSession();
         return res.status(400).json({
           success: false,
-          message: `Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}`
+          message: `Insufficient stock for ${product.name}. Available: ${product.stock}`
         });
       }
     }
@@ -136,24 +66,20 @@ router.post('/',
     const count = await Order.countDocuments().session(session);
     const orderNumber = `VYBE${Date.now()}${count + 1}`;
 
-    // Check if order contains custom items
-    const hasCustomItems = items.some(item => 
+    const hasCustomItems = items.some(item =>
       item.customization && Object.keys(item.customization).length > 0
     );
 
-    // Format shipping address to match schema with verification data
+    // Map frontend shipping address fields → Order schema fields
     const formattedAddress = {
-      name: shippingAddress.fullName,
-      phone: shippingAddress.phone,
-      phoneVerified,        // Add phone verification status
-      firebaseUid,          // Add Firebase UID
-      street: shippingAddress.address,
-      city: shippingAddress.city,
-      zipCode: shippingAddress.postalCode,
-      country: 'Bangladesh'
+      name:    shippingAddress.name    || shippingAddress.fullName || '',
+      phone:   shippingAddress.phone   || '',
+      street:  shippingAddress.street  || shippingAddress.address  || '',
+      city:    shippingAddress.city    || '',
+      zipCode: shippingAddress.zipCode || shippingAddress.postalCode || '',
+      country: 'Bangladesh',
     };
 
-    // Create order within transaction
     const orderData = {
       user: req.user._id,
       orderNumber,
@@ -161,105 +87,59 @@ router.post('/',
       shippingAddress: formattedAddress,
       paymentMethod,
       paymentInfo: paymentInfo || { status: 'pending' },
-      pricing: {
-        subtotal: pricing.subtotal,
-        shippingCost: pricing.shipping,
-        total: pricing.total
-      },
-      notes,
+      notes: orderNotes || '',
       hasCustomItems,
-      orderStatus: hasCustomItems ? 'pending_admin_review' : 'pending'
+      orderStatus: hasCustomItems ? 'pending_admin_review' : 'pending',
     };
 
     const [order] = await Order.create([orderData], { session });
 
-    // Update product stock and sold count atomically
+    // Deduct stock
     for (const item of items) {
       const updateResult = await Product.findByIdAndUpdate(
         item.product,
-        {
-          $inc: { 
-            stock: -item.quantity, 
-            sold: item.quantity 
-          }
-        },
-        { 
-          session,
-          new: true,
-          runValidators: true
-        }
+        { $inc: { stock: -item.quantity, sold: item.quantity } },
+        { session, new: true, runValidators: true }
       );
-
-      // Double-check stock didn't go negative (race condition protection)
       if (updateResult.stock < 0) {
         await session.abortTransaction();
         session.endSession();
-        return res.status(400).json({
-          success: false,
-          message: `Stock validation failed for ${updateResult.name}. Please try again.`
-        });
+        return res.status(400).json({ success: false, message: `Stock validation failed for ${updateResult.name}` });
       }
     }
 
-    // Clear user cart within transaction
-    await User.findByIdAndUpdate(
-      req.user._id, 
-      { cart: [] },
-      { session }
-    );
+    // Clear user cart and record order
+    await User.findByIdAndUpdate(req.user._id, { cart: [] }, { session });
+    await User.findByIdAndUpdate(req.user._id, { $push: { orders: order._id } }, { session });
 
-    // Add order to user's orders within transaction
-    await User.findByIdAndUpdate(
-      req.user._id,
-      { $push: { orders: order._id } },
-      { session }
-    );
-
-    // Commit the transaction - all or nothing
     await session.commitTransaction();
     session.endSession();
 
-    console.log(`✅ Transaction committed: Order ${orderNumber} created successfully`);
+    console.log(`✅ Order ${orderNumber} created`);
 
-    // Populate order items for email (outside transaction)
+    // Send notifications (non-blocking)
     const populatedOrder = await Order.findById(order._id).populate('items.product', 'name images');
-
-    // Send email notification (async, outside transaction)
     if (req.user.email) {
-      sendOrderConfirmation(populatedOrder, req.user.email).catch(err => 
+      sendOrderConfirmation(populatedOrder, req.user.email).catch(err =>
         console.error('Email notification failed:', err)
       );
     }
-
-    // Send SMS notification (async, outside transaction)
     if (formattedAddress.phone) {
-      const smsMessage = `VYBE Order Confirmed! Order #${orderNumber}\nTotal: ৳${pricing.total}\n${paymentMethod === 'bkash' ? 'Payment: bKash to 01747809138' : 'Payment: COD'}\nTrack: ${process.env.CLIENT_URL || 'http://localhost:3000'}/my-orders`;
-      logSMS(formattedAddress.phone, smsMessage);
-      
       sendOrderConfirmationSMS(populatedOrder, formattedAddress.phone).catch(err =>
         console.error('SMS notification failed:', err)
       );
     }
 
-    res.status(201).json({
-      success: true,
-      data: order,
-      message: 'Order created successfully'
-    });
-    
+    res.status(201).json({ success: true, data: order, message: 'Order created successfully' });
+
   } catch (error) {
-    // Rollback transaction on any error
     await session.abortTransaction();
     session.endSession();
-    
-    console.error('❌ Order creation transaction failed:', error);
-    
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Order creation failed. Please try again.'
-    });
+    console.error('❌ Order creation failed:', error);
+    res.status(500).json({ success: false, message: error.message || 'Order creation failed' });
   }
 });
+
 
 // @route   GET /api/orders/my-orders
 // @desc    Get logged in user orders

@@ -37,7 +37,7 @@ export default function FeaturedProducts({ darkMode = false }) {
   };
 
   const getDiscountPct = (base, original) => {
-    if (!base || !original || original <= base) return 20;
+    if (!base || !original || original <= base) return 25;
     return Math.round(((original - base) / original) * 100);
   };
 

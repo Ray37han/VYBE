@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiPackage, FiClock, FiCheck, FiTruck, FiX, FiShoppingBag, FiMapPin, FiCreditCard, FiFileText } from 'react-icons/fi';
 import { ordersAPI } from '../api';
@@ -122,6 +123,12 @@ export default function MyOrders() {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>My Orders | VYBE - Premium Posters Bangladesh</title>
+      <meta name="description" content="Track and manage your VYBE poster orders. View order status, delivery updates, and order history." />
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
     <div className={`pt-28 pb-12 min-h-screen relative overflow-hidden ${
       darkMode 
         ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night' 
@@ -470,5 +477,6 @@ export default function MyOrders() {
         )}
       </div>
     </div>
+    </>
   );
 }

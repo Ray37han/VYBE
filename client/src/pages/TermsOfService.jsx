@@ -13,8 +13,10 @@ export default function TermsOfService() {
   return (
     <>
       <Helmet>
-        <title>Terms of Service - VYBE</title>
+        <title>Terms of Service - VYBE | vybebd.store</title>
         <meta name="description" content="VYBE Terms of Service - Rules and guidelines for using vybebd.store" />
+        <link rel="canonical" href="https://vybebd.store/terms-of-service" />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">

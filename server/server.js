@@ -23,6 +23,7 @@ import customizationRoutes from './routes/customizations.js';
 import customApprovalsRoutes from './routes/customApprovals.js';
 import bulkImportRoutes from './routes/bulkImport.js';
 import sitemapRoute from './routes/sitemap.js';
+import ogRoute from './routes/og.js';
 import analyticsRoutes from './routes/analytics.js';
 
 // Import Redis config
@@ -272,6 +273,7 @@ app.use('/api/customizations', customizationRoutes);
 app.use('/api/admin/custom-approvals', customApprovalsRoutes);
 app.use('/api/admin/bulk-import', bulkImportRoutes);
 app.use('/api', sitemapRoute);
+app.use('/api/og', ogRoute);
 app.use('/api/analytics', analyticsRoutes);
 
 // Error handling middleware

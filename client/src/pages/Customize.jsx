@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiArrowLeft, FiMessageCircle } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
@@ -32,6 +33,18 @@ export default function Customize() {
   };
 
   return (
+    <>
+    <Helmet>
+      <title>Custom Posters - Design Your Own Wall Art | VYBE Bangladesh</title>
+      <meta name="description" content="Design your own custom poster at VYBE. Upload your image or describe your idea — we create premium custom wall art. WhatsApp us for custom orders in Bangladesh." />
+      <link rel="canonical" href="https://vybebd.store/customize" />
+      <meta property="og:title" content="Custom Posters - Design Your Own Wall Art | VYBE" />
+      <meta property="og:description" content="Design your own custom poster. Upload your image or describe your idea — we create premium custom wall art." />
+      <meta property="og:url" content="https://vybebd.store/customize" />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Custom Posters - Design Your Own Wall Art | VYBE" />
+    </Helmet>
     <div className={`min-h-screen flex items-center justify-center px-4 transition-colors duration-500 ${
       darkMode ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night' : 'bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50'
     }`}>
@@ -136,5 +149,6 @@ export default function Customize() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

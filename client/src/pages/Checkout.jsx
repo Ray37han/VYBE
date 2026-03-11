@@ -22,6 +22,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiMapPin, FiPhone, FiMail, FiCreditCard, FiShield } from 'react-icons/fi';
 import { useCartStore, useAuthStore } from '../store';
@@ -160,9 +161,10 @@ export default function Checkout() {
       return false;
     }
 
-    // Validate Bangladesh phone number
-    if (!phoneUtils.isValidBangladeshPhone(formData.phone)) {
-      toast.error('Please enter a valid Bangladesh phone number (11 digits starting with 01)');
+    // Validate Bangladesh phone number (11 digits starting with 01)
+    const bdPhoneRegex = /^01[3-9]\d{8}$/;
+    if (!bdPhoneRegex.test(formData.phone.trim())) {
+      toast.error('Please enter a valid Bangladesh phone number (e.g. 01712345678)');
       return false;
     }
 
@@ -266,6 +268,12 @@ export default function Checkout() {
 
 
   return (
+    <>
+    <Helmet>
+      <title>Checkout | VYBE - Premium Posters Bangladesh</title>
+      <meta name="description" content="Complete your order at VYBE. Secure checkout with Cash on Delivery and online payment options. Fast delivery across Bangladesh." />
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
     <div className={`min-h-screen pt-24 pb-12 ${
       darkMode
         ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
@@ -724,5 +732,6 @@ export default function Checkout() {
 
 
     </div>
+    </>
   );
 }

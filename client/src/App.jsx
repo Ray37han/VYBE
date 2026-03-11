@@ -17,6 +17,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import NotFound from './pages/NotFound'
 
 // Lazy load checkout flow for better performance
 const Checkout = lazy(() => import('./pages/Checkout'))
@@ -136,6 +137,9 @@ function App() {
                 <AdminAnalytics />
               </ProtectedRoute>
             } />
+
+            {/* 404 Catch-all */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </VybePageTransitions>
       </main>

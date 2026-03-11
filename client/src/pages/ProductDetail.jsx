@@ -184,7 +184,7 @@ export default function ProductDetail() {
   );
   const currentPrice = currentVariant?.price || product.basePrice;
   const currentOriginalPrice =
-    currentVariant?.originalPrice || product.originalPrice || Math.round(currentPrice / 0.80);
+    currentVariant?.originalPrice || product.originalPrice || Math.round(currentPrice / 0.75);
 
   const availableSizes = product.sizes
     .filter((s) => (s.tier || 'Standard') === selectedTier)
@@ -243,6 +243,17 @@ export default function ProductDetail() {
             },
           } : {}),
         })}</script>
+
+        {/* BreadcrumbList Schema */}
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://vybebd.store' },
+            { '@type': 'ListItem', position: 2, name: product.category || 'Posters', item: `https://vybebd.store/products${product.category ? `?category=${product.category}` : ''}` },
+            { '@type': 'ListItem', position: 3, name: product.name, item: productUrl },
+          ],
+        })}</script>
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -300,7 +311,7 @@ export default function ProductDetail() {
               animate={{ opacity: 1, x: 0 }}
               className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-full shadow-lg"
             >
-              🎉 20% OFF - Limited Time!
+              🎉 25% OFF - Limited Time!
             </motion.div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
             <div className="flex items-center mb-4">
@@ -326,7 +337,7 @@ export default function ProductDetail() {
                   <div className="flex flex-col">
                     <span className="text-2xl text-gray-400 line-through">৳{currentOriginalPrice}</span>
                     <span className="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                      20% OFF
+                      25% OFF
                     </span>
                   </div>
                 </>
@@ -411,7 +422,7 @@ export default function ProductDetail() {
                           ৳{sizeVariant.price}
                         </span>
                         <span className="text-xs line-through opacity-60">
-                          ৳{sizeVariant.originalPrice || Math.round(sizeVariant.price / 0.80)}
+                          ৳{sizeVariant.originalPrice || Math.round(sizeVariant.price / 0.75)}
                         </span>
                       </div>
                     </div>

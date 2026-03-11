@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authAPI } from '../api';
 import { useAuthStore } from '../store';
@@ -158,7 +159,6 @@ export default function Login() {
       toast.success('Logged in with Google!');
       navigate('/');
     } catch (error) {
-      // Show the real Firebase error (e.g. auth/unauthorized-domain) or backend message
       const msg = error.response?.data?.message || error.message || 'Google sign-in failed';
       toast.error(msg);
     } finally {
@@ -167,6 +167,13 @@ export default function Login() {
   };
 
   return (
+    <>
+    <Helmet>
+      <title>Login | VYBE - Premium Posters Bangladesh</title>
+      <meta name="description" content="Login to your VYBE account. Access your orders, wishlist, and personalized poster recommendations." />
+      <link rel="canonical" href="https://vybebd.store/login" />
+      <meta name="robots" content="noindex, follow" />
+    </Helmet>
     <div className="pt-24 pb-12 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gradient-to-br dark:from-moon-night dark:via-moon-midnight dark:to-moon-night">
       <div className="card max-w-md w-full p-8">
         <AnimatePresence mode="wait">
@@ -342,5 +349,6 @@ export default function Login() {
         </AnimatePresence>
       </div>
     </div>
+    </>
   );
 }

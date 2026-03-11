@@ -2,9 +2,16 @@
 User-agent: *
 Allow: /
 
-# Disallow admin pages
+# Disallow private/admin pages from indexing
 Disallow: /admin/
 Disallow: /api/
+Disallow: /checkout
+Disallow: /order-success
+Disallow: /my-orders
+Disallow: /account
 
-# Sitemap location
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap (served dynamically from backend via Vercel rewrite)
 Sitemap: https://vybebd.store/sitemap.xml

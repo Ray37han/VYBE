@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authAPI } from '../api';
 import { useAuthStore } from '../store';
@@ -112,6 +113,13 @@ export default function Register() {
   };
 
   return (
+    <>
+    <Helmet>
+      <title>Create Account | VYBE - Premium Posters Bangladesh</title>
+      <meta name="description" content="Create your VYBE account. Get access to exclusive deals, order tracking, and personalized recommendations for premium posters." />
+      <link rel="canonical" href="https://vybebd.store/register" />
+      <meta name="robots" content="noindex, follow" />
+    </Helmet>
     <div className="pt-24 pb-12 min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gradient-to-br dark:from-moon-night dark:via-moon-midnight dark:to-moon-night">
       <div className="card max-w-md w-full p-8">
         <AnimatePresence mode="wait">
@@ -276,5 +284,6 @@ export default function Register() {
         </AnimatePresence>
       </div>
     </div>
+    </>
   );
 }

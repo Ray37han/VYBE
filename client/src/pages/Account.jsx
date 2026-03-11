@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store';
 import { authAPI } from '../api';
@@ -83,6 +84,12 @@ export default function Account() {
   }
 
   return (
+    <>
+    <Helmet>
+      <title>My Account | VYBE - Premium Posters Bangladesh</title>
+      <meta name="description" content="Manage your VYBE account settings, profile, and delivery addresses." />
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
     <div className="pt-24 pb-12 min-h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-moon-night dark:via-moon-midnight dark:to-moon-night">
       <div className="container mx-auto px-4 max-w-4xl">
         <motion.div
@@ -344,5 +351,6 @@ export default function Account() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { FiTrash2, FiShoppingBag } from 'react-icons/fi';
 import { useCartStore, useAuthStore } from '../store';
 import { cartAPI } from '../api';
@@ -72,6 +73,12 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
+      <>
+      <Helmet>
+        <title>Shopping Cart | VYBE - Premium Posters Bangladesh</title>
+        <meta name="description" content="Your VYBE shopping cart. Review your premium poster selections and proceed to checkout." />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <div className={`pt-24 pb-12 min-h-screen flex items-center justify-center ${
         darkMode
           ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
@@ -99,6 +106,7 @@ export default function Cart() {
           </Link>
         </div>
       </div>
+      </>
     );
   }
 
@@ -132,6 +140,12 @@ export default function Cart() {
   const total = subtotal + shipping;
 
   return (
+    <>
+    <Helmet>
+      <title>Shopping Cart ({items.length} items) | VYBE Bangladesh</title>
+      <meta name="description" content="Your VYBE shopping cart. Review your premium poster selections and proceed to checkout." />
+      <meta name="robots" content="noindex, follow" />
+    </Helmet>
     <div className={`pt-24 pb-12 min-h-screen ${
       darkMode
         ? 'bg-gradient-to-b from-moon-night via-moon-midnight to-moon-night'
@@ -332,5 +346,6 @@ export default function Cart() {
         </div>
       </div>
     </div>
+    </>
   );
 }

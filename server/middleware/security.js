@@ -197,11 +197,11 @@ export const validateOrderCreation = [
  */
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
     // Extract first error for cleaner UX
     const firstError = errors.array()[0];
-    
+
     return res.status(400).json({
       success: false,
       message: firstError.msg,
@@ -212,7 +212,7 @@ export const handleValidationErrors = (req, res, next) => {
       }))
     });
   }
-  
+
   next();
 };
 
@@ -232,7 +232,7 @@ export const preventDuplicateOrders = async (req, res, next) => {
 
     // Check for recent duplicate orders (within 2 minutes)
     const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-    
+
     const duplicateOrder = await Order.findOne({
       'shippingAddress.phone': phone,
       'pricing.total': totalPrice,
@@ -272,10 +272,10 @@ export const sanitizePhoneNumber = (req, res, next) => {
   try {
     if (req.body.shippingAddress?.phone) {
       let phone = req.body.shippingAddress.phone.trim();
-      
+
       // Remove all spaces and dashes
       phone = phone.replace(/[\s-]/g, '');
-      
+
       // Convert to E.164 format (+880...)
       if (phone.startsWith('01')) {
         phone = '+880' + phone.substring(1);
@@ -288,11 +288,11 @@ export const sanitizePhoneNumber = (req, res, next) => {
           error: 'INVALID_PHONE_FORMAT'
         });
       }
-      
+
       // Update the phone number in request body
       req.body.shippingAddress.phone = phone;
     }
-    
+
     next();
   } catch (error) {
     console.error('❌ Phone sanitization error:', error);
@@ -312,9 +312,9 @@ export const logOrderAttempt = (req, res, next) => {
   const timestamp = new Date().toISOString();
   const ip = req.ip || req.connection.remoteAddress;
   const phone = req.body.shippingAddress?.phone || 'unknown';
-  
+
   console.log(`📋 [${timestamp}] Order attempt from IP: ${ip} | Phone: ${phone}`);
-  
+
   next();
 };
 
