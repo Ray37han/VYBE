@@ -1,12 +1,17 @@
 /**
- * Checkout Page
+ * Checkout Page with Firebase Phone OTP Verification
  * 
- * Complete checkout flow:
+ * Complete checkout flow with phone number verification:
  * 1. User fills checkout form (name, phone, address, payment)
- * 2. On "Place Order", creates order directly in MongoDB
- * 3. Shows order confirmation
+ * 2. On "Place Order", sends OTP to phone via Firebase
+ * 3. User verifies OTP in modal
+ * 4. On successful verification, creates order in MongoDB
+ * 5. Shows order confirmation
  * 
  * Features:
+ * - Bangladesh phone number format (+880)
+ * - Firebase Phone Authentication
+ * - Secure OTP verification
  * - COD and Online Payment support
  * - District-based shipping
  * - Mobile optimized
@@ -180,6 +185,7 @@ export default function Checkout() {
 
   /**
    * Handle Place Order Click
+   * Step 1: Validate form and send OTP
    */
   const handlePlaceOrder = async () => {
     // Validate form

@@ -107,7 +107,7 @@ export default function AdminDashboard() {
                 : 'bg-white border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-500'
             }`}
           >
-            Manage Orders
+            🚚 Orders & Delivery
           </Link>
           <Link 
             to="/admin/users" 

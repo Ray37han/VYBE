@@ -20,12 +20,11 @@ import TermsOfService from './pages/TermsOfService'
 import NotFound from './pages/NotFound'
 
 // Lazy load checkout flow for better performance
-const Checkout = lazy(() => import('./pages/Checkout'))
-const OrderSuccess = lazy(() => import('./pages/OrderSuccess'))
+const Checkout = lazy(() => import('./pages/QuickCheckout'))
+const OrderSuccess = lazy(() => import('./pages/OrderConfirmed'))
 // Admin components - all lowercase 'admin' folder
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
-import AdminOrders from './pages/admin/Orders'
 import AdminUsers from './pages/admin/Users'
 import AdminFeaturedPosters from './pages/admin/FeaturedPosters'
 import AdminHeroItems from './pages/admin/HeroItems'
@@ -33,6 +32,7 @@ import AdminCustomOrders from './pages/admin/AdminCustomOrders'
 import AdminCustomApprovals from './pages/admin/CustomApprovals'
 import AdminBulkImport from './pages/admin/BulkImport'
 import AdminAnalytics from './pages/admin/Analytics'
+import DeliveryDashboard from './pages/admin/DeliveryDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AnalyticsProvider } from './context/AnalyticsContext'
 
@@ -95,20 +95,28 @@ function App() {
             <Route path="/terms-of-service" element={<TermsOfService />} />
             
             {/* Protected Routes */}
+            {/* Checkout – no auth required, pipeline-based */}
             <Route path="/checkout" element={
-              <ProtectedRoute>
-                <Suspense fallback={<CheckoutSkeleton />}>
-                  <Checkout />
-                </Suspense>
-              </ProtectedRoute>
+              <Suspense fallback={<CheckoutSkeleton />}>
+                <Checkout />
+              </Suspense>
+            } />
+            <Route path="/quick-checkout" element={
+              <Suspense fallback={<CheckoutSkeleton />}>
+                <Checkout />
+              </Suspense>
             } />
             <Route path="/order-success" element={
-              <ProtectedRoute>
-                <Suspense fallback={<CheckoutSkeleton />}>
-                  <OrderSuccess />
-                </Suspense>
-              </ProtectedRoute>
+              <Suspense fallback={<CheckoutSkeleton />}>
+                <OrderSuccess />
+              </Suspense>
             } />
+            <Route path="/order-confirmed" element={
+              <Suspense fallback={<CheckoutSkeleton />}>
+                <OrderSuccess />
+              </Suspense>
+            } />
+
             <Route path="/my-orders" element={
               <ProtectedRoute>
                 <MyOrders />
@@ -133,7 +141,7 @@ function App() {
             } />
             <Route path="/admin/orders" element={
               <ProtectedRoute adminOnly>
-                <AdminOrders />
+                <DeliveryDashboard />
               </ProtectedRoute>
             } />
             <Route path="/admin/users" element={
@@ -171,7 +179,6 @@ function App() {
                 <AdminAnalytics />
               </ProtectedRoute>
             } />
-
             {/* 404 Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>

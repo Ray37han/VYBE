@@ -328,7 +328,20 @@ export default function Cart() {
                 </div>
               </div>
               <button
-                onClick={() => navigate('/checkout')}
+                onClick={() => {
+                  const productLabel = validItems.length === 1
+                    ? `${validItems[0].product?.name} – ${validItems[0].size}${validItems[0].tier && validItems[0].tier !== 'Standard' ? ` (${validItems[0].tier})` : ''}`
+                    : `${validItems.length} items`;
+                  const qs = new URLSearchParams({
+                    name:  productLabel,
+                    price: String(Math.round(total)),
+                    qty:   '1',
+                    ...(validItems.length === 1 && validItems[0].product?._id
+                      ? { productId: validItems[0].product._id }
+                      : {}),
+                  });
+                  navigate(`/quick-checkout?${qs.toString()}`);
+                }}
                 className={`w-full px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
                   darkMode
                     ? 'bg-gradient-to-r from-moon-mystical to-moon-gold text-white hover:shadow-moon-gold/50'

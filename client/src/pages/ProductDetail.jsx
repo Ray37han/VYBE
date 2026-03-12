@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +11,6 @@ import LoadingStore from '../components/LoadingStore';
 import { HeartButton } from '../components/AnimatedIcon';
 import MagneticButton from '../components/MagneticButton';
 import { TrustBanner } from '../components/TrustBadges';
-import StickyAddToCart from '../components/StickyAddToCart';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail() {
@@ -30,9 +29,6 @@ export default function ProductDetail() {
   const { isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
   const { trackEvent } = useAnalytics();
-
-  // Ref for sticky cart intersection observer
-  const priceAreaRef = useRef(null);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -138,27 +134,26 @@ export default function ProductDetail() {
    * Buy Now - Add to cart and go directly to checkout
    * Skips the cart page for faster purchase flow
    */
-  const handleBuyNow = async () => {
+const handleBuyNow = () => {
     if (!selectedSize) {
       toast.error('Please select a size first');
       return;
     }
 
-    try {
-      // First, add to cart (same logic as Add to Cart)
-      await handleAddToCart();
-      
-      // Then immediately navigate to checkout
-      toast.success('Proceeding to checkout...', { duration: 1500 });
-      
-      // Small delay for better UX (let user see the success message)
-      setTimeout(() => {
-        navigate('/checkout');
-      }, 500);
-    } catch (error) {
-      console.error('❌ Buy now failed:', error);
-      toast.error('Failed to proceed. Please try again.');
-    }
+    // Build a descriptive label: "Anime Poster – A3 (Premium)"
+    const productLabel =
+      selectedTier && selectedTier !== 'Standard'
+        ? `${product.name} – ${selectedSize} (${selectedTier})`
+        : `${product.name} – ${selectedSize}`;
+
+    const qs = new URLSearchParams({
+      productId: product._id,
+      name:      productLabel,
+      price:     String(currentPrice),
+      qty:       String(quantity),
+    });
+
+    navigate(`/quick-checkout?${qs.toString()}`);
   };
 
   const handleMouseMove = (e) => {
@@ -179,17 +174,24 @@ export default function ProductDetail() {
   const productUrl = `https://vybebd.store/products/${product._id}`;
   const productDesc = `Buy ${product.name} poster in Bangladesh. ${(product.description || '').slice(0, 130)}. Fast delivery, secure checkout at vybebd.store`;
 
-  const currentVariant = product.sizes.find(
-    (s) => s.name === selectedSize && (s.tier || 'Standard') === selectedTier
+  const currentStdVariant = product.sizes.find(
+    (s) => s.name === selectedSize && (s.tier || 'Standard') === 'Standard'
   );
+  const currentPremVariant = product.sizes.find(
+    (s) => s.name === selectedSize && s.tier === 'Premium'
+  );
+  const currentVariant = selectedTier === 'Premium'
+    ? currentPremVariant || (currentStdVariant ? {
+        ...currentStdVariant,
+        price: currentStdVariant.price + (({ A5: 100, A4: 150, A3: 200 })[selectedSize] || 100),
+      } : null)
+    : currentStdVariant;
   const currentPrice = currentVariant?.price || product.basePrice;
   const currentOriginalPrice =
     currentVariant?.originalPrice || product.originalPrice || Math.round(currentPrice / 0.75);
 
-  const availableSizes = product.sizes
-    .filter((s) => (s.tier || 'Standard') === selectedTier)
-    .map((s) => s.name);
-  const uniqueAvailableSizes = Array.from(new Set(availableSizes));
+  const uniqueAvailableSizes = Array.from(new Set(product.sizes.map((s) => s.name)));
+  const premiumMarkup = { A5: 100, A4: 150, A3: 200 };
 
   return (
     <div className="pt-24 pb-12 md:pb-12 pb-32 min-h-screen">
@@ -330,7 +332,7 @@ export default function ProductDetail() {
               </span>
             </div>
             
-            <div ref={priceAreaRef} className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-6">
               {selectedSize ? (
                 <>
                   <p className="text-4xl font-bold text-vybe-purple">৳{currentPrice}</p>
@@ -354,24 +356,27 @@ export default function ProductDetail() {
 
             {/* Tier Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-3">Select Option:</label>
-              <div className="flex gap-3">
+              <label className="block text-sm font-semibold mb-3">Quality:</label>
+              <div className="relative flex rounded-xl bg-gray-100 p-1 gap-1">
                 {['Standard', 'Premium'].map((tier) => (
                   <motion.button
                     key={tier}
-                    onClick={() => {
-                      setSelectedTier(tier);
-                      setSelectedSize('');
-                    }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    className={`flex-1 px-5 py-3 rounded-xl border-2 font-bold transition-all ${
-                      selectedTier === tier
-                        ? 'border-vybe-purple bg-vybe-purple text-white shadow-lg'
-                        : 'border-gray-300 hover:border-vybe-purple'
-                    }`}
+                    onClick={() => { setSelectedTier(tier); setSelectedSize(''); }}
+                    whileTap={{ scale: 0.95, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                    className="relative flex-1 py-2.5 rounded-lg font-bold text-sm z-10"
                   >
-                    {tier}
+                    {selectedTier === tier && (
+                      <motion.span
+                        layoutId="tierHighlight"
+                        className="absolute inset-0 rounded-lg bg-white shadow-md"
+                        transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                      />
+                    )}
+                    <span className={`relative z-10 transition-colors duration-200 ${
+                      selectedTier === tier ? 'text-vybe-purple' : 'text-gray-500'
+                    }`}>
+                      {tier}
+                    </span>
                   </motion.button>
                 ))}
               </div>
@@ -397,28 +402,59 @@ export default function ProductDetail() {
                   ? 'border-vybe-purple/30 bg-vybe-purple/5 shadow-lg shadow-vybe-purple/10' 
                   : 'border-transparent bg-transparent'
               }`}>
-                {uniqueAvailableSizes.map((sizeName) => {
-                  const sizeVariant = product.sizes.find(
-                    (s) => s.name === sizeName && (s.tier || 'Standard') === selectedTier
+                {uniqueAvailableSizes.map((sizeName, sizeIdx) => {
+                  const standardVariant = product.sizes.find(
+                    (s) => s.name === sizeName && (s.tier || 'Standard') === 'Standard'
                   );
+                  const premiumVariantFromDB = product.sizes.find(
+                    (s) => s.name === sizeName && s.tier === 'Premium'
+                  );
+                  const sizeVariant = selectedTier === 'Premium'
+                    ? premiumVariantFromDB || (standardVariant ? {
+                        ...standardVariant,
+                        price: standardVariant.price + (premiumMarkup[sizeName] || 100),
+                        originalPrice: Math.round((standardVariant.price + (premiumMarkup[sizeName] || 100)) / 0.75)
+                      } : null)
+                    : standardVariant;
                   if (!sizeVariant) return null;
+                  const flameDelay = sizeIdx * 0.3;
+                  const isPremium = selectedTier === 'Premium';
+                  const isSelected = selectedSize === sizeName;
 
                   return (
                   <motion.button
                     key={`${selectedTier}-${sizeName}`}
                     onClick={() => setSelectedSize(sizeName)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`px-6 py-3 rounded-full border-2 transition-all ${
-                      selectedSize === sizeName
-                        ? 'border-vybe-purple bg-vybe-purple text-white shadow-lg'
-                        : 'border-gray-300 hover:border-vybe-purple hover:shadow-md'
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92, transition: { type: 'spring', stiffness: 500, damping: 18 } }}
+                    animate={isPremium && !isSelected ? {
+                      borderColor: ['rgb(253,186,116)', 'rgb(249,115,22)', 'rgb(239,68,68)', 'rgb(249,115,22)', 'rgb(253,186,116)'],
+                      boxShadow: ['0 0 4px rgba(249,115,22,0.2)', '0 0 18px rgba(249,115,22,0.55)', '0 0 4px rgba(249,115,22,0.2)']
+                    } : {}}
+                    transition={{ duration: 1.8, repeat: isPremium ? Infinity : 0, ease: 'easeInOut', delay: flameDelay }}
+                    className={`relative px-6 py-3 rounded-full border-2 transition-all ${
+                      isSelected
+                        ? isPremium
+                          ? 'border-orange-400 bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg shadow-orange-400/40'
+                          : 'border-vybe-purple bg-vybe-purple text-white shadow-lg'
+                        : isPremium
+                          ? 'border-orange-300 hover:shadow-md'
+                          : 'border-gray-300 hover:border-vybe-purple hover:shadow-md'
                     }`}
                   >
+                    {isPremium && (
+                      <motion.span
+                        className="absolute -top-3 -right-1 text-base leading-none pointer-events-none"
+                        animate={{ y: [0, -4, 0], scale: [1, 1.3, 1], rotate: [-8, 8, -8] }}
+                        transition={{ duration: 1.0, repeat: Infinity, ease: 'easeInOut', delay: flameDelay }}
+                      >
+                        🔥
+                      </motion.span>
+                    )}
                     <div className="flex flex-col items-start">
                       <span className="font-semibold">{sizeVariant.name}</span>
                       <div className="flex items-center gap-2 text-sm">
-                        <span className={selectedSize === sizeName ? 'text-white font-bold' : 'text-vybe-purple font-bold'}>
+                        <span className={isSelected ? 'text-white font-bold' : isPremium ? 'text-orange-500 font-bold' : 'text-vybe-purple font-bold'}>
                           ৳{sizeVariant.price}
                         </span>
                         <span className="text-xs line-through opacity-60">
@@ -428,8 +464,7 @@ export default function ProductDetail() {
                     </div>
                   </motion.button>
                   );
-                })}
-              </div>
+                })}              </div>
               {!selectedSize && (
                 <motion.p 
                   className="text-xs text-gray-500 mt-2 flex items-center gap-1"
@@ -449,7 +484,6 @@ export default function ProductDetail() {
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { value: '', label: 'No Frame', color: 'bg-gray-100 border-2 border-dashed border-gray-300', textColor: 'text-gray-700' },
                   { value: 'black', label: 'Black', color: 'bg-black', textColor: 'text-white', ring: 'ring-gray-800' },
                   { value: 'white', label: 'White', color: 'bg-white border-2 border-gray-300', textColor: 'text-gray-900', ring: 'ring-gray-300' },
                   { value: 'woody', label: 'Woody', color: 'bg-gradient-to-br from-amber-700 to-amber-900', textColor: 'text-white', ring: 'ring-amber-700' }
@@ -610,18 +644,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-      
-      {/* Sticky Add to Cart - Mobile Only */}
-      <StickyAddToCart
-        product={product}
-        selectedSize={selectedSize}
-        currentPrice={currentPrice}
-        onAddToCart={handleAddToCart}
-        disabled={!selectedSize}
-        darkMode={darkMode}
-        targetRef={priceAreaRef}
-      />
-
       {/* Zoom Modal */}
       <AnimatePresence>
         {isZoomed && (
@@ -725,47 +747,6 @@ export default function ProductDetail() {
         )}
       </AnimatePresence>
 
-      {/* Sticky Mobile Add to Cart Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-moon-midnight border-t border-gray-200 dark:border-moon-gold/20 p-4 shadow-2xl z-50">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            {selectedSize ? (
-              <>
-                <p className="text-lg font-bold text-gray-900 dark:text-moon-gold">
-                  ৳{currentPrice}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-moon-silver/60">
-                  Size: {selectedSize}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-lg font-bold text-gray-400">
-                  ৳{product.basePrice}+
-                </p>
-                <p className="text-xs text-vybe-purple dark:text-moon-gold font-semibold animate-pulse-gpu">
-                  ⚠️ Select a size first
-                </p>
-              </>
-            )}
-          </div>
-          <motion.button
-            whileTap={selectedSize ? { scale: 0.95 } : {}}
-            onClick={handleAddToCart}
-            disabled={!selectedSize}
-            className={`px-6 py-3 rounded-xl font-bold shadow-lg transition-all ${
-              !selectedSize
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-vybe-purple to-vybe-pink text-white hover:shadow-xl active:scale-95'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <FiShoppingCart className="w-5 h-5" />
-              <span>{!selectedSize ? 'Select Size' : 'Add to Cart'}</span>
-            </div>
-          </motion.button>
-        </div>
-      </div>
     </div>
   );
 }

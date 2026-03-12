@@ -6,6 +6,7 @@
   width: 100%;
   min-height: 100vh;
   perspective: 1200px;
+  background: #f9fafb;
 }
 
 .pt-page {
@@ -14,8 +15,10 @@
   position: relative;
   visibility: visible;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
   transform-style: preserve-3d;
+  background: inherit;
 }
 
 .pt-page-current {

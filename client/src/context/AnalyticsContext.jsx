@@ -17,10 +17,20 @@ import { useAuthStore } from '../store/index';
 
 const AnalyticsContext = createContext(null);
 
-// Derive the socket server URL from the API env var (strip /api suffix)
-const RAW_API_URL = import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api';
-const SOCKET_URL = RAW_API_URL.replace(/\/api$/, '');
-const API_BASE = RAW_API_URL;
+// Resolve API/socket URL robustly for production deploys.
+const FALLBACK_API_URL = 'https://vybe-backend-93eu.onrender.com/api';
+
+function resolveApiBase() {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+
+  if (!envUrl || envUrl.startsWith('/')) return FALLBACK_API_URL;
+  if (envUrl.includes('vybebd.store')) return FALLBACK_API_URL;
+
+  return envUrl;
+}
+
+const API_BASE = resolveApiBase();
+const SOCKET_URL = (import.meta.env.VITE_SOCKET_URL || '').trim() || API_BASE.replace(/\/api$/, '');
 
 /**
  * Generate or retrieve a persistent session ID for this browser.

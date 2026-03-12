@@ -15,8 +15,22 @@ import {
 import { useAuthStore } from '../../store/index';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
-const RAW_API_URL = import.meta.env.VITE_API_URL || 'https://vybe-backend-93eu.onrender.com/api';
-const SOCKET_URL = RAW_API_URL.replace(/\/api$/, '');
+const FALLBACK_API_URL = 'https://vybe-backend-93eu.onrender.com/api';
+
+function resolveApiBase() {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+
+  // If env is missing or relative (e.g. /api), force known backend URL.
+  if (!envUrl || envUrl.startsWith('/')) return FALLBACK_API_URL;
+
+  // If env accidentally points to the frontend domain, force backend URL.
+  if (envUrl.includes('vybebd.store')) return FALLBACK_API_URL;
+
+  return envUrl;
+}
+
+const RAW_API_URL = resolveApiBase();
+const SOCKET_URL = (import.meta.env.VITE_SOCKET_URL || '').trim() || RAW_API_URL.replace(/\/api$/, '');
 const DEVICE_COLORS = { mobile: '#6366f1', desktop: '#22d3ee', tablet: '#f59e0b', unknown: '#6b7280' };
 const CHART_COLORS = ['#6366f1', '#22d3ee', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 

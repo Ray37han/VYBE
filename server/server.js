@@ -25,6 +25,7 @@ import bulkImportRoutes from './routes/bulkImport.js';
 import sitemapRoute from './routes/sitemap.js';
 import ogRoute from './routes/og.js';
 import analyticsRoutes from './routes/analytics.js';
+import pipelineRoutes from './routes/pipeline.js';
 
 // Import Redis config
 import { connectRedis, closeRedis } from './config/redis.js';
@@ -275,6 +276,7 @@ app.use('/api/admin/bulk-import', bulkImportRoutes);
 app.use('/api', sitemapRoute);
 app.use('/api/og', ogRoute);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/pipeline', pipelineRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
