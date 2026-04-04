@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { adminAPI, productsAPI } from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,6 +34,8 @@ export default function AdminProducts() {
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const savedScrollYRef = useRef(0);
+  const hasModalOpenedRef = useRef(false);
 
   // 8 Main Mother Categories
   const categories = [
@@ -87,6 +89,24 @@ export default function AdminProducts() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+
+    if (hasModalOpenedRef.current) {
+      window.scrollTo({ top: savedScrollYRef.current, left: 0, behavior: 'auto' });
+    }
+
+    return undefined;
+  }, [showModal]);
 
   const fetchProducts = async () => {
     try {
@@ -223,6 +243,18 @@ export default function AdminProducts() {
     setEditingProduct(null);
   };
 
+  const openModal = () => {
+    savedScrollYRef.current = window.scrollY;
+    hasModalOpenedRef.current = true;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    resetForm();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -290,8 +322,7 @@ export default function AdminProducts() {
         toast.success('Product created successfully');
       }
 
-      setShowModal(false);
-      resetForm();
+      closeModal();
       fetchProducts();
     } catch (error) {
       console.error('Submit error:', error);
@@ -352,7 +383,7 @@ export default function AdminProducts() {
       isActive: product.isActive !== false
     });
     setImagePreviews(product.images?.map(img => img.url) || []);
-    setShowModal(true);
+    openModal();
   };
 
   const handleDelete = async (id) => {
@@ -419,7 +450,7 @@ export default function AdminProducts() {
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 resetForm();
-                setShowModal(true);
+                openModal();
               }} 
               className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl ${
                 darkMode
@@ -549,10 +580,7 @@ export default function AdminProducts() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto"
-            onClick={() => {
-              setShowModal(false);
-              resetForm();
-            }}
+            onClick={closeModal}
           >
             <div className="min-h-screen flex items-center justify-center p-0 sm:p-4">
               <motion.div
@@ -578,10 +606,7 @@ export default function AdminProducts() {
                       {editingProduct ? 'Edit Product' : 'Add New Product'}
                     </h2>
                     <button 
-                      onClick={() => {
-                        setShowModal(false);
-                        resetForm();
-                      }}
+                      onClick={closeModal}
                       className={`text-3xl sm:text-2xl font-light w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
                         darkMode 
                           ? 'text-moon-silver hover:text-moon-gold hover:bg-moon-gold/10' 
@@ -919,10 +944,7 @@ export default function AdminProducts() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        setShowModal(false);
-                        resetForm();
-                      }}
+                      onClick={closeModal}
                       className={`w-full sm:flex-1 px-4 py-3 sm:py-3 text-sm sm:text-base border rounded-lg font-semibold transition-all ${
                         darkMode 
                           ? 'border-moon-gold/30 text-moon-silver hover:bg-moon-gold/10' 
