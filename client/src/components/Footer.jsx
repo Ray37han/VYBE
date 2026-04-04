@@ -169,7 +169,7 @@ export default function Footer() {
                       <FaFacebook className="w-4 h-4" />
                       Facebook
                     </a>
-                    <a href="https://wa.me/8801772634466" target="_blank" rel="noopener noreferrer" className={`transition flex items-center gap-2 ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'}`}>
+                      <a href="https://wa.me/8801410809138" target="_blank" rel="noopener noreferrer" className={`transition flex items-center gap-2 ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-purple-600'}`}>
                       <FaWhatsapp className="w-4 h-4" />
                       WhatsApp
                     </a>
@@ -244,7 +244,20 @@ export default function Footer() {
               Terms of Service
             </Link>
           </div>
-          <p>&copy; {new Date().getFullYear()} VYBE. All rights reserved. Made with ❤️ in Bangladesh</p>
+            <p>&copy; {new Date().getFullYear()} VYBE. All rights reserved. Made with ❤️ in Bangladesh</p>
+            <p className="mt-2">
+              Made by{' '}
+              <a
+                href="https://www.linkedin.com/in/rakibul-hasan-rayhan/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`transition hover:underline ${
+                  darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-purple-600'
+                }`}
+              >
+                Rakibul Hasan Rayhan
+              </a>
+            </p>
         </div>
       </div>
     </footer>
