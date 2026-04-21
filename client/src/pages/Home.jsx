@@ -18,6 +18,7 @@ export default function Home() {
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
 
   useEffect(() => {
     // Scroll to top on page load
@@ -39,6 +40,26 @@ export default function Home() {
     return () => {
       window.removeEventListener('storage', handleThemeChange);
       window.removeEventListener('themeChange', handleThemeChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 639px)');
+    const handleViewportChange = (event) => setIsMobile(event.matches);
+
+    setIsMobile(mediaQuery.matches);
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleViewportChange);
+    } else {
+      mediaQuery.addListener(handleViewportChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleViewportChange);
+      } else {
+        mediaQuery.removeListener(handleViewportChange);
+      }
     };
   }, []);
 
@@ -118,23 +139,44 @@ export default function Home() {
         {/* Hero Section */}
         <HeroCarousel />
 
-        {/* Collection Grid */}
-        <CollectionGrid darkMode={darkMode} />
+        {isMobile ? (
+          <>
+            {/* Best Seller */}
+            <FeaturedProducts darkMode={darkMode} />
 
-        {/* Featured Products */}
-        <FeaturedProducts darkMode={darkMode} />
+            {/* Trending */}
+            <TrustBadges darkMode={darkMode} />
 
-        {/* Trust Badges */}
-        <TrustBadges darkMode={darkMode} />
+            {/* Categories */}
+            <CollectionGrid darkMode={darkMode} />
 
-        {/* Bundle Section */}
-        <BundleSection />
+            {/* Offer Banner */}
+            <BundleSection />
 
-        {/* Instagram Feed */}
-        <InstagramFeed darkMode={darkMode} />
+            {/* Reviews */}
+            <InstagramFeed darkMode={darkMode} />
+          </>
+        ) : (
+          <>
+            {/* Collection Grid */}
+            <CollectionGrid darkMode={darkMode} />
 
-        {/* Newsletter */}
-        <Newsletter />
+            {/* Featured Products */}
+            <FeaturedProducts darkMode={darkMode} />
+
+            {/* Trust Badges */}
+            <TrustBadges darkMode={darkMode} />
+
+            {/* Bundle Section */}
+            <BundleSection />
+
+            {/* Instagram Feed */}
+            <InstagramFeed darkMode={darkMode} />
+
+            {/* Newsletter */}
+            <Newsletter />
+          </>
+        )}
 
         {/* Privacy Policy Notice - Required for verification */}
         <div className="max-w-7xl mx-auto px-4 py-8 text-center">

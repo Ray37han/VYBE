@@ -118,6 +118,15 @@ export const ordersAPI = {
   getOne: (id) => api.get(`/orders/${id}`).then(res => res.data),
 };
 
+export const deliveryAPI = {
+  getOrders: (params) => api.get('/pipeline/orders', { params }).then((res) => res.data),
+  getOrderById: (id) => api.get(`/pipeline/orders/${id}`).then((res) => res.data),
+  updateStatus: (payload) => api.post('/pipeline/orders/update-status', payload).then((res) => res.data),
+  assignCourier: (payload) => api.post('/pipeline/orders/assign-courier', payload).then((res) => res.data),
+  updateStatusById: (orderId, payload) => api.patch(`/pipeline/orders/${orderId}/status`, payload).then((res) => res.data),
+  assignCourierById: (orderId, payload) => api.post(`/pipeline/orders/${orderId}/courier`, payload).then((res) => res.data),
+};
+
 // Payment API
 export const paymentAPI = {
   createBkash: (data) => api.post('/payment/bkash/create', data),

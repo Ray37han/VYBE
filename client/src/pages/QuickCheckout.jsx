@@ -93,6 +93,7 @@ export default function QuickCheckout() {
   /* ── Auto-fill product from URL ─────── */
   const urlProductId   = params.get('productId') || '';
   const urlProductName = params.get('name')      || '';
+  const urlProductImage = params.get('image')    || '';
   const urlPrice       = parseFloat(params.get('price') || '0');
   const urlQty         = parseInt(params.get('qty') || '1', 10);
 
@@ -106,6 +107,7 @@ export default function QuickCheckout() {
     orderNotes:    '',
     productName:   urlProductName,
     productId:     urlProductId,
+    productImageUrl: urlProductImage,
     price:         urlPrice || '',
     quantity:      urlQty || 1,
     paymentMethod: 'Cash On Delivery',
@@ -173,8 +175,17 @@ export default function QuickCheckout() {
         orderNotes:    form.orderNotes.trim(),
         productName:   form.productName.trim(),
         productId:     form.productId.trim(),
+        productImageUrl: form.productImageUrl?.trim() || '',
         price:         parseFloat(form.price),
         quantity:      parseInt(form.quantity, 10),
+        products: [
+          {
+            name: form.productName.trim(),
+            quantity: parseInt(form.quantity, 10),
+            price: parseFloat(form.price),
+            image_url: form.productImageUrl?.trim() || '',
+          },
+        ],
         paymentMethod: form.paymentMethod,
         pageUrl:       window.location.href,
       };

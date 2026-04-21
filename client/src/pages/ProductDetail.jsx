@@ -153,6 +153,19 @@ const handleBuyNow = () => {
       qty:       String(quantity),
     });
 
+    const buyNowImageUrl =
+      product.images?.[selectedImage]?.urls?.large ||
+      product.images?.[selectedImage]?.urls?.medium ||
+      product.images?.[selectedImage]?.url ||
+      product.images?.[0]?.urls?.large ||
+      product.images?.[0]?.urls?.medium ||
+      product.images?.[0]?.url ||
+      '';
+
+    if (buyNowImageUrl) {
+      qs.set('image', buyNowImageUrl);
+    }
+
     navigate(`/quick-checkout?${qs.toString()}`);
   };
 
