@@ -6,6 +6,7 @@ import Product from '../models/Product.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { sendOrderConfirmation, sendOrderStatusUpdate } from '../utils/emailService.js';
 import { sendOrderConfirmationSMS, sendOrderStatusUpdateSMS, logSMS } from '../utils/smsService.js';
+import { sendTelegramOrderNotification } from '../utils/telegramNotifier.js';
 
 // Import security middleware
 import {
@@ -129,6 +130,9 @@ router.post('/',
         console.error('SMS notification failed:', err)
       );
     }
+    sendTelegramOrderNotification(populatedOrder).catch(err =>
+      console.error('Telegram notification failed:', err)
+    );
 
     res.status(201).json({ success: true, data: order, message: 'Order created successfully' });
 
