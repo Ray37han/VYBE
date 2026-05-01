@@ -23,6 +23,7 @@ import PipelineOrder, { nextDailySeq } from '../models/PipelineOrder.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { appendOrderToSheet, updateOrderInSheet } from '../services/googleSheets.js';
 import { sendOrderNotification, sendStatusNotification } from '../services/whatsapp.js';
+import { sendTelegramOrderNotification } from '../utils/telegramNotifier.js';
 import courierAdapter, { SUPPORTED_COURIERS } from '../services/courier/index.js';
 
 const router = express.Router();
@@ -271,7 +272,12 @@ router.post('/create', orderRateLimiter, createOrderValidators, async (req, res)
       }
     });
 
-    /* 7. Respond immediately */
+    /* 7. Telegram notification (non-blocking) */
+    sendTelegramOrderNotification(newOrder.toObject()).catch(err => {
+      console.error('[Telegram] Notification failed:', err);
+    });
+
+    /* 8. Respond immediately */
     return res.status(201).json({
       success: true,
       message: 'Order placed successfully!',

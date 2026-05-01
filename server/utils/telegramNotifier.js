@@ -5,11 +5,39 @@ function escapeMarkdown(value) {
   return String(value).replace(/[\*\_\[\]\(\)\`]/g, '\\$&');
 }
 
+function resolveItems(orderData) {
+  if (Array.isArray(orderData?.items) && orderData.items.length > 0) {
+    return orderData.items.map((item) => ({
+      name: item?.name || item?.product?.name || 'Item',
+      quantity: Number(item?.quantity) || 0,
+      price: Number(item?.price),
+    }));
+  }
+
+  if (Array.isArray(orderData?.products) && orderData.products.length > 0) {
+    return orderData.products.map((item) => ({
+      name: item?.name || 'Item',
+      quantity: Number(item?.quantity) || 0,
+      price: Number(item?.price),
+    }));
+  }
+
+  if (orderData?.productName) {
+    return [{
+      name: orderData.productName,
+      quantity: Number(orderData?.quantity) || 0,
+      price: Number(orderData?.price),
+    }];
+  }
+
+  return [];
+}
+
 function formatItems(items) {
   if (!Array.isArray(items) || items.length === 0) return ['- N/A'];
 
   return items.map((item) => {
-    const name = item?.name || item?.product?.name || 'Item';
+    const name = item?.name || 'Item';
     const quantity = Number(item?.quantity) || 0;
     const price = Number(item?.price);
     const priceText = Number.isFinite(price) ? ` @ BDT ${price.toFixed(2)}` : '';
@@ -18,12 +46,15 @@ function formatItems(items) {
   });
 }
 
-function resolveTotal(orderData) {
+function resolveTotal(orderData, items) {
   const total = Number(orderData?.pricing?.total);
   if (Number.isFinite(total)) return total;
 
-  const items = Array.isArray(orderData?.items) ? orderData.items : [];
-  return items.reduce((sum, item) => {
+  const pipelineTotal = Number(orderData?.total);
+  if (Number.isFinite(pipelineTotal)) return pipelineTotal;
+
+  const safeItems = Array.isArray(items) ? items : [];
+  return safeItems.reduce((sum, item) => {
     const price = Number(item?.price) || 0;
     const quantity = Number(item?.quantity) || 0;
     return sum + price * quantity;
@@ -48,10 +79,11 @@ export async function sendTelegramOrderNotification(orderData) {
     orderData?.user?.name ||
     orderData?.customerName ||
     'N/A';
-  const orderId = orderData?.orderNumber || orderData?._id || 'N/A';
-  const totalAmount = resolveTotal(orderData);
+  const orderId = orderData?.orderNumber || orderData?.orderId || orderData?._id || 'N/A';
+  const normalizedItems = resolveItems(orderData);
+  const totalAmount = resolveTotal(orderData, normalizedItems);
 
-  const itemLines = formatItems(orderData?.items);
+  const itemLines = formatItems(normalizedItems);
   const totalText = Number.isFinite(totalAmount) ? `BDT ${totalAmount.toFixed(2)}` : 'N/A';
 
   const message = [
