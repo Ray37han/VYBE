@@ -13,6 +13,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useAuthStore, useCartStore } from '../store';
 
 /* ─── District list ───────────────────────────────────────────────────────── */
 const BD_DISTRICTS = [
@@ -89,6 +90,8 @@ const selectCls = inputCls + ' appearance-none';
 export default function QuickCheckout() {
   const navigate    = useNavigate();
   const [params]    = useSearchParams();
+  const { clearCart } = useCartStore();
+  const { isAuthenticated, token } = useAuthStore();
 
   /* ── Auto-fill product from URL ─────── */
   const urlProductId   = params.get('productId') || '';
@@ -96,6 +99,7 @@ export default function QuickCheckout() {
   const urlProductImage = params.get('image')    || '';
   const urlPrice       = parseFloat(params.get('price') || '0');
   const urlQty         = parseInt(params.get('qty') || '1', 10);
+  const fromCart       = params.get('fromCart') === '1' || params.get('fromCart') === 'true';
 
   /* ── Form state ─────────────────────── */
   const [form, setForm] = useState({
@@ -205,6 +209,19 @@ export default function QuickCheckout() {
           'Something went wrong. Please try again.';
         setApiError(msg);
         return;
+      }
+
+      if (fromCart) {
+        clearCart();
+        if (isAuthenticated && token) {
+          fetch(`${API_BASE}/cart`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }).catch(() => {});
+        }
       }
 
       /* Success – navigate to confirmation page */

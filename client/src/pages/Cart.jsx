@@ -336,6 +336,7 @@ export default function Cart() {
                     name:  productLabel,
                     price: String(Math.round(total)),
                     qty:   '1',
+                    fromCart: '1',
                     ...(validItems.length === 1 && validItems[0].product?._id
                       ? { productId: validItems[0].product._id }
                       : {}),
