@@ -14,6 +14,7 @@ import { createContext, useContext, useEffect, useRef, useCallback } from 'react
 import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { useAuthStore } from '../store/index';
+import ReactPixel from 'react-facebook-pixel';
 
 const AnalyticsContext = createContext(null);
 
@@ -70,6 +71,17 @@ export function AnalyticsProvider({ children }) {
   const socketRef = useRef(null);
   const pageEntryTime = useRef(Date.now());
   const prevPath = useRef(null);
+  const isPixelInitialized = useRef(false);
+
+  // ── Meta Pixel Initialization ────────────────────────────────────────────────
+  useEffect(() => {
+    const pixelId = import.meta.env.VITE_META_PIXEL_ID;
+    if (pixelId && !isPixelInitialized.current) {
+      const advancedMatching = user?.email ? { em: user.email } : undefined;
+      ReactPixel.init(pixelId, advancedMatching, { debug: import.meta.env.DEV });
+      isPixelInitialized.current = true;
+    }
+  }, [user?.email]);
 
   // ── Socket.IO connection ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -110,6 +122,10 @@ export function AnalyticsProvider({ children }) {
   useEffect(() => {
     const currentPath = location.pathname + location.search;
 
+    if (isPixelInitialized.current) {
+      ReactPixel.pageView();
+    }
+
     // Record duration spent on the previous page before tracking new one
     if (prevPath.current !== null) {
       const duration = Math.round((Date.now() - pageEntryTime.current) / 1000);
@@ -141,6 +157,16 @@ export function AnalyticsProvider({ children }) {
 
   // ── Product event tracker (exposed via context) ──────────────────────────────
   const trackEvent = useCallback((eventType, data = {}) => {
+    if (isPixelInitialized.current) {
+      // Standard FB events vs Custom events
+      const standardEvents = ['ViewContent', 'Search', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'AddPaymentInfo', 'Purchase', 'Lead', 'CompleteRegistration'];
+      if (standardEvents.includes(eventType)) {
+        ReactPixel.track(eventType, data);
+      } else {
+        ReactPixel.trackCustom(eventType, data);
+      }
+    }
+
     fireAndForget(`${API_BASE}/analytics/event`, {
       sessionId: sessionId.current,
       userId: user?._id || null,
