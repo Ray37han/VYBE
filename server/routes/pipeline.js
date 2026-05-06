@@ -138,7 +138,7 @@ const BD_DISTRICTS = [
   'Tangail','Thakurgaon',
 ];
 
-const PAYMENT_METHODS = ['Cash On Delivery', 'bKash', 'Nagad', 'Rocket'];
+const PAYMENT_METHODS = ['Cash On Delivery', 'bKash', 'Nagad'];
 
 const createOrderValidators = [
   body('customerName').trim().notEmpty().withMessage('Full name is required'),
@@ -159,6 +159,7 @@ const createOrderValidators = [
   body('products.*.quantity').optional().isInt({ min: 1 }).withMessage('Each product quantity must be at least 1'),
   body('products.*.price').optional().isFloat({ min: 0 }).withMessage('Each product price must be valid'),
   body('products.*.image_url').optional({ checkFalsy: true }).isURL().withMessage('Each product image_url must be a valid URL'),
+  body('transactionId').optional().trim(),
 ];
 
 /* ─── Helper: build OrderID ───────────────────────────────────────────────── */
@@ -198,6 +199,7 @@ router.post('/create', orderRateLimiter, createOrderValidators, async (req, res)
       productImageUrl = '',
       quantity, price,
       paymentMethod,
+      transactionId = '',
       pageUrl = '',
       products: productsInput = [],
       deliveryCharge: deliveryChargeInput,
@@ -251,6 +253,7 @@ router.post('/create', orderRateLimiter, createOrderValidators, async (req, res)
       deliveryCharge,
       products: normalizedProducts,
       paymentMethod,
+      transactionId,
       status: 'Pending',
       statusTimeline: [{ status: 'Pending', changedBy: 'System', note: 'Order created' }],
       ipAddress: ip,
@@ -293,6 +296,7 @@ router.post('/create', orderRateLimiter, createOrderValidators, async (req, res)
         deliveryCharge,
         total,
         paymentMethod,
+        transactionId,
         status: 'Pending',
       },
     });

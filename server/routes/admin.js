@@ -407,6 +407,48 @@ router.delete('/products/:id', async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/products/bulk-delete
+// @desc    Bulk delete products
+// @access  Private/Admin
+router.post('/products/bulk-delete', async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'No product IDs provided' });
+    }
+
+    const products = await Product.find({ _id: { $in: ids } });
+    if (products.length === 0) {
+      return res.status(404).json({ success: false, message: 'No products found' });
+    }
+
+    // Delete images from Cloudinary for all products
+    for (const product of products) {
+      for (const img of product.images) {
+        if (img.publicId) {
+          await deleteFromCloudinary(img.publicId);
+        }
+      }
+    }
+
+    await Product.deleteMany({ _id: { $in: ids } });
+
+    // Invalidate product caches
+    await invalidateCache('cache:/api/products*');
+    await invalidateCache('cache:/api/admin/products*');
+
+    res.json({
+      success: true,
+      message: `${products.length} products deleted successfully`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // @route   DELETE /api/admin/products/:id/images/:imageId
 // @desc    Delete specific product image
 // @access  Private/Admin

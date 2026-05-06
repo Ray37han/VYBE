@@ -131,17 +131,29 @@ export default function Cart() {
   const getItemOriginalPrice = (item) => {
     const variant = getVariantForCartItem(item);
     const price = getItemPrice(item);
-    return variant?.originalPrice || item.product?.originalPrice || Math.round(price / 0.80);
+    return variant?.originalPrice || item.product?.originalPrice || Math.round(price / 0.75);
   };
 
   const subtotal = validItems.reduce((sum, item) => sum + getItemPrice(item) * (item.quantity || 1), 0);
+  const totalItems = validItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  
+  let bundleDiscountPercent = 0;
+  if (totalItems >= 10) bundleDiscountPercent = 15;
+  else if (totalItems >= 5) bundleDiscountPercent = 10;
+  else if (totalItems >= 2) bundleDiscountPercent = 5;
+
+  const bundleDiscountAmount = (subtotal * bundleDiscountPercent) / 100;
+  
   const originalPrice = validItems.reduce(
     (sum, item) => sum + getItemOriginalPrice(item) * (item.quantity || 1),
     0
   );
-  const savings = originalPrice - subtotal;
-  const shipping = subtotal > 1000 ? 0 : 130;
-  const total = subtotal + shipping;
+  
+  // Base savings from "compare at" price
+  const baseSavings = originalPrice - subtotal;
+  const totalSavings = baseSavings + bundleDiscountAmount;
+  
+  const total = subtotal - bundleDiscountAmount;
 
   return (
     <>
@@ -217,7 +229,7 @@ export default function Cart() {
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                         darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
                       }`}>
-                        20% OFF
+                        25% OFF
                       </span>
                     </div>
                   </div>
@@ -297,10 +309,10 @@ export default function Cart() {
               }`}>
                 <div>
                   <p className={`text-sm font-bold ${darkMode ? 'text-green-400' : 'text-green-700'}`}>
-                    🎉 You're saving ৳{savings.toFixed(2)}
+                    🎉 You're saving ৳{totalSavings.toFixed(2)}
                   </p>
-                  <p className={`text-xs ${darkMode ? 'text-green-300/70' : 'text-green-600'}`}>
-                    with 20% off!
+                  <p className={`text-xs mt-1 ${darkMode ? 'text-green-300/70' : 'text-green-600'}`}>
+                    Base discount {bundleDiscountPercent > 0 && `+ ${bundleDiscountPercent}% Bundle Offer!`}
                   </p>
                 </div>
               </div>
@@ -312,11 +324,19 @@ export default function Cart() {
                   <span>Subtotal</span>
                   <span>৳{subtotal.toFixed(2)}</span>
                 </div>
+                
+                {bundleDiscountPercent > 0 && (
+                  <div className="flex justify-between text-green-600 dark:text-green-400 font-medium">
+                    <span>Bundle Discount ({bundleDiscountPercent}%)</span>
+                    <span>-৳{bundleDiscountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                
                 <div className={`flex justify-between ${
                   darkMode ? 'text-moon-silver/80' : 'text-gray-700'
                 }`}>
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'FREE' : `৳${shipping}`}</span>
+                  <span className="text-sm">Calculated at checkout</span>
                 </div>
                 <div className={`border-t pt-3 flex justify-between text-lg font-bold ${
                   darkMode

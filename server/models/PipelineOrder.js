@@ -93,8 +93,9 @@ const pipelineOrderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
-      enum: ['Cash On Delivery', 'bKash', 'Nagad', 'Rocket'],
+      enum: ['Cash On Delivery', 'bKash', 'Nagad'],
     },
+    transactionId: { type: String, trim: true, default: '' },
 
     // ── Status workflow ─────────────────────────────────────────
     status: {

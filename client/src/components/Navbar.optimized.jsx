@@ -8,72 +8,16 @@ import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import { usePageLoad } from '../hooks/usePageLoad';
 import toast from 'react-hot-toast';
 
-// Main 8 mother categories for easy navigation
+// Main 8 categories matching the landing page
 const categories = [
-  {
-    label: 'Football',
-    icon: '⚽',
-    subcategories: [
-      { value: 'football', label: 'Football Posters', icon: '⚽' },
-      { value: 'football-motivational', label: 'Motivational', icon: '💪' },
-    ]
-  },
-  {
-    label: 'Movies',
-    icon: '🎬',
-    subcategories: [
-      { value: 'movies', label: 'Movies', icon: '🎬' },
-      { value: 'marvel', label: 'Marvel', icon: '🦸' },
-      { value: 'dc', label: 'DC', icon: '🦇' },
-    ]
-  },
-  {
-    label: 'Games',
-    icon: '🎮',
-    subcategories: [
-      { value: 'games', label: 'All Games', icon: '🎮' },
-    ]
-  },
-  {
-    label: 'F1',
-    icon: '🏁',
-    subcategories: [
-      { value: 'f1', label: 'F1 Posters', icon: '🏁' },
-      { value: 'f1-motivational', label: 'F1 Motivational', icon: '🏎️' },
-    ]
-  },
-  {
-    label: 'Cars',
-    icon: '🏎️',
-    subcategories: [
-      { value: 'cars', label: 'All Cars', icon: '🚗' },
-      { value: 'sports-cars', label: 'Sports Cars', icon: '🏎️' },
-      { value: 'vintage-cars', label: 'Vintage Cars', icon: '🚗' },
-      { value: 'muscle-cars', label: 'Muscle Cars', icon: '💨' },
-      { value: 'vector-cars', label: 'Vector Cars', icon: '🎨' },
-    ]
-  },
-  {
-    label: 'Bikes',
-    icon: '🏍️',
-    subcategories: [
-      { value: 'bikes', label: 'All Bikes', icon: '🏍️' },
-    ]
-  },
-  {
-    label: 'Music',
-    icon: '🎵',
-    subcategories: [
-      { value: 'music', label: 'Music Posters', icon: '🎵' },
-    ]
-  },
-  {
-    label: 'Series',
-    icon: '📺',
-    subcategories: [
-      { value: 'tv-series', label: 'TV Series', icon: '📺' },
-    ]
-  },
+  { value: 'football', label: 'Football', icon: '⚽' },
+  { value: 'cars', label: 'Cars', icon: '🚗' },
+  { value: 'bikes', label: 'Bikes', icon: '🏍️' },
+  { value: 'f1', label: 'F1', icon: '🏁' },
+  { value: 'tv-series', label: 'Series', icon: '📺' },
+  { value: 'movies', label: 'Movies', icon: '🎬' },
+  { value: 'music', label: 'Music', icon: '🎵' },
+  { value: 'games', label: 'Games', icon: '🎮' },
 ];
 
 export default function NavbarOptimized() {
@@ -352,32 +296,23 @@ export default function NavbarOptimized() {
                         </p>
                       </div>
                       
-                      <div className="py-2 max-h-96 overflow-y-auto">
+                      <div className="py-2">
                         {categories.map((category) => (
-                          <div key={category.label}>
-                            <div className={`px-4 py-2 text-xs font-semibold ${
-                              darkMode ? 'text-moon-silver' : 'text-gray-500'
-                            }`}>
-                              {category.icon} {category.label}
-                            </div>
-                            {category.subcategories.map((sub) => (
-                              <button
-                                key={sub.value || sub.label}
-                                onClick={() => {
-                                  navigate(`/products${sub.value ? `?category=${sub.value}` : ''}`);
-                                  setProductsDropdownOpen(false);
-                                }}
-                                className={`w-full text-left px-6 py-2 text-sm transition-colors ${
-                                  darkMode
-                                    ? 'text-moon-silver hover:bg-moon-blue/30 hover:text-moon-gold'
-                                    : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
-                                }`}
-                              >
-                                <span className="mr-2">{sub.icon}</span>
-                                {sub.label}
-                              </button>
-                            ))}
-                          </div>
+                          <button
+                            key={category.value}
+                            onClick={() => {
+                              navigate(`/products?category=${category.value}`);
+                              setProductsDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-6 py-3 text-sm font-medium transition-colors ${
+                              darkMode
+                                ? 'text-moon-silver hover:bg-moon-blue/30 hover:text-moon-gold'
+                                : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                            }`}
+                          >
+                            <span className="mr-3 text-base">{category.icon}</span>
+                            {category.label}
+                          </button>
                         ))}
                       </div>
                     </motion.div>

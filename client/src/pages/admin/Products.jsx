@@ -8,6 +8,7 @@ export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -392,10 +393,34 @@ export default function AdminProducts() {
     try {
       await adminAPI.deleteProduct(id);
       toast.success('Product deleted successfully');
-      fetchProducts();
+      setProducts(prev => prev.filter(p => p._id !== id));
+      setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
     } catch (error) {
       toast.error('Failed to delete product');
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.length} products?`)) return;
+
+    try {
+      setLoading(true);
+      await adminAPI.bulkDeleteProducts(selectedIds);
+      toast.success(`${selectedIds.length} products deleted successfully`);
+      setProducts(prev => prev.filter(p => !selectedIds.includes(p._id)));
+      setSelectedIds([]);
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      toast.error('Failed to delete selected products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleSelection = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -445,6 +470,18 @@ export default function AdminProducts() {
             >
               📊 CSV
             </motion.button>
+            {selectedIds.length > 0 && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleBulkDelete}
+                className="px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete Selected ({selectedIds.length})
+              </motion.button>
+            )}
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -484,12 +521,20 @@ export default function AdminProducts() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={`overflow-hidden rounded-2xl shadow-lg transition-all duration-500 hover:shadow-xl hover:translate-y-[-4px] ${
+                className={`relative overflow-hidden rounded-2xl shadow-lg transition-all duration-500 hover:shadow-xl hover:translate-y-[-4px] ${
                   darkMode
                     ? 'bg-moon-midnight/50 border border-moon-gold/20'
                     : 'bg-white border border-purple-100'
                 }`}
               >
+                <div className="absolute top-3 left-3 z-10 bg-black/40 backdrop-blur-md rounded-lg p-1.5 shadow-lg">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.includes(product._id)}
+                    onChange={() => toggleSelection(product._id)}
+                    className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                  />
+                </div>
                 {product.images?.[0] && (
                   <img 
                     src={product.images[0].urls?.thumbnail || product.images[0].url} 

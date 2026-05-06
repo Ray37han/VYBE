@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FiFilter, FiSearch, FiStar, FiZap, FiPackage, FiGrid, FiX } from 'react-icons/fi';
-import { productsAPI } from '../api';
+import { productsAPI, categoriesAPI } from '../api';
 import LoadingStore from '../components/LoadingStore';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../components/PageTransition';
 import SpotlightContainer from '../components/SpotlightContainer';
@@ -92,11 +92,15 @@ export default function Products() {
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     search: searchParams.get('search') || '',
+    tag: searchParams.get('tag') || '',
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
-    sort: searchParams.get('sort') || '-createdAt',
+    inStock: searchParams.get('inStock') || '',
+    sort: searchParams.get('sort') || 'mixed',
     page: searchParams.get('page') || '1',
   });
+  const [availableTags, setAvailableTags] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -139,6 +143,17 @@ export default function Products() {
     }, 300);
   }, []);
 
+  // Fetch tags for the active category
+  useEffect(() => {
+    if (filters.category) {
+      categoriesAPI.getTags(filters.category).then(res => {
+        setAvailableTags(res.data || []);
+      }).catch(() => setAvailableTags([]));
+    } else {
+      setAvailableTags([]);
+    }
+  }, [filters.category]);
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -150,6 +165,7 @@ export default function Products() {
 
       // Map frontend sort values to backend format
       const sortMap = {
+        'mixed': 'mixed',
         '-createdAt': 'newest',
         'basePrice': 'price_asc',
         '-basePrice': 'price_desc',
@@ -169,7 +185,10 @@ export default function Products() {
           page: params.page,
           limit: params.limit,
           sort: params.sort,
-          category: params.category
+          category: params.category,
+          tag: params.tag,
+          minPrice: params.minPrice,
+          maxPrice: params.maxPrice,
         });
       } else {
         response = await productsAPI.getAll(params);
@@ -441,10 +460,13 @@ export default function Products() {
                       {s.thumbnail && (
                         <img src={s.thumbnail} alt="" className="w-8 h-8 rounded object-cover" loading="lazy" />
                       )}
-                      <div>
+                      <div className="flex-1">
                         <div className="text-sm font-medium">{cleanProductName(s.name)}</div>
                         <div className={`text-xs ${darkMode ? 'text-moon-silver/50' : 'text-gray-400'}`}>{s.category}</div>
                       </div>
+                      {s.basePrice && (
+                        <span className={`text-sm font-bold ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>৳{s.basePrice}</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -481,6 +503,7 @@ export default function Products() {
                     : 'bg-white border-purple-200 text-gray-900 focus:border-purple-600 focus:ring-purple-200'
                 }`}
               >
+                <option value="mixed" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>🔀 Mixed / Recommended</option>
                 <option value="-createdAt" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>🆕 Newest First</option>
                 <option value="basePrice" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>💰 Price: Low to High</option>
                 <option value="-basePrice" className={darkMode ? 'bg-moon-midnight' : 'bg-white'}>💎 Price: High to Low</option>
@@ -489,29 +512,180 @@ export default function Products() {
               </select>
             </motion.div>
 
-            {/* Clear Filters */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setFilters({
-                  category: '',
-                  search: '',
-                  minPrice: '',
-                  maxPrice: '',
-                  sort: '-createdAt',
-                });
-                setSearchParams({});
-              }}
-              className={`px-6 py-3 border rounded-xl font-semibold transition-all duration-300 shadow-lg ${
-                darkMode
-                  ? 'bg-gradient-to-r from-red-600/30 to-pink-600/30 hover:from-red-600/50 hover:to-pink-600/50 text-moon-silver border-red-500/30 hover:border-red-500/60 hover:shadow-red-500/20'
-                  : 'bg-gradient-to-r from-red-100 to-pink-100 hover:from-red-200 hover:to-pink-200 text-red-700 border-red-300 hover:border-red-400 hover:shadow-red-300/40'
-              }`}
-            >
-              🔄 Reset Filters
-            </motion.button>
+            {/* Filter Toggle + Reset */}
+            <div className="flex gap-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex-1 px-4 py-3 border rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                  showFilters
+                    ? darkMode
+                      ? 'bg-moon-gold/20 border-moon-gold/50 text-moon-gold'
+                      : 'bg-purple-100 border-purple-400 text-purple-700'
+                    : darkMode
+                      ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver hover:border-moon-gold'
+                      : 'bg-white border-purple-200 text-gray-700 hover:border-purple-400'
+                }`}
+              >
+                <FiFilter className="w-4 h-4" />
+                Filters
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setFilters({
+                    category: '',
+                    search: '',
+                    tag: '',
+                    minPrice: '',
+                    maxPrice: '',
+                    inStock: '',
+                    sort: 'mixed',
+                    page: '1',
+                  });
+                  setSearchParams({});
+                }}
+                className={`px-4 py-3 border rounded-xl font-semibold transition-all duration-300 ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-red-600/30 to-pink-600/30 hover:from-red-600/50 hover:to-pink-600/50 text-moon-silver border-red-500/30'
+                    : 'bg-gradient-to-r from-red-100 to-pink-100 hover:from-red-200 hover:to-pink-200 text-red-700 border-red-300'
+                }`}
+              >
+                🔄
+              </motion.button>
+            </div>
           </div>
+
+          {/* ── Advanced Filters (collapsible) ── */}
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 pt-4 border-t relative"
+              style={{ borderColor: darkMode ? 'rgba(212,175,55,0.2)' : 'rgba(147,51,234,0.2)' }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Price Range */}
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${darkMode ? 'text-moon-silver/70' : 'text-gray-500'}`}>
+                    💰 Price Range (৳)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filters.minPrice}
+                      onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                      className={`w-1/2 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                        darkMode
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:ring-moon-gold/20'
+                          : 'bg-white border-purple-200 text-gray-900 focus:ring-purple-200'
+                      }`}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filters.maxPrice}
+                      onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                      className={`w-1/2 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                        darkMode
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver focus:ring-moon-gold/20'
+                          : 'bg-white border-purple-200 text-gray-900 focus:ring-purple-200'
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* In Stock Toggle */}
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${darkMode ? 'text-moon-silver/70' : 'text-gray-500'}`}>
+                    📦 Availability
+                  </label>
+                  <button
+                    onClick={() => handleFilterChange('inStock', filters.inStock === 'true' ? '' : 'true')}
+                    className={`w-full px-4 py-2 border rounded-lg text-sm font-medium transition-all ${
+                      filters.inStock === 'true'
+                        ? darkMode
+                          ? 'bg-green-600/20 border-green-500/50 text-green-400'
+                          : 'bg-green-100 border-green-400 text-green-700'
+                        : darkMode
+                          ? 'bg-moon-night/50 border-moon-gold/30 text-moon-silver'
+                          : 'bg-white border-purple-200 text-gray-700'
+                    }`}
+                  >
+                    {filters.inStock === 'true' ? '✅ In Stock Only' : 'Show All'}
+                  </button>
+                </div>
+
+                {/* Active Filters Summary */}
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${darkMode ? 'text-moon-silver/70' : 'text-gray-500'}`}>
+                    🏷️ Active Filters
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {filters.category && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        darkMode ? 'bg-moon-gold/20 text-moon-gold' : 'bg-purple-100 text-purple-700'
+                      }`}>
+                        {filters.category}
+                        <button onClick={() => handleFilterChange('category', '')} className="hover:opacity-70">×</button>
+                      </span>
+                    )}
+                    {filters.tag && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        darkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        #{filters.tag}
+                        <button onClick={() => handleFilterChange('tag', '')} className="hover:opacity-70">×</button>
+                      </span>
+                    )}
+                    {(filters.minPrice || filters.maxPrice) && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
+                      }`}>
+                        ৳{filters.minPrice || '0'}-{filters.maxPrice || '∞'}
+                        <button onClick={() => { handleFilterChange('minPrice', ''); setTimeout(() => handleFilterChange('maxPrice', ''), 50); }} className="hover:opacity-70">×</button>
+                      </span>
+                    )}
+                    {!filters.category && !filters.tag && !filters.minPrice && !filters.maxPrice && (
+                      <span className={`text-xs ${darkMode ? 'text-moon-silver/40' : 'text-gray-400'}`}>No active filters</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tag Pills (shown when a category is selected) */}
+              {availableTags.length > 0 && (
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: darkMode ? 'rgba(212,175,55,0.1)' : 'rgba(147,51,234,0.1)' }}>
+                  <label className={`text-xs font-semibold mb-2 block ${darkMode ? 'text-moon-silver/70' : 'text-gray-500'}`}>
+                    🏷️ Filter by Tag
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {availableTags.slice(0, 15).map((t) => (
+                      <button
+                        key={t.tag}
+                        onClick={() => handleFilterChange('tag', filters.tag === t.tag ? '' : t.tag)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                          filters.tag === t.tag
+                            ? darkMode
+                              ? 'bg-moon-gold text-moon-night'
+                              : 'bg-purple-600 text-white'
+                            : darkMode
+                              ? 'bg-moon-night/50 border border-moon-gold/30 text-moon-silver hover:bg-moon-gold/20'
+                              : 'bg-white border border-purple-200 text-gray-700 hover:bg-purple-50'
+                        }`}
+                      >
+                        {t.tag} <span className="opacity-60">({t.count})</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Products Grid */}

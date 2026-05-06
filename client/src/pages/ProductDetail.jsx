@@ -25,6 +25,7 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [isAdded, setIsAdded] = useState(false);
   const [darkMode, setDarkMode] = useState(false); // Default to light theme
   const { isAuthenticated } = useAuthStore();
   const addToCart = useCartStore((state) => state.addItem);
@@ -594,15 +595,15 @@ const handleBuyNow = () => {
               <div className="flex gap-3 w-full">
                 {/* Add to Cart Button */}
                 <button 
-                  onClick={(e) => {
-                    e.currentTarget.classList.add('active');
+                  onClick={() => {
+                    setIsAdded(true);
                     handleAddToCart();
                     setTimeout(() => {
-                      e.currentTarget.classList.remove('active');
+                      setIsAdded(false);
                     }, 2500);
                   }}
                   disabled={!selectedSize}
-                  className={`btn-cart flex-1 ${!selectedSize ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`btn-cart flex-1 ${!selectedSize ? 'opacity-50 cursor-not-allowed' : ''} ${isAdded ? 'active' : ''}`}
                 >
                   <span>
                     <span className="flex items-center justify-center gap-2">

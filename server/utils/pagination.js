@@ -91,6 +91,7 @@ export const parsePaginationParams = (query) => {
 
   // New sort format: ?sort=price_asc, price_desc, newest, trending, rating
   const sortPresets = {
+    mixed: 'mixed',
     price_asc: { basePrice: 1 },
     price_desc: { basePrice: -1 },
     newest: { createdAt: -1 },

@@ -34,7 +34,6 @@ const PAYMENT_METHODS = [
   { id: 'Cash On Delivery', label: 'Cash On Delivery',  icon: '💵' },
   { id: 'bKash',            label: 'bKash',             icon: '📱' },
   { id: 'Nagad',            label: 'Nagad',             icon: '💳' },
-  { id: 'Rocket',           label: 'Rocket',            icon: '🚀' },
 ];
 
 const BD_PHONE_RE = /^01[3-9]\d{8}$/;
@@ -115,6 +114,7 @@ export default function QuickCheckout() {
     price:         urlPrice || '',
     quantity:      urlQty || 1,
     paymentMethod: 'Cash On Delivery',
+    transactionId: '',
   });
 
   const [errors,    setErrors]    = useState({});
@@ -122,7 +122,25 @@ export default function QuickCheckout() {
   const [apiError,  setApiError]  = useState('');
 
   /* Recompute total whenever price or quantity changes */
-  const total = (parseFloat(form.price) || 0) * (parseInt(form.quantity, 10) || 1);
+  const qty = parseInt(form.quantity, 10) || 1;
+  const baseSubtotal = (parseFloat(form.price) || 0) * qty;
+
+  let bundleDiscountPercent = 0;
+  if (!fromCart) {
+    if (qty >= 10) bundleDiscountPercent = 15;
+    else if (qty >= 5) bundleDiscountPercent = 10;
+    else if (qty >= 2) bundleDiscountPercent = 5;
+  }
+  
+  const discountAmount = (baseSubtotal * bundleDiscountPercent) / 100;
+  const discountedSubtotal = baseSubtotal - discountAmount;
+  
+  let shippingCost = 0;
+  if (form.district) {
+    shippingCost = form.district === 'Dhaka' ? 100 : 130;
+  }
+  
+  const total = discountedSubtotal + shippingCost;
 
   /* ── Handlers ───────────────────────── */
   const handleChange = (e) => {
@@ -151,6 +169,8 @@ export default function QuickCheckout() {
       errs.price = 'Price must be greater than 0';
     if (!form.quantity || parseInt(form.quantity, 10) < 1)
       errs.quantity = 'Quantity must be at least 1';
+    if ((form.paymentMethod === 'bKash' || form.paymentMethod === 'Nagad') && !form.transactionId.trim())
+      errs.transactionId = `Transaction ID is required for ${form.paymentMethod}`;
     return errs;
   }
 
@@ -191,6 +211,7 @@ export default function QuickCheckout() {
           },
         ],
         paymentMethod: form.paymentMethod,
+        transactionId: form.transactionId.trim(),
         pageUrl:       window.location.href,
       };
 
@@ -278,9 +299,16 @@ export default function QuickCheckout() {
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-purple-300 text-xs">Total</p>
-                  <p className="text-white font-bold text-lg">৳{total.toFixed(0)}</p>
-                  <p className="text-gray-400 text-xs">৳{parseFloat(form.price || 0).toFixed(0)} × {form.quantity}</p>
+                  <p className="text-purple-300 text-xs">Subtotal</p>
+                  <p className="text-white font-bold text-lg">৳{discountedSubtotal.toFixed(0)}</p>
+                  {bundleDiscountPercent > 0 ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-gray-400 text-xs line-through">৳{baseSubtotal.toFixed(0)}</span>
+                      <span className="text-green-400 text-xs font-semibold">-{bundleDiscountPercent}% bundle</span>
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 text-xs">৳{parseFloat(form.price || 0).toFixed(0)} × {form.quantity}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -294,7 +322,7 @@ export default function QuickCheckout() {
               <Field label="Full Name" required error={errors.customerName}>
                 <input
                   type="text" name="customerName" value={form.customerName}
-                  onChange={handleChange} placeholder="e.g. Rahul Ahmed"
+                  onChange={handleChange} placeholder="Rakibul Hasan"
                   className={inputCls} autoComplete="name"
                   data-field-error={errors.customerName ? '' : undefined}
                 />
@@ -369,8 +397,10 @@ export default function QuickCheckout() {
                 <Field label="Quantity" required error={errors.quantity}>
                   <input
                     type="number" name="quantity" value={form.quantity}
-                    onChange={handleChange} min={1} max={99}
-                    className={inputCls} inputMode="numeric"
+                    onChange={fromCart ? undefined : handleChange}
+                    readOnly={fromCart}
+                    min={1} max={99}
+                    className={inputCls + (fromCart ? ' bg-gray-50/10 cursor-default opacity-80' : '')} inputMode="numeric"
                   />
                 </Field>
                 <Field label="Price (৳)" required error={errors.price}>
@@ -384,9 +414,21 @@ export default function QuickCheckout() {
               </div>
 
               {/* Total display */}
-              <div className="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3 border border-white/10">
-                <span className="text-gray-300 text-sm">Order Total</span>
-                <span className="text-white text-xl font-bold">৳{total.toFixed(0)}</span>
+              <div className="flex flex-col gap-2 bg-white/5 rounded-xl px-4 py-3 border border-white/10">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300 text-sm">Subtotal</span>
+                  <span className="text-white text-md font-semibold">৳{discountedSubtotal.toFixed(0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300 text-sm">Shipping</span>
+                  <span className="text-white text-md font-semibold">
+                    {form.district ? `৳${shippingCost}` : <span className="text-gray-400 text-xs">Select district</span>}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-t border-white/10 pt-2 mt-1">
+                  <span className="text-gray-300 text-sm">Order Total</span>
+                  <span className="text-white text-xl font-bold">৳{total.toFixed(0)}</span>
+                </div>
               </div>
             </div>
 
@@ -418,6 +460,22 @@ export default function QuickCheckout() {
                   </label>
                 ))}
               </div>
+
+              {(form.paymentMethod === 'bKash' || form.paymentMethod === 'Nagad') && (
+                <div className="mt-2 bg-white/5 border border-purple-500/30 rounded-xl p-4">
+                  <p className="text-sm text-gray-300 mb-3 leading-relaxed">
+                    Please send money to <span className="font-bold text-white bg-purple-600/50 px-2 py-0.5 rounded">01410809138</span> via {form.paymentMethod}. Enter your Transaction ID below so we can verify.
+                  </p>
+                  <Field label="Transaction ID" required error={errors.transactionId}>
+                    <input
+                      type="text" name="transactionId" value={form.transactionId}
+                      onChange={handleChange} placeholder={`e.g. 8G5X9...`}
+                      className={inputCls}
+                      data-field-error={errors.transactionId ? '' : undefined}
+                    />
+                  </Field>
+                </div>
+              )}
             </div>
 
             {/* ─── Order notes ─── */}

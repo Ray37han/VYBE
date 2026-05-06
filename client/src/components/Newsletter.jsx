@@ -14,12 +14,12 @@ export default function Newsletter() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email) return;
-    
+
     // Simulate subscription
     setSubscribed(true);
     toast.success('Thanks for subscribing! 🎉');
     setEmail('');
-    
+
     // Reset after 5 seconds
     setTimeout(() => setSubscribed(false), 5000);
   };
@@ -34,7 +34,7 @@ export default function Newsletter() {
           className="max-w-2xl mx-auto text-center"
         >
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-            Get <span className="text-purple-400">20% OFF</span> On Your First Order
+            Upgrade Your Walls — First Order Perks Inside
           </h2>
           <p className="text-gray-400 mb-8">
             Subscribe to our newsletter for exclusive deals, new arrivals, and art inspiration.
@@ -55,11 +55,10 @@ export default function Newsletter() {
             <button
               type="submit"
               disabled={subscribed}
-              className={`px-8 py-3 font-bold rounded-full transition-all min-h-[48px] ${
-                subscribed
+              className={`px-8 py-3 font-bold rounded-full transition-all min-h-[48px] ${subscribed
                   ? 'bg-green-500 text-white cursor-default'
                   : 'bg-purple-600 text-white hover:bg-purple-700'
-              }`}
+                }`}
             >
               {subscribed ? (
                 <span className="flex items-center gap-2">

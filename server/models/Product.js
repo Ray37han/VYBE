@@ -134,13 +134,41 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  tags: [String]
+  tags: [String],
+
+  // ── Normalized / Computed Fields (NON-DESTRUCTIVE) ─────────────────────────
+  // These fields are derived from original data and power the smart search &
+  // filtering system.  Original fields above are NEVER modified.
+
+  normalizedName: {
+    type: String,
+    default: '',
+  },
+  normalizedCategory: {
+    type: String,
+    default: '',
+  },
+  normalizedTags: {
+    type: [String],
+    default: [],
+  },
+  searchKeywords: {
+    type: [String],
+    default: [],
+  },
+  groupKey: {
+    type: String,
+    default: '',
+  },
 }, {
   timestamps: true
 });
 
-// Indexes for search and filtering
-productSchema.index({ name: 'text', description: 'text', tags: 'text' });
+// ── Original Indexes (preserved) ───────────────────────────────────────────
+// NOTE: The text index that was here (name, description, tags) has been replaced
+// by the comprehensive weighted text index below (normalized_text_search) that
+// includes both original and normalized fields for better search relevance.
+// MongoDB only allows ONE text index per collection.
 productSchema.index({ category: 1, featured: -1 });
 productSchema.index({ category: 1, isActive: 1 });
 productSchema.index({ featured: -1, createdAt: -1 });
@@ -164,5 +192,43 @@ productSchema.index({ isActive: 1, 'rating.average': -1 });
 // Feature-specific compound indexes
 productSchema.index({ bestSelling: 1, sold: -1 });
 productSchema.index({ newArrival: 1, createdAt: -1 });
+
+// ── Smart Search & Discovery Indexes ───────────────────────────────────────
+productSchema.index({ normalizedName: 1 });
+productSchema.index({ normalizedCategory: 1 });
+productSchema.index({ normalizedTags: 1 });
+productSchema.index({ searchKeywords: 1 });
+productSchema.index({ groupKey: 1 });
+
+// Compound indexes for normalized search + filter patterns
+productSchema.index({ isActive: 1, normalizedCategory: 1, basePrice: 1 });
+productSchema.index({ isActive: 1, normalizedCategory: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, normalizedCategory: 1, sold: -1 });
+productSchema.index({ isActive: 1, groupKey: 1 });
+
+// Comprehensive text index — original + normalized fields (weighted)
+productSchema.index(
+  {
+    normalizedName: 'text',
+    name: 'text',
+    description: 'text',
+    normalizedCategory: 'text',
+    normalizedTags: 'text',
+    searchKeywords: 'text',
+    tags: 'text',
+  },
+  {
+    name: 'normalized_text_search',
+    weights: {
+      normalizedName: 10,
+      name: 8,
+      normalizedCategory: 5,
+      normalizedTags: 3,
+      searchKeywords: 2,
+      description: 1,
+      tags: 1,
+    },
+  }
+);
 
 export default mongoose.model('Product', productSchema);

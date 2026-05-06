@@ -95,6 +95,46 @@ export const productsAPI = {
   addReview: (id, data) => api.post(`/products/${id}/review`, data).then(res => res.data),
   search: (params) => api.get('/products/search/query', { params }).then(res => res.data),
   searchSuggestions: (q) => api.get('/products/search/suggestions', { params: { q } }).then(res => res.data),
+  getRelated: (id, limit = 8) => api.get(`/products/${id}/related`, { params: { limit } }).then(res => res.data),
+  getByGroup: (groupKey) => api.get(`/products/group/${groupKey}`).then(res => res.data),
+};
+
+// Categories API
+export const categoriesAPI = {
+  getAll: () => api.get('/categories').then(res => res.data),
+  getTree: () => api.get('/categories/tree').then(res => res.data),
+  getOne: (slug) => api.get(`/categories/${slug}`).then(res => res.data),
+  getTags: (slug) => api.get(`/categories/${slug}/tags`).then(res => res.data),
+  getTrending: () => api.get('/categories/stats/trending').then(res => res.data),
+};
+
+// Recently Viewed (client-side with localStorage)
+export const recentlyViewedAPI = {
+  get: () => {
+    try {
+      return JSON.parse(localStorage.getItem('vybe_recently_viewed') || '[]');
+    } catch { return []; }
+  },
+  add: (product) => {
+    try {
+      const items = JSON.parse(localStorage.getItem('vybe_recently_viewed') || '[]');
+      // Remove if already exists
+      const filtered = items.filter(p => p._id !== product._id);
+      // Add to front, limit to 20
+      filtered.unshift({
+        _id: product._id,
+        name: product.name,
+        category: product.category,
+        basePrice: product.basePrice,
+        thumbnail: product.images?.[0]?.urls?.thumbnail || product.images?.[0]?.url || null,
+        viewedAt: Date.now(),
+      });
+      localStorage.setItem('vybe_recently_viewed', JSON.stringify(filtered.slice(0, 20)));
+    } catch { /* silently fail */ }
+  },
+  clear: () => {
+    localStorage.removeItem('vybe_recently_viewed');
+  },
 };
 
 // Featured Posters API (Public)
@@ -167,6 +207,7 @@ export const adminAPI = {
     }).then(res => res.data);
   },
   deleteProduct: (id) => api.delete(`/admin/products/${id}`).then(res => res.data),
+  bulkDeleteProducts: (ids) => api.post('/admin/products/bulk-delete', { ids }).then(res => res.data),
   deleteProductImage: (productId, imageId) => 
     api.delete(`/admin/products/${productId}/images/${imageId}`).then(res => res.data),
   
