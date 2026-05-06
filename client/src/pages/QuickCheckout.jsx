@@ -203,13 +203,20 @@ export default function QuickCheckout() {
         price:         parseFloat(form.price),
         quantity:      parseInt(form.quantity, 10),
         products: fromCart && cartItems?.length > 0 
-          ? cartItems.map(item => ({
-              name: item.product?.name || form.productName.trim(),
-              productId: item.product?._id || '',
-              quantity: parseInt(item.quantity, 10),
-              price: parseFloat(item.price),
-              image_url: item.product?.images?.[0]?.urls?.thumbnail || item.product?.images?.[0]?.url || '',
-            }))
+          ? cartItems.map(item => {
+              const variant = item.product?.sizes?.find(
+                (s) => s.name === item.size && (s.tier || 'Standard') === (item.tier || 'Standard')
+              ) || item.product?.sizes?.find((s) => s.name === item.size && !s.tier);
+              const price = variant?.price || item.product?.basePrice || 0;
+
+              return {
+                name: item.product?.name || form.productName.trim(),
+                productId: item.product?._id || '',
+                quantity: parseInt(item.quantity, 10),
+                price: parseFloat(price),
+                image_url: item.product?.images?.[0]?.urls?.thumbnail || item.product?.images?.[0]?.url || '',
+              };
+            })
           : [
               {
                 name: form.productName.trim(),
