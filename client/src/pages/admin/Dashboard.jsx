@@ -268,61 +268,6 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
 
-        {/* Recent Orders */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className={`p-6 rounded-2xl shadow-lg transition-all duration-500 ${
-            darkMode
-              ? 'bg-moon-midnight/50 border border-moon-gold/20'
-              : 'bg-white border border-purple-100'
-          }`}
-        >
-          <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-moon-silver' : 'text-gray-900'}`}>Recent Orders</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className={`border-b ${darkMode ? 'border-moon-gold/20' : 'border-gray-200'}`}>
-                  <th className={`text-left py-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>Order ID</th>
-                  <th className={`text-left py-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>Customer</th>
-                  <th className={`text-left py-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>Status</th>
-                  <th className={`text-left py-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>Total</th>
-                  <th className={`text-left py-3 ${darkMode ? 'text-moon-silver' : 'text-gray-700'}`}>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats?.recentOrders?.map((order, index) => (
-                  <motion.tr 
-                    key={order._id} 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + index * 0.05 }}
-                    className={`border-b transition-colors duration-200 ${
-                      darkMode
-                        ? 'border-moon-gold/10 hover:bg-moon-blue/30'
-                        : 'border-gray-100 hover:bg-purple-50'
-                    }`}
-                  >
-                    <td className={`py-3 ${darkMode ? 'text-moon-silver/80' : 'text-gray-700'}`}>{order.orderNumber}</td>
-                    <td className={`py-3 ${darkMode ? 'text-moon-silver/80' : 'text-gray-700'}`}>{order.user?.name}</td>
-                    <td className="py-3">
-                      <span className={`px-3 py-1 rounded-full text-sm ${
-                        darkMode
-                          ? 'bg-blue-500/20 text-blue-300'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {order.orderStatus}
-                      </span>
-                    </td>
-                    <td className={`py-3 font-semibold ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>৳{order.pricing.total}</td>
-                    <td className={`py-3 ${darkMode ? 'text-moon-silver/60' : 'text-gray-600'}`}>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
       </div>
     </div>
   );
