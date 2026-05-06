@@ -151,34 +151,45 @@ function StatusBadge({ status }) {
 
 function ProductPreview({ order }) {
   const products = getProducts(order);
-  const primary = products[0];
-  const moreCount = products.length - 1;
-  const imageUrl = primary?.image_url;
 
   return (
-    <div className="flex min-w-0 items-center gap-3">
-      <div className="h-11 w-11 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-        {isFullUrl(imageUrl) ? (
-          <img
-            src={imageUrl}
-            alt={primary?.name || 'Product'}
-            loading="lazy"
-            crossOrigin="anonymous"
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">No Img</div>
-        )}
-      </div>
+    <div className="flex flex-col gap-2 min-w-0 py-1">
+      {products.map((product, idx) => (
+        <div key={idx} className="flex min-w-0 items-center gap-3">
+          {product.productId ? (
+            <Link to={`/products/${product.productId}`} target="_blank" className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 transition hover:opacity-80">
+              {isFullUrl(product.image_url) ? (
+                <img src={product.image_url} alt={product.name || 'Product'} loading="lazy" crossOrigin="anonymous" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">No Img</div>
+              )}
+            </Link>
+          ) : (
+            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+              {isFullUrl(product.image_url) ? (
+                <img src={product.image_url} alt={product.name || 'Product'} loading="lazy" crossOrigin="anonymous" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">No Img</div>
+              )}
+            </div>
+          )}
 
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-slate-100" title={primary?.name || '-'}>
-          {primary?.name || '-'}
-        </p>
-        {moreCount > 0 && (
-          <p className="text-xs text-cyan-300">+{moreCount} more</p>
-        )}
-      </div>
+          <div className="min-w-0 flex-1">
+            {product.productId ? (
+              <Link to={`/products/${product.productId}`} target="_blank" className="truncate text-sm font-medium text-slate-100 hover:text-cyan-400 transition" title={product.name || '-'}>
+                {product.name || '-'}
+              </Link>
+            ) : (
+              <p className="truncate text-sm font-medium text-slate-100" title={product.name || '-'}>
+                {product.name || '-'}
+              </p>
+            )}
+            {product.quantity > 1 && (
+              <div className="mt-0.5"><span className="text-xs font-semibold text-cyan-300 bg-cyan-900/40 px-1.5 py-0.5 rounded">Qty: {product.quantity}</span></div>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -328,19 +339,32 @@ function InvoiceSheet({ order }) {
               <tr key={`${item.name}-${idx}`} className="border-t border-slate-200">
                 <td className="px-3 py-2">
                   <div className="h-12 w-12 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-                    {isFullUrl(item.image_url) ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        crossOrigin="anonymous"
-                        className="h-full w-full object-cover"
-                      />
+                    {item.productId ? (
+                      <a href={`/products/${item.productId}`} target="_blank" rel="noopener noreferrer" className="block h-full w-full transition hover:opacity-80">
+                        {isFullUrl(item.image_url) ? (
+                          <img src={item.image_url} alt={item.name} crossOrigin="anonymous" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">No Img</div>
+                        )}
+                      </a>
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">No Img</div>
+                      isFullUrl(item.image_url) ? (
+                        <img src={item.image_url} alt={item.name} crossOrigin="anonymous" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-500">No Img</div>
+                      )
                     )}
                   </div>
                 </td>
-                <td className="px-3 py-2 font-medium text-slate-900">{item.name}</td>
+                <td className="px-3 py-2 font-medium text-slate-900">
+                  {item.productId ? (
+                    <a href={`/products/${item.productId}`} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition">
+                      {item.name}
+                    </a>
+                  ) : (
+                    item.name
+                  )}
+                </td>
                 <td className="px-3 py-2 text-slate-700">{item.quantity}</td>
                 <td className="px-3 py-2 text-slate-700">{money(item.price)}</td>
               </tr>

@@ -89,7 +89,7 @@ const selectCls = inputCls + ' appearance-none';
 export default function QuickCheckout() {
   const navigate    = useNavigate();
   const [params]    = useSearchParams();
-  const { clearCart } = useCartStore();
+  const { clearCart, items: cartItems } = useCartStore();
   const { isAuthenticated, token } = useAuthStore();
 
   /* ── Auto-fill product from URL ─────── */
@@ -202,14 +202,23 @@ export default function QuickCheckout() {
         productImageUrl: form.productImageUrl?.trim() || '',
         price:         parseFloat(form.price),
         quantity:      parseInt(form.quantity, 10),
-        products: [
-          {
-            name: form.productName.trim(),
-            quantity: parseInt(form.quantity, 10),
-            price: parseFloat(form.price),
-            image_url: form.productImageUrl?.trim() || '',
-          },
-        ],
+        products: fromCart && cartItems?.length > 0 
+          ? cartItems.map(item => ({
+              name: item.product?.name || form.productName.trim(),
+              productId: item.product?._id || '',
+              quantity: parseInt(item.quantity, 10),
+              price: parseFloat(item.price),
+              image_url: item.product?.images?.[0]?.urls?.thumbnail || item.product?.images?.[0]?.url || '',
+            }))
+          : [
+              {
+                name: form.productName.trim(),
+                productId: form.productId?.trim() || '',
+                quantity: parseInt(form.quantity, 10),
+                price: parseFloat(form.price),
+                image_url: form.productImageUrl?.trim() || '',
+              },
+            ],
         paymentMethod: form.paymentMethod,
         transactionId: form.transactionId.trim(),
         pageUrl:       window.location.href,

@@ -35,6 +35,7 @@ function buildProductsFromPayload(body = {}) {
     return body.products
       .map((item) => ({
         name: String(item?.name || '').trim(),
+        productId: String(item?.productId || '').trim(),
         quantity: Number(item?.quantity) > 0 ? Number(item.quantity) : 1,
         price: Number(item?.price) >= 0 ? Number(item.price) : 0,
         image_url: String(item?.image_url || '').trim(),
@@ -49,6 +50,7 @@ function buildProductsFromPayload(body = {}) {
 
   return [{
     name: fallbackName,
+    productId: String(body.productId || '').trim(),
     quantity: Number(body.quantity) > 0 ? Number(body.quantity) : 1,
     price: Number(body.price) >= 0 ? Number(body.price) : 0,
     image_url: String(body.productImageUrl || body.image_url || '').trim(),
@@ -210,6 +212,7 @@ router.post('/create', orderRateLimiter, createOrderValidators, async (req, res)
     const normalizedProducts = buildProductsFromPayload({
       products: productsInput,
       productName,
+      productId,
       quantity,
       price,
       productImageUrl,

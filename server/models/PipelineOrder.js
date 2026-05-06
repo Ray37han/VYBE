@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 const pipelineProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    productId: { type: String, trim: true, default: '' },
     quantity: { type: Number, required: true, min: 1, default: 1 },
     price: { type: Number, required: true, min: 0, default: 0 },
     image_url: { type: String, trim: true, default: '' },
