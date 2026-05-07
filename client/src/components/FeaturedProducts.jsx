@@ -37,28 +37,23 @@ export default function FeaturedProducts({ darkMode = false }) {
   };
 
   const getDiscountPct = (base, original) => {
-    if (!base || !original || original <= base) return 25;
-    return Math.round(((original - base) / original) * 100);
+    return 25;
   };
 
   if (loading) return <LoadingStore text="Loading trending drops" />;
   if (posters.length === 0) return null;
 
   return (
-    <section className={`relative py-16 sm:py-24 overflow-hidden ${
-      darkMode ? 'bg-[#060610]' : 'bg-[#f7f3ff]'
-    }`}>
+    <section className={`relative py-16 sm:py-24 overflow-hidden ${darkMode ? 'bg-[#060610]' : 'bg-[#f7f3ff]'
+      }`}>
       {/* Ambient background blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className={`absolute -top-48 -left-48 w-[500px] h-[500px] rounded-full blur-[140px] ${
-          darkMode ? 'bg-violet-800/40' : 'bg-violet-300/50'
-        }`} />
-        <div className={`absolute -bottom-48 -right-48 w-[500px] h-[500px] rounded-full blur-[140px] ${
-          darkMode ? 'bg-pink-800/30' : 'bg-pink-300/40'
-        }`} />
-        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full blur-[120px] ${
-          darkMode ? 'bg-cyan-700/20' : 'bg-indigo-200/40'
-        }`} />
+        <div className={`absolute -top-48 -left-48 w-[500px] h-[500px] rounded-full blur-[140px] ${darkMode ? 'bg-violet-800/40' : 'bg-violet-300/50'
+          }`} />
+        <div className={`absolute -bottom-48 -right-48 w-[500px] h-[500px] rounded-full blur-[140px] ${darkMode ? 'bg-pink-800/30' : 'bg-pink-300/40'
+          }`} />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full blur-[120px] ${darkMode ? 'bg-cyan-700/20' : 'bg-indigo-200/40'
+          }`} />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,9 +79,8 @@ export default function FeaturedProducts({ darkMode = false }) {
               Hot Drops
             </motion.div>
 
-            <h2 className={`text-4xl sm:text-5xl lg:text-6xl font-black leading-none tracking-tight ${
-              darkMode ? 'text-white' : 'text-gray-950'
-            }`}>
+            <h2 className={`text-4xl sm:text-5xl lg:text-6xl font-black leading-none tracking-tight ${darkMode ? 'text-white' : 'text-gray-950'
+              }`}>
               Trending{' '}
               <span className="bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
                 Now
@@ -94,20 +88,18 @@ export default function FeaturedProducts({ darkMode = false }) {
               <span className="inline-block animate-bounce">🔥</span>
             </h2>
 
-            <p className={`mt-3 text-sm font-medium tracking-wide ${
-              darkMode ? 'text-white/35' : 'text-gray-500'
-            }`}>
+            <p className={`mt-3 text-sm font-medium tracking-wide ${darkMode ? 'text-white/35' : 'text-gray-500'
+              }`}>
               What everyone's copping right now
             </p>
           </div>
 
           <Link
             to="/products"
-            className={`group hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-300 ${
-              darkMode
+            className={`group hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border-2 transition-all duration-300 ${darkMode
                 ? 'border-white/20 text-white hover:bg-white hover:text-black hover:border-white'
                 : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white'
-            }`}
+              }`}
           >
             View All
             <svg
@@ -156,24 +148,21 @@ export default function FeaturedProducts({ darkMode = false }) {
               >
                 {/* Glow ring on hover */}
                 <div
-                  className={`absolute inset-0 rounded-2xl transition-all duration-500 blur-xl ${
-                    isHovered
+                  className={`absolute inset-0 rounded-2xl transition-all duration-500 blur-xl ${isHovered
                       ? 'bg-gradient-to-br from-violet-500/30 to-pink-500/30 opacity-100'
                       : 'opacity-0'
-                  }`}
+                    }`}
                 />
 
                 <Link to={productId ? `/products/${productId}` : '/products'} className="group block relative">
                   <motion.div
                     animate={isHovered ? { y: -6, scale: 1.02 } : { y: 0, scale: 1 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    className={`rounded-2xl overflow-hidden transition-shadow duration-500 ${
-                      isHovered ? 'shadow-2xl shadow-purple-500/20' : 'shadow-sm'
-                    } ${
-                      darkMode
+                    className={`rounded-2xl overflow-hidden transition-shadow duration-500 ${isHovered ? 'shadow-2xl shadow-purple-500/20' : 'shadow-sm'
+                      } ${darkMode
                         ? 'bg-white/[0.05] border border-white/10 backdrop-blur-sm'
                         : 'bg-white border border-gray-100/80'
-                    }`}
+                      }`}
                   >
                     {/* Image */}
                     <div className="relative aspect-[3/4] overflow-hidden bg-gray-900/20">
@@ -188,9 +177,8 @@ export default function FeaturedProducts({ darkMode = false }) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
 
                       {/* Rank number */}
-                      <div className={`absolute top-2.5 left-3 text-3xl font-black leading-none select-none ${
-                        darkMode ? 'text-white/15' : 'text-black/10'
-                      }`}>
+                      <div className={`absolute top-2.5 left-3 text-3xl font-black leading-none select-none ${darkMode ? 'text-white/15' : 'text-black/10'
+                        }`}>
                         {rank}
                       </div>
 
@@ -222,12 +210,10 @@ export default function FeaturedProducts({ darkMode = false }) {
                     </div>
 
                     {/* Info bar */}
-                    <div className={`p-3 sm:p-3.5 ${
-                      darkMode ? 'border-t border-white/8' : 'border-t border-gray-100'
-                    }`}>
-                      <h3 className={`font-bold text-[13px] leading-snug line-clamp-1 mb-2.5 ${
-                        darkMode ? 'text-white/90' : 'text-gray-900'
+                    <div className={`p-3 sm:p-3.5 ${darkMode ? 'border-t border-white/8' : 'border-t border-gray-100'
                       }`}>
+                      <h3 className={`font-bold text-[13px] leading-snug line-clamp-1 mb-2.5 ${darkMode ? 'text-white/90' : 'text-gray-900'
+                        }`}>
                         {name}
                       </h3>
 
@@ -238,9 +224,8 @@ export default function FeaturedProducts({ darkMode = false }) {
                               ৳{basePrice.toLocaleString()}
                             </span>
                             {originalPrice && (
-                              <span className={`text-[10px] line-through ${
-                                darkMode ? 'text-white/25' : 'text-gray-400'
-                              }`}>
+                              <span className={`text-[10px] line-through ${darkMode ? 'text-white/25' : 'text-gray-400'
+                                }`}>
                                 ৳{originalPrice.toLocaleString()}
                               </span>
                             )}
@@ -250,11 +235,10 @@ export default function FeaturedProducts({ darkMode = false }) {
                         )}
 
                         {rating > 0 && (
-                          <div className={`flex items-center gap-1 shrink-0 px-2 py-1 rounded-full text-[10px] font-bold ${
-                            darkMode
+                          <div className={`flex items-center gap-1 shrink-0 px-2 py-1 rounded-full text-[10px] font-bold ${darkMode
                               ? 'bg-yellow-400/15 text-yellow-400'
                               : 'bg-amber-50 text-amber-600 border border-amber-200/60'
-                          }`}>
+                            }`}>
                             <FiStar className="w-2.5 h-2.5 fill-current" />
                             {rating.toFixed(1)}
                           </div>

@@ -9,7 +9,7 @@ import { FiX, FiGift } from 'react-icons/fi';
  */
 
 const announcements = [
-  { id: 1, text: '🔥 MEGA SALE: 20% OFF Everything!', highlight: true },
+  { id: 1, text: '🔥 MEGA SALE: 25% OFF Everything!', highlight: true },
   { id: 2, text: '🚚 Cash on Delivery Available Nationwide', highlight: true },
   { id: 3, text: '💳 Pay with bKash/Nagad - Instant Confirmation', highlight: true },
   
