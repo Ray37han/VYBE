@@ -39,6 +39,9 @@ function buildProductsFromPayload(body = {}) {
         quantity: Number(item?.quantity) > 0 ? Number(item.quantity) : 1,
         price: Number(item?.price) >= 0 ? Number(item.price) : 0,
         image_url: String(item?.image_url || '').trim(),
+        size: String(item?.size || '').trim(),
+        frame: String(item?.frame || '').trim(),
+        frameColor: String(item?.frameColor || '').trim(),
       }))
       .filter((item) => item.name);
   }

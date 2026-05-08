@@ -152,6 +152,8 @@ const handleBuyNow = () => {
       name:      productLabel,
       price:     String(currentPrice),
       qty:       String(quantity),
+      size:      selectedSize,
+      frame:     selectedFrame || 'No Frame',
     });
 
     const buyNowImageUrl =

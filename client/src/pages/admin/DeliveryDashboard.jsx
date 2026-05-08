@@ -185,7 +185,14 @@ function ProductPreview({ order }) {
               </p>
             )}
             {product.quantity > 1 && (
-              <div className="mt-0.5"><span className="text-xs font-semibold text-cyan-300 bg-cyan-900/40 px-1.5 py-0.5 rounded">Qty: {product.quantity}</span></div>
+              <div className="mt-0.5 mb-0.5"><span className="text-[10px] font-semibold text-cyan-300 bg-cyan-900/40 px-1.5 py-0.5 rounded">Qty: {product.quantity}</span></div>
+            )}
+            {(product.size || product.frame || product.frameColor || product.customization?.frameColor) && (
+              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-slate-400">
+                {product.size && <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">Size: {product.size}</span>}
+                {product.frame && product.frame !== 'No Frame' && <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">Frame: {product.frame}</span>}
+                {(product.frameColor || product.customization?.frameColor) && <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">Color: {product.frameColor || product.customization?.frameColor}</span>}
+              </div>
             )}
           </div>
         </div>
@@ -1251,7 +1258,16 @@ export default function DeliveryDashboard() {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-2 text-slate-100">{item.name}</td>
+                          <td className="px-4 py-2 text-slate-100">
+                            <div>{item.name}</div>
+                            {(item.size || item.frame || item.frameColor || item.customization?.frameColor) && (
+                              <div className="mt-0.5 flex flex-wrap gap-2 text-[11px] text-slate-400">
+                                {item.size && <span>Size: {item.size}</span>}
+                                {item.frame && item.frame !== 'No Frame' && <span>Frame: {item.frame}</span>}
+                                {(item.frameColor || item.customization?.frameColor) && <span>Color: {item.frameColor || item.customization?.frameColor}</span>}
+                              </div>
+                            )}
+                          </td>
                           <td className="px-4 py-2 text-slate-300">{item.quantity}</td>
                           <td className="px-4 py-2 text-slate-300">{money(item.price)}</td>
                           <td className="px-4 py-2">

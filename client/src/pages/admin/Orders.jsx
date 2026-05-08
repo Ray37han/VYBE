@@ -377,6 +377,7 @@ export default function AdminOrders() {
                         <p className={`text-sm ${darkMode ? 'text-moon-silver/60' : 'text-gray-600'}`}>
                           Size: {item.size} | Qty: {item.quantity}
                           {item.frame && item.frame !== 'No Frame' && ` | Frame: ${item.frame}`}
+                          {item.customization?.frameColor && ` | Frame Color: ${item.customization.frameColor}`}
                         </p>
                         <p className={`text-sm font-bold ${darkMode ? 'text-moon-gold' : 'text-vybe-purple'}`}>৳{item.price * item.quantity}</p>
                       </div>

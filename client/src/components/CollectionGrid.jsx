@@ -10,6 +10,8 @@ import seriesImg from './images/SERIES.jpg';
 import moviesImg from './images/MOVIES.jpg';
 import musicImg from './images/MUSIC.jpg';
 import gamesImg from './images/GAMES.jpg';
+import animeImg from './images/ANIME.jpg';
+import motivationalImg from './images/MOTIVATIONAL.jpg';
 
 /**
  * CollectionGrid Component - "Shop by Passion" Category Grid
@@ -95,6 +97,24 @@ const collections = [
     color: 'from-cyan-500 to-blue-700',
     emoji: '🎮',
   },
+  {
+    id: 'anime',
+    name: 'Anime',
+    tagline: 'Unleash Your Inner Otaku',
+    image: animeImg,
+    categories: ['anime'],
+    color: 'from-violet-600 to-fuchsia-700',
+    emoji: '⚡',
+  },
+  {
+    id: 'motivational',
+    name: 'Motivational',
+    tagline: 'Fuel Your Hustle',
+    image: motivationalImg,
+    categories: ['motivational', 'football-motivational', 'f1-motivational'],
+    color: 'from-amber-500 to-orange-700',
+    emoji: '💪',
+  },
 ];
 
 export default function CollectionGrid({ darkMode = false }) {
@@ -125,7 +145,7 @@ export default function CollectionGrid({ darkMode = false }) {
         </motion.div>
 
         {/* Grid: 2 cols mobile, 4 cols desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
           {collections.map((collection, index) => (
             <motion.div
               key={collection.id}

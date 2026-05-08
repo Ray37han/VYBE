@@ -98,6 +98,8 @@ export default function QuickCheckout() {
   const urlProductImage = params.get('image')    || '';
   const urlPrice       = parseFloat(params.get('price') || '0');
   const urlQty         = parseInt(params.get('qty') || '1', 10);
+  const urlSize        = params.get('size')      || '';
+  const urlFrame       = params.get('frame')     || '';
   const fromCart       = params.get('fromCart') === '1' || params.get('fromCart') === 'true';
 
   /* ── Form state ─────────────────────── */
@@ -215,6 +217,9 @@ export default function QuickCheckout() {
                 quantity: parseInt(item.quantity, 10),
                 price: parseFloat(price),
                 image_url: item.product?.images?.[0]?.urls?.thumbnail || item.product?.images?.[0]?.url || '',
+                size: item.size || '',
+                frame: item.frame || '',
+                frameColor: item.customization?.frameColor || '',
               };
             })
           : [
@@ -224,6 +229,8 @@ export default function QuickCheckout() {
                 quantity: parseInt(form.quantity, 10),
                 price: parseFloat(form.price),
                 image_url: form.productImageUrl?.trim() || '',
+                size: urlSize,
+                frame: urlFrame,
               },
             ],
         paymentMethod: form.paymentMethod,

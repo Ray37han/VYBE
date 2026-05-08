@@ -8,7 +8,7 @@ import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import { usePageLoad } from '../hooks/usePageLoad';
 import toast from 'react-hot-toast';
 
-// Main 8 categories matching the landing page
+// Main 10 categories matching the landing page
 const categories = [
   { value: 'football', label: 'Football', icon: '⚽' },
   { value: 'cars', label: 'Cars', icon: '🚗' },
@@ -18,6 +18,8 @@ const categories = [
   { value: 'movies', label: 'Movies', icon: '🎬' },
   { value: 'music', label: 'Music', icon: '🎵' },
   { value: 'games', label: 'Games', icon: '🎮' },
+  { value: 'anime', label: 'Anime', icon: '⚡' },
+  { value: 'motivational', label: 'Motivational', icon: '💪' },
 ];
 
 export default function NavbarOptimized() {

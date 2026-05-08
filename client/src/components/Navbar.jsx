@@ -46,6 +46,7 @@ const categories = [
     label: 'Pop Culture',
     icon: '🎬',
     subcategories: [
+      { value: 'anime', label: 'Anime', icon: '⚡' },
       { value: 'marvel', label: 'Marvel', icon: '🦸' },
       { value: 'dc', label: 'DC', icon: '🦇' },
       { value: 'movies', label: 'Movies', icon: '🎬' },

@@ -346,6 +346,11 @@ export default function MyOrders() {
                                     darkMode ? 'text-moon-silver' : 'text-gray-900'
                                   }`}>{item.frame}</span></>
                                 )}
+                                {item.customization?.frameColor && (
+                                  <> | 🎨 Frame Color: <span className={`font-semibold ${
+                                    darkMode ? 'text-moon-silver' : 'text-gray-900'
+                                  }`}>{item.customization.frameColor}</span></>
+                                )}
                               </p>
                               {/* Premium Minimal Price Tag for Items */}
                               <motion.div

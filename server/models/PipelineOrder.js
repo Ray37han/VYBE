@@ -17,6 +17,9 @@ const pipelineProductSchema = new mongoose.Schema(
     quantity: { type: Number, required: true, min: 1, default: 1 },
     price: { type: Number, required: true, min: 0, default: 0 },
     image_url: { type: String, trim: true, default: '' },
+    size: { type: String, trim: true, default: '' },
+    frame: { type: String, trim: true, default: '' },
+    frameColor: { type: String, trim: true, default: '' },
   },
   { _id: false }
 );

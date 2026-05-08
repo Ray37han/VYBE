@@ -46,13 +46,17 @@ const categories = [
   // 8. Series
   { value: 'tv-series', label: 'TV Series', icon: '📺' },
 
+  // 9. Anime
+  { value: 'anime', label: 'Anime', icon: '⚡' },
+
+  // 10. Motivational
+  { value: 'motivational', label: '💪 Motivational', icon: '💪' },
+
   // Additional Categories
   { value: 'best-selling', label: '🔥 Best Selling', icon: '🔥' },
-  { value: 'motivational', label: '💪 Motivational', icon: '💪' },
   { value: 'cricket', label: 'Cricket', icon: '🏏' },
   { value: 'nba', label: 'NBA', icon: '🏀' },
   { value: 'ufc', label: 'UFC', icon: '🥊' },
-  { value: 'anime', label: 'Anime', icon: '⚡' },
   { value: 'abstract', label: 'Abstract Art', icon: '🎨' },
   { value: 'minimalist', label: 'Minimalist', icon: '⚪' },
   { value: 'vintage', label: 'Vintage', icon: '📻' },
