@@ -7,7 +7,7 @@ const PRODUCTION_MONGODB_URI = 'mongodb+srv://2303037_db_user:kALl4kOIAR6mUefP@c
 // New standardized pricing structure
 // A5: base 375, after discount 280
 // A4: base 625, after discount 470
-// A3: base 1000, after discount 750
+// A3: base 1000, after discount 780
 const newPricing = {
   sizes: [
     {
@@ -28,7 +28,7 @@ const newPricing = {
       name: 'A3',
       tier: 'Standard',
       dimensions: '11.7 x 16.5 inches',
-      price: 750,
+      price: 780,
       originalPrice: 1000
     }
   ],
@@ -90,7 +90,7 @@ async function updateProductionPricing() {
     console.log('🌐 Your website at vybebd.store will now show:');
     console.log('   - A5: ৳280 (base ৳375)');
     console.log('   - A4: ৳470 (base ৳625)');
-    console.log('   - A3: ৳750 (base ৳1000)');
+    console.log('   - A3: ৳780 (base ৳1000)');
     console.log('   - Discount: 25%\n');
 
   } catch (error) {

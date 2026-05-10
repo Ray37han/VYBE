@@ -15,7 +15,7 @@ async function updateNewPricing() {
     // Fixed pricing — A5/A4/A3
     // A5: base 375, after discount 280
     // A4: base 625, after discount 470
-    // A3: base 1000, after discount 750
+    // A3: base 1000, after discount 780
     const newSizes = [
       {
         name: 'A5',
@@ -35,7 +35,7 @@ async function updateNewPricing() {
         name: 'A3',
         dimensions: '11.7 x 16.5 inches',
         originalPrice: 1000,
-        price: 750,
+        price: 780,
         tier: 'Standard'
       }
     ];

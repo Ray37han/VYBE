@@ -65,7 +65,7 @@ export default function AdminProducts() {
   const sizeOptions = [
     { name: 'A5', dimensions: '5.8 x 8.3 inches', price: 280, originalPrice: 375 },
     { name: 'A4', dimensions: '8.3 x 11.7 inches', price: 470, originalPrice: 625 },
-    { name: 'A3', dimensions: '11.7 x 16.5 inches', price: 750, originalPrice: 1000 },
+    { name: 'A3', dimensions: '11.7 x 16.5 inches', price: 780, originalPrice: 1000 },
     { name: 'A2', dimensions: '16.5 x 23.4 inches' }
   ];
 

@@ -10,7 +10,7 @@ async function updateA3RicePrice() {
     console.log('✅ Connected to MongoDB');
 
     // New pricing for A3 Rice Paper
-    const basePrice = 850; // Price after 33% discount
+    const basePrice = 780; // Price after 33% discount
     const discountPercent = 33;
     const originalPrice = Math.round(basePrice / (1 - discountPercent / 100)); // Calculate original price
 

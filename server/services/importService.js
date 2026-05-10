@@ -91,11 +91,11 @@ const PRICE_RULES = {
 };
 
 // Standard poster sizes with fixed pricing
-// A5: 280 (orig 375), A4: 470 (orig 625), A3: 750 (orig 1000)
+// A5: 280 (orig 375), A4: 470 (orig 625), A3: 780 (orig 1000)
 const DEFAULT_SIZES = [
   { name: 'A5', tier: 'Standard', dimensions: '5.8 x 8.3 inches', price: 280, originalPrice: 375 },
   { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: 470, originalPrice: 625 },
-  { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 750, originalPrice: 1000 },
+  { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 780, originalPrice: 1000 },
 ];
 
 function getSizesWithPricing(basePrice, originalPrice) {
@@ -103,7 +103,7 @@ function getSizesWithPricing(basePrice, originalPrice) {
   return [
     { name: 'A5', tier: 'Standard', dimensions: '5.8 x 8.3 inches', price: 280, originalPrice: 375 },
     { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: 470, originalPrice: 625 },
-    { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 750, originalPrice: 1000 },
+    { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches', price: 780, originalPrice: 1000 },
   ];
 }
 

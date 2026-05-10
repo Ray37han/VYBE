@@ -20,17 +20,17 @@ async function run() {
 
     const discount = 25;
 
-    // Standard prices confirmed by user: A5=280(orig370), A4=470(orig625), A3=750(orig1000)
+    // Standard prices confirmed by user: A5=280(orig370), A4=470(orig625), A3=780(orig1000)
     // Premium: A5 = Standard+100, A4 = Standard+150, A3 = Standard+200
     const sizes = [
       // ── Standard ──────────────────────────────────────────
       { name: 'A5', tier: 'Standard', dimensions: '5.8 x 8.3 inches',  price: 280, originalPrice: 370 },
       { name: 'A4', tier: 'Standard', dimensions: '8.3 x 11.7 inches', price: 470, originalPrice: 625 },
-      { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches',price: 750, originalPrice: 1000 },
+      { name: 'A3', tier: 'Standard', dimensions: '11.7 x 16.5 inches',price: 780, originalPrice: 1000 },
       // ── Premium (+100 / +150 / +200 over Standard) ────────
       { name: 'A5', tier: 'Premium',  dimensions: '5.8 x 8.3 inches',  price: 380, originalPrice: origPrice(380) },
       { name: 'A4', tier: 'Premium',  dimensions: '8.3 x 11.7 inches', price: 620, originalPrice: origPrice(620) },
-      { name: 'A3', tier: 'Premium',  dimensions: '11.7 x 16.5 inches',price: 950, originalPrice: origPrice(950) },
+      { name: 'A3', tier: 'Premium',  dimensions: '11.7 x 16.5 inches',price: 980, originalPrice: origPrice(980) },
     ];
 
     // basePrice = lowest Standard price (A5 Standard)
