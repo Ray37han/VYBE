@@ -87,6 +87,7 @@ export default function Products() {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchTimerRef = useRef(null);
+  const searchDebounceRef = useRef(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -184,11 +185,13 @@ export default function Products() {
       let response;
       if (params.search) {
         // Use dedicated search endpoint for better results
+        // Don't send sort='mixed' to the search endpoint — let it use relevance sorting
+        const searchSort = params.sort === 'mixed' ? undefined : params.sort;
         response = await productsAPI.search({
           q: params.search,
           page: params.page,
           limit: params.limit,
-          sort: params.sort,
+          sort: searchSort,
           category: params.category,
           tag: params.tag,
           minPrice: params.minPrice,
@@ -404,9 +407,21 @@ export default function Products() {
                       const val = e.target.value;
                       setFilters(prev => ({ ...prev, search: val }));
                       fetchSuggestions(val);
+                      // Debounced auto-search: triggers after user stops typing for 500ms
+                      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+                      if (val.trim()) {
+                        searchDebounceRef.current = setTimeout(() => {
+                          handleFilterChange('search', val);
+                        }, 500);
+                      } else {
+                        // If cleared, immediately reset
+                        handleFilterChange('search', '');
+                      }
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
+                        // Cancel debounce timer and search immediately
+                        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
                         setShowSuggestions(false);
                         handleFilterChange('search', filters.search);
                       }

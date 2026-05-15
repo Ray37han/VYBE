@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiHome, FiEdit, FiMoon, FiSun, FiChevronDown } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiPackage, FiHome, FiEdit, FiMoon, FiSun, FiChevronDown, FiSearch } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore, useCartStore } from '../store';
-import { authAPI } from '../api';
+import { authAPI, productsAPI } from '../api';
 import { CartButton, MenuButton } from '../components/AnimatedIcon';
 import { usePageLoad } from '../hooks/usePageLoad';
 import toast from 'react-hot-toast';
@@ -32,6 +32,75 @@ export default function NavbarOptimized() {
   
   // CRITICAL: Wait for page load before animating
   const isLoaded = usePageLoad(500);
+
+  // ── Search state ──
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const searchTimerRef = useRef(null);
+  const searchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
+
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target) &&
+          mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+        setShowSearchSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Debounced search suggestions from server
+  const fetchSuggestions = useCallback((query) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (!query || query.trim().length < 2) {
+      setSearchSuggestions([]);
+      setShowSearchSuggestions(false);
+      return;
+    }
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await productsAPI.searchSuggestions(query.trim());
+        setSearchSuggestions(res.data || []);
+        setShowSearchSuggestions(true);
+      } catch {
+        setShowSearchSuggestions(false);
+      }
+    }, 250);
+  }, []);
+
+  const handleSearchSubmit = (q) => {
+    const term = (q || searchQuery).trim();
+    if (!term) return;
+    setShowSearchSuggestions(false);
+    setSearchQuery('');
+    setMobileSearchOpen(false);
+    setMobileMenuOpen(false);
+    navigate(`/products?search=${encodeURIComponent(term)}`);
+  };
+
+  const handleSuggestionClick = (product) => {
+    setShowSearchSuggestions(false);
+    setSearchQuery('');
+    setMobileSearchOpen(false);
+    setMobileMenuOpen(false);
+    navigate(`/products/${product._id}`);
+  };
+
+  const cleanProductName = (name) => {
+    if (!name) return '';
+    return name
+      .replace(/\s*\|\|\s*#\d+/g, '')
+      .replace(/\s*#\d+$/g, '')
+      .replace(/\s*\(\d+\)$/g, '')
+      .replace(/\s*-\s*\d+$/g, '')
+      .replace(/^\d+\.\s*/g, '')
+      .trim();
+  };
 
   // Theme management
   useEffect(() => {
@@ -323,6 +392,91 @@ export default function NavbarOptimized() {
               )}
             </div>
 
+            {/* Search Bar — Desktop */}
+            <div className={`relative ${isLoaded ? 'navbar-item-enter' : ''}`} ref={searchRef}>
+              <div className="relative">
+                <FiSearch className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-colors ${
+                  darkMode ? 'text-moon-gold/60' : 'text-purple-400'
+                }`} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    fetchSuggestions(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSearchSubmit();
+                    if (e.key === 'Escape') {
+                      setShowSearchSuggestions(false);
+                      e.target.blur();
+                    }
+                  }}
+                  onFocus={() => searchQuery.length >= 2 && searchSuggestions.length > 0 && setShowSearchSuggestions(true)}
+                  placeholder="Search posters..."
+                  className={`w-40 lg:w-52 pl-9 pr-8 py-2 text-sm rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2 ${
+                    darkMode
+                      ? 'bg-moon-midnight/50 border-moon-gold/20 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold focus:ring-moon-gold/20'
+                      : 'bg-white border-purple-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-purple-200'
+                  }`}
+                  style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(''); setSearchSuggestions([]); setShowSearchSuggestions(false); }}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded transition-colors ${
+                      darkMode ? 'hover:bg-moon-gold/20 text-moon-gold/60' : 'hover:bg-purple-100 text-purple-400'
+                    }`}
+                  >
+                    <FiX className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Suggestions Dropdown */}
+              {showSearchSuggestions && searchSuggestions.length > 0 && (
+                <div className={`absolute top-full left-0 right-0 mt-2 rounded-xl shadow-2xl border overflow-hidden z-[100] gpu-safe ${
+                  darkMode
+                    ? 'bg-moon-midnight/95 border-moon-gold/30'
+                    : 'bg-white border-purple-200'
+                }`} style={{ minWidth: '280px' }}>
+                  <div className="max-h-80 overflow-y-auto">
+                    {searchSuggestions.map((product) => (
+                      <button
+                        key={product._id}
+                        onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(product); }}
+                        className={`w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors ${
+                          darkMode ? 'hover:bg-moon-gold/10 text-moon-silver' : 'hover:bg-purple-50 text-gray-700'
+                        }`}
+                      >
+                        {product.thumbnail && (
+                          <img src={product.thumbnail} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" loading="lazy" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">{cleanProductName(product.name)}</div>
+                          <div className={`text-xs ${darkMode ? 'text-moon-silver/50' : 'text-gray-400'}`}>{product.category}</div>
+                        </div>
+                        {product.basePrice && (
+                          <span className={`text-sm font-bold flex-shrink-0 ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>৳{product.basePrice}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {/* View All Results */}
+                  <button
+                    onMouseDown={(e) => { e.preventDefault(); handleSearchSubmit(); }}
+                    className={`w-full text-center py-2.5 text-xs font-bold uppercase tracking-wider border-t transition-colors ${
+                      darkMode
+                        ? 'border-moon-gold/20 text-moon-gold hover:bg-moon-gold/10'
+                        : 'border-purple-200 text-purple-600 hover:bg-purple-50'
+                    }`}
+                  >
+                    View All Results →
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className={isLoaded ? 'navbar-item-enter' : ''}>
               <NavLink to="/customize" icon={FiEdit} darkMode={darkMode}>Customize</NavLink>
             </div>
@@ -527,6 +681,83 @@ export default function NavbarOptimized() {
               }`}
             >
               <div className="px-4 py-4 space-y-2">
+                {/* Mobile Search Bar */}
+                <div className="relative mb-2" ref={mobileSearchRef}>
+                  <FiSearch className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none ${
+                    darkMode ? 'text-moon-gold/60' : 'text-purple-400'
+                  }`} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      fetchSuggestions(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSearchSubmit();
+                    }}
+                    onFocus={() => searchQuery.length >= 2 && searchSuggestions.length > 0 && setShowSearchSuggestions(true)}
+                    placeholder="Search posters by name, type..."
+                    className={`w-full pl-9 pr-9 py-3 min-h-[48px] text-sm rounded-xl border transition-all focus:outline-none focus:ring-2 ${
+                      darkMode
+                        ? 'bg-moon-night/50 border-moon-gold/20 text-moon-silver placeholder-moon-silver/40 focus:border-moon-gold focus:ring-moon-gold/20'
+                        : 'bg-white border-purple-200 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-purple-200'
+                    }`}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => { setSearchQuery(''); setSearchSuggestions([]); setShowSearchSuggestions(false); }}
+                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded transition-colors ${
+                        darkMode ? 'hover:bg-moon-gold/20 text-moon-gold/60' : 'hover:bg-purple-100 text-purple-400'
+                      }`}
+                    >
+                      <FiX className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {/* Mobile Suggestions Dropdown */}
+                  {showSearchSuggestions && searchSuggestions.length > 0 && (
+                    <div className={`absolute top-full left-0 right-0 mt-1 rounded-xl shadow-2xl border overflow-hidden z-[100] ${
+                      darkMode
+                        ? 'bg-moon-midnight border-moon-gold/30'
+                        : 'bg-white border-purple-200'
+                    }`}>
+                      <div className="max-h-60 overflow-y-auto">
+                        {searchSuggestions.map((product) => (
+                          <button
+                            key={product._id}
+                            onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(product); }}
+                            className={`w-full text-left px-4 py-2.5 flex items-center gap-3 transition-colors ${
+                              darkMode ? 'hover:bg-moon-gold/10 text-moon-silver' : 'hover:bg-purple-50 text-gray-700'
+                            }`}
+                          >
+                            {product.thumbnail && (
+                              <img src={product.thumbnail} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" loading="lazy" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium truncate">{cleanProductName(product.name)}</div>
+                              <div className={`text-xs ${darkMode ? 'text-moon-silver/50' : 'text-gray-400'}`}>{product.category}</div>
+                            </div>
+                            {product.basePrice && (
+                              <span className={`text-sm font-bold flex-shrink-0 ${darkMode ? 'text-moon-gold' : 'text-purple-600'}`}>৳{product.basePrice}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        onMouseDown={(e) => { e.preventDefault(); handleSearchSubmit(); }}
+                        className={`w-full text-center py-2.5 text-xs font-bold uppercase tracking-wider border-t transition-colors ${
+                          darkMode
+                            ? 'border-moon-gold/20 text-moon-gold hover:bg-moon-gold/10'
+                            : 'border-purple-200 text-purple-600 hover:bg-purple-50'
+                        }`}
+                      >
+                        View All Results →
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <MobileNavLink to="/" icon={FiHome} darkMode={darkMode} onClick={() => setMobileMenuOpen(false)}>
                   Home
                 </MobileNavLink>

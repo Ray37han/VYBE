@@ -71,8 +71,33 @@ router.get('/', cacheMiddleware(CACHE_TTL), async (req, res) => {
       if (maxPrice) query.basePrice.$lte = Number(maxPrice);
     }
     if (search) {
-      // Use text search for exact/stem matching
-      query.$text = { $search: search };
+      // Use multi-field regex for partial matching (names, categories, tags, keywords)
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const searchRegex = new RegExp(escapedSearch, 'i');
+      
+      // If category $or already exists, wrap both conditions with $and
+      const searchOr = [
+        { normalizedName: { $regex: searchRegex } },
+        { name: { $regex: searchRegex } },
+        { normalizedCategory: { $regex: searchRegex } },
+        { normalizedTags: { $regex: searchRegex } },
+        { searchKeywords: { $regex: searchRegex } },
+        { category: { $regex: searchRegex } },
+        { tags: { $regex: searchRegex } },
+        { description: { $regex: searchRegex } },
+      ];
+      
+      if (query.$or) {
+        // Category filter already set $or — combine with $and
+        const categoryOr = query.$or;
+        delete query.$or;
+        query.$and = [
+          { $or: categoryOr },
+          { $or: searchOr },
+        ];
+      } else {
+        query.$or = searchOr;
+      }
     }
 
     // Parse pagination params (supports both legacy sortBy/order and new sort=price_asc)
@@ -233,7 +258,7 @@ router.get('/search/query', cacheMiddleware(CACHE_TTL), async (req, res) => {
         },
       },
       // Sort by relevance first, then by user-selected sort
-      { $sort: { relevanceScore: -1, ...sort } },
+      { $sort: { relevanceScore: -1, ...(typeof sort === 'object' ? sort : { createdAt: -1 }) } },
       // Project out the score field and reviews
       {
         $facet: {
